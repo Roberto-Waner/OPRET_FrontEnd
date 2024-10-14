@@ -1,6 +1,0 @@
-Database first approach
-
-Scaffold-DbContext {-Connection-string-in-quotations-} Microsoft.EntityFrameWorkCore.SqlServer -outputdir Repository/Models -context {-databasename-}DbContext -contextdir Repository -DataAnnotations -Force
-
-por ejemplo: 
-PM> Scaffold-DbContext -Connection Name=DBConnection Microsoft.EntityFrameWorkCore.SqlServer -outputdir Repository/Models -context FormEncuestaDbContext -contextdir Repository -DataAnnotations -Force
