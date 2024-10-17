@@ -6,8 +6,6 @@ import 'package:formulario_opret/screens/interfaz_User/Empleado_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/administrador_screen.dart';
 import 'package:formulario_opret/screens/interfaz_User/form_Encuesta_Screen.dart';
 import 'package:formulario_opret/screens/interfaz_User/pregunta_Encuesta_Screen.dart';
-// import 'package:formulario_opret/screens/interfaz_User/formEncuesta_screen.dart';
-// import 'package:formulario_opret/screens/interfaz_User/pregunta_Encuesta_Screen.dart';
 import 'package:formulario_opret/screens/login_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/registro_Empldo.dart';
 import 'package:formulario_opret/screens/new_User.dart';
@@ -123,7 +121,7 @@ class MyApp extends StatelessWidget {
         )
       },
 
-      initialRoute: 'login',
+      initialRoute: 'FormularioEncuesta',
     );
   }
 }

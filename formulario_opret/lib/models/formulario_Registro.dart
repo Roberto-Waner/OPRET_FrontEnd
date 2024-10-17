@@ -6,8 +6,8 @@ class FormularioRegistro {
   String cedula;
   String? fecha;
   String? hora;
-  String? estacion;
-  String? linea;
+  int? idEstacion;
+  String? idLinea;
 
   FormularioRegistro({
     required this.noEncuesta,
@@ -15,8 +15,8 @@ class FormularioRegistro {
     required this.cedula,
     this.fecha,
     this.hora,
-    this.estacion,
-    this.linea
+    this.idEstacion,
+    this.idLinea
   });
 
   factory FormularioRegistro.fromJson(Map<String, dynamic> json) {
@@ -26,8 +26,8 @@ class FormularioRegistro {
       cedula: json['cedula'],
       fecha: json['fecha'],
       hora: json['hora'],
-      estacion: json['estacion'],
-      linea: json['linea'],
+      idEstacion: json['idEstacion'],
+      idLinea: json['idLinea'],
     );
   }
 
@@ -38,8 +38,64 @@ class FormularioRegistro {
     data['cedula'] = cedula;
     data['fecha'] = fecha;
     data['hora'] = hora;
-    data['estacion'] = estacion;
-    data['linea'] = linea;
+    data['idEstacion'] = idEstacion;
+    data['idLinea'] = idLinea;
+    return data;
+  }
+}
+
+class Linea {
+  String idLinea;
+  String tipo;
+  String nombreLinea;
+
+  Linea({
+    required this.idLinea,
+    required this.tipo,
+    required this.nombreLinea
+  });
+
+  factory Linea.fromJson(Map<String, dynamic> json) {
+    return Linea(
+      idLinea: json['idLinea'],
+      tipo: json['tipoLinea'],
+      nombreLinea: json['nombreLinea'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['idLinea'] = idLinea;
+    data['tipoLinea'] = tipo;
+    data['nombreLinea'] = nombreLinea;
+    return data;
+  }
+}
+
+class Estacion {
+  int idEstacion;
+  String idLinea;
+  String nombreEstacion;
+
+  Estacion({
+    required this.idEstacion,
+    required this.idLinea,
+    required this.nombreEstacion
+  });
+
+  factory Estacion.fromJson(Map<String, dynamic> json) {
+    return Estacion(
+      idEstacion: json['idEstacion'],
+      idLinea: json['idLinea'],
+      nombreEstacion: json['nombreEstacion'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['idEstacion'] = idEstacion;
+    data['idLinea'] = idLinea;
+    data['nombreEstacion'] = nombreEstacion;
     return data;
   }
 }

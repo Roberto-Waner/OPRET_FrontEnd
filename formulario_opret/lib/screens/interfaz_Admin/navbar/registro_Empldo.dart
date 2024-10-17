@@ -27,7 +27,7 @@ class RegistroEmpl extends StatefulWidget {
 }
 
 class _RegistroEmplState extends State<RegistroEmpl> {
-  final ApiService _apiService = ApiService('https://10.0.2.2:7128'); // Cambia por tu URL
+  final ApiService _apiService = ApiService('https://10.0.2.2:7190'); // Cambia por tu URL
   late Future<List<Usuarios>> _usuariosdata;
   final TextEditingController datePicker = TextEditingController();
   DateTime? _selectedDate;
@@ -390,7 +390,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
                   // Llamar al servicio para crear el usuario
                   try {
-                    final response = await ApiService('https://10.0.2.2:7128')
+                    final response = await ApiService('https://10.0.2.2:7190')
                         .createUsuarios(nuevoUsuario);
                     if (response.statusCode == 201) {
                       print('Usuario creado con éxito');
@@ -583,7 +583,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
                   // Llamar al servicio para actualizar el usuario
                   try {
-                    final response = await ApiService('https://10.0.2.2:7128')
+                    final response = await ApiService('https://10.0.2.2:7190')
                         .updateUsuario(userUpload.idUsuarios, usuarioActualizado);
                     if (response.statusCode == 204) {
                       print('Usuario actualizado con éxito');

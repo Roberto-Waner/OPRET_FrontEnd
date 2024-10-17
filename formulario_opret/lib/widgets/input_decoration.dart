@@ -5,7 +5,8 @@ class InputDecorations {
     required String labeltext,
     Widget? icono,
     double labelFrontSize = 16.0, // Tamaño de letra por defecto
-    double hintFrontSize = 16.0 // Tamaño de letra por defecto
+    double hintFrontSize = 16.0, // Tamaño de letra por defecto
+    String? prefixText // Añadir prefixText
   }) {
     return InputDecoration(
       enabledBorder: const UnderlineInputBorder(
@@ -20,6 +21,7 @@ class InputDecorations {
       hintText: hintext,
       labelText: labeltext,
       prefixIcon: icono,
+      prefixText: prefixText, // Añadir prefixText aquí
       labelStyle: TextStyle(fontSize: labelFrontSize), // Cambiar tamaño de letra
       hintStyle: TextStyle(fontSize: hintFrontSize), // Cambiar tamaño de letra
     );

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_preguntasCompleta.dart';
-import 'package:formulario_opret/models/pregunta.dart';
 import 'package:formulario_opret/models/respuesta.dart';
 import 'package:formulario_opret/screens/interfaz_User/navbarUser/navbar_Empl.dart';
 import 'package:formulario_opret/services/pregunta_services.dart';
 import 'package:formulario_opret/services/respuestas_services.dart';
+import 'package:formulario_opret/widgets/input_decoration.dart';
 
 class PreguntaEncuestaScreen extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
@@ -62,143 +62,137 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
 
       body: dataQuestion.isEmpty
         ? const Center(child: CircularProgressIndicator())
-        : Padding(
-            padding: const EdgeInsets.all(28.0),
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: dataQuestion.length,
-              physics: const NeverScrollableScrollPhysics(), // Evita conflictos de desplazamiento
-              itemBuilder: (BuildContext context, int index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isExpandedList[index] = !_isExpandedList[index];
-                    });
-                  },
-                  child: Card(
-                    elevation: 3,//para elevar hacia delante los cuadros de la preguntas
-                    margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      height: _isExpandedList[index] ? null : 175, // Altura cambiable
-                      child: Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: 'Numero de la pregunta: ',
-                                      style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                    ),
-                                    TextSpan(
-                                      text: '${dataQuestion[index].sp_CodPregunta}',
-                                      style: const TextStyle(fontSize: 35.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                    )
-                                  ]
-                                )
-                              ),
-                              const SizedBox(height: 10),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: '- Respuesta que solo recibe es: ',
-                                      style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                    ),
-                                    TextSpan(
-                                      text: dataQuestion[index].sp_TipoRespuesta,
-                                      style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                    )
-                                  ]
-                                )
-                              ),
-                              const SizedBox(height: 15),
-                              RichText(
-                                text: TextSpan(
-                                  children: [
-                                    const TextSpan(
-                                      text: '- Pregunta: ',
-                                      style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                    ),
-                                    TextSpan(
-                                      text: dataQuestion[index].sp_Pregunta,
-                                      style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                    )
-                                  ]
-                                )
-                              ),
-                              const SizedBox(height: 15),
-                              if (dataQuestion[index].sp_SubPregunta != null)
+        : SingleChildScrollView(
+          child: Padding(
+              padding: const EdgeInsets.all(28.0),
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: dataQuestion.length,
+                physics: const NeverScrollableScrollPhysics(), // Evita conflictos de desplazamiento
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isExpandedList[index] = !_isExpandedList[index];
+                      });
+                    },
+                    child: Card(
+                      elevation: 3,//para elevar hacia delante los cuadros de la preguntas
+                      margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                        height: _isExpandedList[index] ? null : 175, // Altura cambiable
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 RichText(
                                   text: TextSpan(
                                     children: [
                                       const TextSpan(
-                                        text: '-- Sub-Pregunta: ',
-                                        style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                        text: 'Numero de la pregunta: ',
+                                        style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                                       ),
                                       TextSpan(
-                                        text: dataQuestion[index].sp_SubPregunta,
-                                        style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                        text: '${dataQuestion[index].sp_CodPregunta}',
+                                        style: const TextStyle(fontSize: 35.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                       )
                                     ]
                                   )
                                 ),
-                              const SizedBox(height: 5),
-                              if (dataQuestion[index].sp_Rango != null)
+                                const SizedBox(height: 10),
                                 RichText(
                                   text: TextSpan(
                                     children: [
                                       const TextSpan(
-                                        text: '- Rango Determinado: \n    ',
-                                        style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                        text: '- Respuesta que solo recibe es: ',
+                                        style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                                       ),
                                       TextSpan(
-                                        text: dataQuestion[index].sp_Rango,
-                                        style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                        text: dataQuestion[index].sp_TipoRespuesta,
+                                        style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                       )
                                     ]
                                   )
                                 ),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    _showPreguntaDialog(dataQuestion[index]); // Muestra el diálogo al hacer clic
-                                  },
-                                  child: const Text('Responder.', style: TextStyle(fontSize: 26.0)),
+                                const SizedBox(height: 15),
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                        text: '- Pregunta: ',
+                                        style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                      ),
+                                      TextSpan(
+                                        text: dataQuestion[index].sp_Pregunta,
+                                        style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                      )
+                                    ]
+                                  )
                                 ),
-                              ),
-                            ]
+                                const SizedBox(height: 15),
+                                if (dataQuestion[index].sp_SubPregunta != null)
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        const TextSpan(
+                                          text: '-- Sub-Pregunta: ',
+                                          style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                        ),
+                                        TextSpan(
+                                          text: dataQuestion[index].sp_SubPregunta,
+                                          style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                        )
+                                      ]
+                                    )
+                                  ),
+                                const SizedBox(height: 5),
+                                if (dataQuestion[index].sp_Rango != null)
+                                  RichText(
+                                    text: TextSpan(
+                                      children: [
+                                        const TextSpan(
+                                          text: '- Rango Determinado: \n    ',
+                                          style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                        ),
+                                        TextSpan(
+                                          text: dataQuestion[index].sp_Rango,
+                                          style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                        )
+                                      ]
+                                    )
+                                  ),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      _showPreguntaDialog(dataQuestion[index]); // Muestra el diálogo al hacer clic
+                                    },
+                                    child: const Text('Responder.', style: TextStyle(fontSize: 26.0)),
+                                  ),
+                                ),
+                              ]
+                            ),
                           ),
                         ),
-                        // leading: Text("No. ${dataQuestion[index].sp_CodPregunta}", style: const TextStyle(fontSize: 30.0),),
-                        // title: Text('Pregunta. \n${dataQuestion[index].sp_Pregunta}',style: const TextStyle(fontSize: 30.0),),
-                        // subtitle: Text('Sub-Pregunta. \n${dataQuestion[index].sp_SubPregunta}' ?? '',style: const TextStyle(fontSize: 30.0)),
-                        // trailing: Text('Rango determinado. \n${dataQuestion[index].sp_Rango}' ?? '',style: const TextStyle(fontSize: 30.0)),
-                        // // trailing: Text(dataQuestion[index].sp_Rango ?? '',style: const TextStyle(fontSize: 30.0)),
-                        // onTap: () {
-                        //   _showPreguntaDialog(dataQuestion[index]); // Muestra el diálogo al hacer clic
-                        // },
                       ),
                     ),
-                  ),
-                );
-              },
-            )
+                  );
+                },
+              )
+          ),
         ),
     );
   }
 
   void _showPreguntaDialog(SpPreguntascompleta question) {
-    String? selectedResponse;
+    String? selectedResponse = question.sp_TipoRespuesta;
 
     showDialog(
       context: context, 
@@ -207,98 +201,241 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
           builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: Text('Pregunta No: ${question.sp_CodPregunta}. ${question.sp_Pregunta}', style: const TextStyle(fontSize: 30.0)),
-              content: FormBuilder(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // if (dataQuestion[index].sp_TipoRespuesta == '')
-                    /*
-                    FormBuilderDropdown<String>(
-                      name: 'tipoRespuesta',
-                      decoration: const InputDecoration(
-                        labelText: 'Responder esta pregunta con:',
-                          labelStyle: TextStyle(fontSize: 30.0)
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: 'Abierta',
-                          child: Text('Respuesta-Abierta', style: TextStyle(fontSize: 30.0))
+              content: Container(
+                margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),  // Aplica margen
+                width: 1500,
+                child: FormBuilder(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Determina el tipo de respuesta y muestra el widget adecuado segun el tipo Respuesta de la tabla sesion
+                      if (question.sp_TipoRespuesta == 'Respuesta Abierta')
+                        FormBuilderTextField(
+                          name: 'respuesta_Abierta',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Escribe tu respuesta',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.notes, size: 30.0)
+                          ),
+                          // validator: FormBuilderValidators.compose([
+                          //   FormBuilderValidators.required(),
+                          // ]),
                         ),
-                        DropdownMenuItem(
-                          value: 'SiNoNA',
-                          child: Text('Selecionar: Si, No, N/A', style: TextStyle(fontSize: 30.0)),
+                      
+                      if(question.sp_TipoRespuesta == 'Selecionar: Si, No, N/A')
+                        FormBuilderDropdown<String>(
+                          name: 'respuesta_SiNoNA',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Selecionar: Si, No, N/A',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.check_circle, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'Si', child: Text('Si')),
+                            DropdownMenuItem(value: 'No', child: Text('No')),
+                            DropdownMenuItem(value: 'N/A', child: Text('N/A')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                         ),
-                        DropdownMenuItem(
-                          value: 'Calificacion',
-                          child: Text('Calific. 1 a 10', style: TextStyle(fontSize: 30.0)),
-                        )
-                      ],
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedResponse = newValue;
-                        });
-                      },
-                    ),
-
-                    // En caso de selecionar respuesta abierta
-                    if (selectedResponse == 'Abierta')
+                
+                      if(question.sp_TipoRespuesta == 'Calificar del 1 a 10')
+                        FormBuilderDropdown<int>(
+                          name: 'respuesta_Calificacion',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Calific. 1 a 10',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.numbers, size: 30.0)
+                          ),
+                          items: List.generate(10, (index) {
+                            return DropdownMenuItem(
+                              value: index + 1,
+                              child: Text('${index + 1}'),
+                            );
+                          }),
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Solo SI o No')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Si-No',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Seleciona solo Si o No',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.check, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'Si', child: Text('Si')),
+                            DropdownMenuItem(value: 'No', child: Text('No')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Edad')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Edad',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige la Edad',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'Menor 15', child: Text('Menor 10')),
+                            DropdownMenuItem(value: '15 - 20', child: Text('15 - 20')),
+                            DropdownMenuItem(value: '21 - 25', child: Text('21 - 25')),
+                            DropdownMenuItem(value: '26 - 30', child: Text('26 - 30')),
+                            DropdownMenuItem(value: '31 - 35', child: Text('31 - 35')),
+                            DropdownMenuItem(value: '36 - 40', child: Text('36 - 40')),
+                            DropdownMenuItem(value: '41 - 45', child: Text('41 - 45')),
+                            DropdownMenuItem(value: '46 - 50', child: Text('46 - 50')),
+                            DropdownMenuItem(value: '51 o Mas', child: Text('51 o Mas')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Nacionalidad')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Nacionalidad',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige la Nacionalidad',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.boy_rounded, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'DOMINICANO', child: Text('DOMINICANO')),
+                            DropdownMenuItem(value: 'EXTRANJERO RESIDENTE', child: Text('EXTRANJERO RESIDENTE')),
+                            DropdownMenuItem(value: 'EXTRANJERO TURISTA', child: Text('EXTRANJERO TURISTA')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Título de transporte')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Títransporte',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige el Título de transporte',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.credit_card, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'TARJETAR REUSABLE (PLASTICO)', child: Text('TARJETAR REUSABLE (PLASTICO)')),
+                            DropdownMenuItem(value: 'TARJETA DESECHABLE (CARTON)', child: Text('TARJETA DESECHABLE (CARTON)'))
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Producto utilizado')
+                        FormBuilderDropdown(
+                          name: 'respuesta_ProdUtilizado',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige el Producto utilizado',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.monetization_on_outlined, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'MONEDERO', child: Text('MONEDERO')),
+                            DropdownMenuItem(value: 'Multi-10', child: Text('Multi-10')),
+                            DropdownMenuItem(value: 'Multi-20', child: Text('Multi-20')),
+                            DropdownMenuItem(value: 'Viaje-Dia', child: Text('Viaje-Dia')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Genero')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Genero',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige el Genero',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.wc_rounded, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'Masculino', child: Text('Masculino')),
+                            DropdownMenuItem(value: 'Femenino', child: Text('Femenino'))
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Frecuencia de viajes por semana')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Frecuencia',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige la Frecuencia de viajes por semana',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.airplanemode_active, size: 30.0)
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: '0 - 4', child: Text('0 - 4')),
+                            DropdownMenuItem(value: '5 - 8', child: Text('5 - 8')),
+                            DropdownMenuItem(value: '9 - 12', child: Text('9 - 12')),
+                            DropdownMenuItem(value: '13 - 16', child: Text('13 - 16')),
+                            DropdownMenuItem(value: '17 o Mas', child: Text('17 o Mas')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Expectativa del pasajero')
+                        FormBuilderDropdown(
+                          name: 'respuesta_Expectativa',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Elige la Expectativa del pasajero',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 'NADA', child: Text('NADA')),
+                            DropdownMenuItem(value: 'ALGO', child: Text('ALGO')),
+                            DropdownMenuItem(value: 'BASTANTE', child: Text('BASTANTE')),
+                            DropdownMenuItem(value: 'MUCHO', child: Text('MUCHO')),
+                          ],
+                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                        ),
+                
+                      if(question.sp_TipoRespuesta == 'Conclusion')
+                        FormBuilderTextField(
+                          name: 'respuesta_Conclusion',
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Escribe la Conclusion (Opcional)',
+                            labelFrontSize: 20.0,
+                            hintFrontSize: 20.0,
+                            icono: const Icon(Icons.notes, size: 30.0)
+                          )
+                        ),
+                      
                       FormBuilderTextField(
-                        name: 'respuestaAbierta',
-                        decoration: const InputDecoration(
-                          labelText: 'Escribe tu respuesta',
-                          labelStyle: TextStyle(fontSize: 20.0)
+                        name: 'comentarios',
+                        decoration: InputDecorations.inputDecoration(
+                          labeltext: 'Escribe tu comentarios aqui. (Opcional)',
+                          labelFrontSize: 20.0,
+                          hintext: ' ',
+                          hintFrontSize: 20.0,
+                          icono: const Icon(Icons.notes, size: 30.0)
                         ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
                       ),
-                    
-                    // En caso de selecionar Selecion de Si, No o N/A
-                    if (selectedResponse == 'SiNoNA')
-                      FormBuilderDropdown<String>(
-                        name: 'respuestaSiNoNA',
-                        decoration: const InputDecoration(
-                          labelText: 'Selecionar: Si, No, N/A',
-                          labelStyle: TextStyle(fontSize: 20.0)
+
+                      FormBuilderTextField(
+                        name: 'justificacion',
+                        decoration: InputDecorations.inputDecoration(
+                          labeltext: 'Justifique su respuesta (Opcional)',
+                          labelFrontSize: 20.0,
+                          hintext: ' ',
+                          hintFrontSize: 20.0,
+                          icono: const Icon(Icons.notes, size: 30.0)
                         ),
-                        items: const [
-                          DropdownMenuItem(value: 'Si', child: Text('Si')),
-                          DropdownMenuItem(value: 'No', child: Text('No')),
-                          DropdownMenuItem(value: 'N/A', child: Text('N/A')),
-                        ]
                       ),
-                    
-                    // En caso de selecionar Calificar del 1 a 10
-                    if (selectedResponse == 'Calificacion')
-                      FormBuilderDropdown<String>(
-                        name: 'respuestaCalificacion',
-                        decoration: const InputDecoration(
-                          labelText: 'Calific. 1 a 10',
-                          labelStyle: TextStyle(fontSize: 20.0)
-                        ),
-                        items: const [
-                          DropdownMenuItem(value: '1', child: Text('1')),
-                          DropdownMenuItem(value: '2', child: Text('2')),
-                          DropdownMenuItem(value: '3', child: Text('3')),
-                          DropdownMenuItem(value: '4', child: Text('4')),
-                          DropdownMenuItem(value: '5', child: Text('5')),
-                          DropdownMenuItem(value: '6', child: Text('6')),
-                          DropdownMenuItem(value: '7', child: Text('7')),
-                          DropdownMenuItem(value: '8', child: Text('8')),
-                          DropdownMenuItem(value: '9', child: Text('9')),
-                          DropdownMenuItem(value: '10', child: Text('10')),
-                        ]
-                        // items: List.generate(10, (index) {
-                        //   return DropdownMenuItem(
-                        //     value: index + 1,
-                        //     child: Text('${index + 1}'),
-                        //   );
-                        // })
-                      )
-                      */
-                  ],
-                )
+                    ],
+                  )
+                ),
               ),
               actions: <Widget>[
                 TextButton(
@@ -323,8 +460,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                   onPressed: () {
                     if (_formKey.currentState?.saveAndValidate() ?? false) {
                       final responseForm = _formKey.currentState!.value;
-                      // _saveRespuesta(question, responseForm);
-                      // _finalizarEncuesta();
+                      _saveRespuesta(question, responseForm);
                       Navigator.of(context).pop();
                     }
                   }, 
@@ -339,15 +475,24 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
   }
 
   // Guardar respuesta en la API
-  void _saveRespuesta(Preguntas question, Map<String, dynamic> respuestaForm) async {
+  void _saveRespuesta(SpPreguntascompleta question, Map<String, dynamic> responseForm) async {
     // Verificamos si el formulario es válido antes de guardar
     if (_formKey.currentState!.saveAndValidate()){
       final dataAnswer = _formKey.currentState!.value;
 
       // Determinamos el tipo de respuesta ingresada por el usuario
-      final String? respuestaFinal = dataAnswer['respuestaAbierta'] ??
-                                      dataAnswer['respuestaSiNoNA'] ??
-                                      dataAnswer['respuestaCalificacion'];
+      final String? respuestaFinal = dataAnswer['respuesta_Abierta'] ??
+                                      dataAnswer['respuesta_SiNoNA'] ??
+                                      dataAnswer['respuesta_Calificacion'] ??
+                                      dataAnswer['respuesta_Si-No'] ??
+                                      dataAnswer['respuesta_Edad'] ??
+                                      dataAnswer['respuesta_Nacionalidad'] ??
+                                      dataAnswer['respuesta_Títransporte'] ??
+                                      dataAnswer['respuesta_ProdUtilizado'] ??
+                                      dataAnswer['respuesta_Genero'] ??
+                                      dataAnswer['respuesta_Frecuencia'] ??
+                                      dataAnswer['respuesta_Expectativa'] ??
+                                      dataAnswer['respuesta_Conclusion'];
 
       // Verificamos que exista alguna respuesta válida
       if(respuestaFinal == null || respuestaFinal.isEmpty) {
@@ -359,12 +504,10 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
 
       // Creamos el objeto `Respuesta` con los datos recopilados
       Respuesta nuevaRespuesta = Respuesta(
-        // idRespuesta: int.parse(dataAnswer['idRespuesta']),
         idUsuarios: widget.filtrarId.text, // ID del usuario
         noEncuesta: widget.noEncuestaFiltrar.text, // Identificador de la encuesta
-        codPregunta: question.codPregunta,
+        codPregunta: question.sp_CodPregunta,
         respuestas: respuestaFinal,
-        // respuestas: dataAnswer['tipoRespuesta'],
         valoracion: dataAnswer['valoracion'],
         comentarios: dataAnswer['comentarios'],
         justificacion: dataAnswer['justificacion']
@@ -380,6 +523,8 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Respuesta guardada con éxito'))
           );
+
+          _finalizarEncuesta();
         }else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error al guardar la respuesta: ${response.reasonPhrase}'))

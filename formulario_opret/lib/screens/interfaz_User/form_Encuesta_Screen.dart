@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:formulario_opret/models/Stored%20Procedure/sp_ObtenerEstacionPorLinea.dart';
 import 'package:formulario_opret/models/formulario_Registro.dart';
 import 'package:formulario_opret/screens/interfaz_User/navbarUser/navbar_Empl.dart';
 import 'package:formulario_opret/screens/interfaz_User/pregunta_Encuesta_Screen.dart';
+import 'package:formulario_opret/services/estacion_services.dart';
 import 'package:formulario_opret/services/form_Registro_services.dart';
+import 'package:formulario_opret/services/linea_services.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
 import 'package:intl/intl.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class FormEncuestaScreen extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
@@ -31,38 +32,56 @@ class FormEncuestaScreen extends StatefulWidget {
 class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   final ApiServiceFormRegistro _apiServiceFormRegistro = ApiServiceFormRegistro('https://10.0.2.2:7190');
+  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('https://10.0.2.2:7190');
+  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('https://10.0.2.2:7190');
   final TextEditingController timePicker = TextEditingController();
   final TextEditingController datePicker = TextEditingController();
   final TextEditingController noEncuestaFiltrar = TextEditingController();
   DateTime? _selectedDate;  // Variable para almacenar la fecha seleccionada.
-  String? _selectLineMetro = 'Linea 1'; // Línea seleccionada
-  String? _selectedStation; // Estación seleccionada
+  String? _selectLineMetro; // Línea seleccionada
+  int? _selectedStation; // Estación seleccionada
+  String year = DateFormat('yyyy').format(DateTime.now()); // Obtener el año actual en el momento del registro
 
-  // Mapa que contiene las estaciones por línea
-  final Map<String, List<String>> estacionesPorLinea = {
-    'Linea 1': [
-      'Mamá Tingó', 'Gregorio Urbano Gilbert', 'Gregorio Luperón', 
-      'José Francisco Peña Gómez', 'Hermanas Mirabal', 'Máximo Gómez', 
-      'Los Taínos', 'Pedro Livio Cedeño', 'Manuel Arturo Peña Batlle', 
-      'Juan Pablo Duarte', 'Juan Bosch', 'Casandra Damirón', 
-      'Joaquín Balaguer', 'Amín Abel', 'Francisco Alberto Caamaño', 
-      'Centro de los Héroes'
-    ],
-    'Linea 2': [
-      'María Montez', 'Pedro Francisco Bonó', 'Ulises F. Espaillat', 
-      'Eduardo Brito', 'Juan Pablo Duarte', 'Francisco Gregorio Billini',
-      'Pedro Mir', 'Freddy Beras Goico', 'Juan Ulises García',
-      'Coronel Rafael Tomas Fernández', 'Mauricio Baez', 'Ramón Cáceres',
-      'Horacio Vásquez', 'Manuel de Jesús Abreu Galvan', 'Eduardo Brito'
-    ],
-    'Linea 2B': [
-      'Ercilia Pepín', 'Rosa Duarte', 'Trina de Moya de Vásquez', 'Concepción Bona'
-    ],
-    'Teleferico': [
-      'Gualey', 'Tres Brazos', 'Sabana Perdida', 'Charles de Gaulle'
-    ]
-  };
+  List<Linea> _lineas = [];
+  List<EstacionPorLinea> _estaciones = [];
 
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try{
+      List<Linea> lineas = await _apiServiceLineas.getLinea();
+
+      setState(() {
+        _lineas = lineas;
+        print('Lineas obtenidas: $_lineas');
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> _fetchEstaciones(String idLinea) async {
+    try {
+      List<EstacionPorLinea> estaciones = await _apiServiceEstacion.getEstacionesPorLinea(idLinea);
+      setState(() {
+        _estaciones = estaciones;
+        for (var estacion in _estaciones) {
+          print('Estación obtenida: idEstacion=${estacion.idEstacion}, nombreEstacion=${estacion.nombreEstacion}');
+        }
+      });
+    } catch (e) {
+      print('Error fetching estaciones: $e');
+    }
+  }
+
+  //método se utiliza para filtrar una lista de objetos Estacion basándose en el idLinea seleccionado. 
+  // List<EstacionPorLinea> _filtrarEstaciones(String? idLinea) {
+  //   if (idLinea == null) return [];
+  //   return _estaciones.where((e) => e.nombreLinea == idLinea).toList();
+  // }
 
   Future<void> _showDatePicker() async {
     final picked = await showDatePicker(
@@ -92,30 +111,18 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
   void _registrarFormEncuesta() async {
     if (_formKey.currentState!.saveAndValidate()) {
       final data = _formKey.currentState!.value;
-
-      // final String? estaciones = data['respuestaLinea_1'] ??
-      //                             data['respuestaLinea_2'] ??
-      //                             data['respuestaLinea_2B'] ??
-      //                             data['respuestaTeleferico'];
+      String surveyNumber = data['noEncuesta'].toString().padLeft(2, '0'); //para hacer que no_encuesta tenga como minimo 2 digitos
+      String concatenarYearId = '$year - $surveyNumber';
 
       FormularioRegistro formEncuesta = FormularioRegistro(
-        noEncuesta: data['noEncuesta'],
-        // idUsuarioEmpl: widget.filtrarId.text,
+        noEncuesta: concatenarYearId,
         idUsuarios: data['idUsuarios'],
-        // cedlEmpleado: widget.filtrarCedula.text,
         cedula: data['cedula'],
         fecha: datePicker.text, // Utiliza la fecha seleccionada
         hora: data['hora'],
-        estacion: _selectedStation,
-        linea: _selectLineMetro
+        idEstacion: _selectedStation,
+        idLinea: _selectLineMetro
       );
-
-      // if(estaciones == null) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text('Por favor selecciona una estación'))
-      //   );
-      //   return; // Detener el flujo si no hay estación seleccionada
-      // }
 
       // Imprimir los datos a enviar para depuración
       print('Datos del formulario: ${formEncuesta.toJson()}');
@@ -179,21 +186,30 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FormBuilderTextField(
-                name: 'noEncuesta',
-                controller: noEncuestaFiltrar,
-                decoration: InputDecorations.inputDecoration(
-                  hintext: '#',
-                  hintFrontSize: 25.0,
-                  labeltext: 'No. de Encuesta',
-                  labelFrontSize: 30.5,
-                  icono: const Icon(Icons.numbers, size: 30.0)
-                ),
-                style: const TextStyle(fontSize: 30.0), // Cambiar tamaño de letra del texto filtrado
-                validator: FormBuilderValidators.required(),
-                onChanged: (val) {
-                  print('Numero seleccionada: $val');
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: FormBuilderTextField(
+                      name: 'noEncuesta',
+                      controller: noEncuestaFiltrar,
+                      decoration: InputDecorations.inputDecoration(
+                        hintext: '#',
+                        hintFrontSize: 25.0,
+                        labeltext: 'No. de Encuesta',
+                        labelFrontSize: 30.5,
+                        prefixText: '$year - ',
+                        icono: const Icon(Icons.numbers, size: 30.0)
+                      ),
+                      style: const TextStyle(fontSize: 30.0), // Cambiar tamaño de letra del texto filtrado
+                      validator: FormBuilderValidators.required(),
+                      onChanged: (val) {
+                        noEncuestaFiltrar.text = '$year - $val';
+                        noEncuestaFiltrar.selection = TextSelection.fromPosition(TextPosition(offset: noEncuestaFiltrar.text.length));
+                        print('Numero seleccionada: $val');
+                      },
+                    ),
+                  )
+                ]
               ),
 
               FormBuilderTextField(
@@ -310,28 +326,30 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                   labelFrontSize: 30.0,
                   hintext: 'Linea 1, 2 ... o Teleferico',
                   hintFrontSize: 22.0,
-                  icono: const Icon(Icons.people_outline_rounded, size: 30.0)
+                  icono: const Icon(Icons.people_outline_rounded, size: 30.0),
                 ),
-                initialValue: 'Linea 1',
-                items: estacionesPorLinea.keys.map((linea) {
+                initialValue: _selectLineMetro,
+                items: _lineas.map((linea) {
                   return DropdownMenuItem(
-                    value: linea,
-                    child: Text(linea, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                    value: linea.idLinea,
+                    child: Text(linea.nombreLinea, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
                   );
                 }).toList(),
                 style: const TextStyle(fontSize: 30.0),
-                onChanged: (value) {
+                onChanged: (value) async {
                   setState(() {
                     _selectLineMetro = value;
                     _selectedStation = null; // Reiniciar estación seleccionada al cambiar de línea
                     print('Línea seleccionada: $_selectLineMetro'); // Depuración
                   });
-                }
-              ),
 
-              // En caso de seleccionar una línea válida
-              if (_selectLineMetro != null && estacionesPorLinea.containsKey(_selectLineMetro))
-                FormBuilderDropdown<String>(
+                  if (value != null) {
+                    await _fetchEstaciones(value);
+                  }
+                },
+              ),
+              if (_selectLineMetro != null)
+                FormBuilderDropdown<int>(
                   name: 'estacion_metro',
                   style: const TextStyle(fontSize: 30.0),
                   decoration: InputDecorations.inputDecoration(
@@ -340,10 +358,10 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                     hintext: '',
                     icono: const Icon(Icons.train_outlined, size: 30.0),
                   ),
-                  items: estacionesPorLinea[_selectLineMetro]!.map((estacion) {
+                  items: _estaciones.map((estacion) {
                     return DropdownMenuItem(
-                      value: estacion,
-                      child: Text(estacion, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                      value: estacion.idEstacion,
+                      child: Text(estacion.nombreEstacion, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -367,7 +385,7 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                 ),
 
                 child: const Text(
-                  'Inicial Encuesta',
+                  'Iniciar Encuesta',
                   style: TextStyle(
                     fontSize: 20, 
                     fontWeight: FontWeight.bold
