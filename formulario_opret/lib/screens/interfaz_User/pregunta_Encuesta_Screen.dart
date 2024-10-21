@@ -508,7 +508,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
         noEncuesta: widget.noEncuestaFiltrar.text, // Identificador de la encuesta
         codPregunta: question.sp_CodPregunta,
         respuestas: respuestaFinal,
-        valoracion: dataAnswer['valoracion'],
+        // valoracion: dataAnswer['valoracion'],
         comentarios: dataAnswer['comentarios'],
         justificacion: dataAnswer['justificacion']
       );

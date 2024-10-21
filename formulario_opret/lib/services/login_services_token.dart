@@ -1,7 +1,8 @@
 import 'dart:convert';
-// import 'dart:ffi';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:formulario_opret/models/login.dart';
+import 'package:formulario_opret/screens/login_Screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,8 +47,44 @@ class ApiServiceToken {
 
   // crear una funcion que permita retornar el estado de la session
 
-   bool isLoggedFuncion(){
+  bool isLoggedFuncion(){
     return isLogged;
+  }
+
+  // Función para cerrar sesión
+
+  Future<void> logout(BuildContext context) async {
+    try{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token != null) {
+        final response = await http.post(
+          Uri.parse('$baseUrl/api/Login/Logout'),
+          headers: {
+            HttpHeaders.authorizationHeader: 'Bearer $token',
+          }
+        ).timeout(const Duration(seconds: 20));
+
+        if (response.statusCode == 200) {
+          await prefs.remove('token');
+          isLogged = false;
+
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()), // Redirige al login
+            (Route<dynamic> route) => false,
+          );
+
+        } else {
+          print('Error al cerrar sesión: ${response.statusCode}');
+        }
+      }
+
+    } catch (e) {
+      print('Error al cerrar sesión: $e');
+      rethrow;
+    }
   }
 
    // funcion logout(){
@@ -55,53 +92,3 @@ class ApiServiceToken {
   //   redireccionar al login page 
   //}
 }
-
-
-
-
-//-------------------------------------Obtener datos del usuario------------------------------------------
-  // Future<void> getCurrentUser(String userId) async {
-  //   if (token == null) return;
-
-  //   try{
-  //     final response = await http.get(
-  //       Uri.parse('$baseUrl/api/UsuariosEmpls/$userId'),
-  //       headers: {
-  //         'Content-Type': 'application/json', 
-  //         'Authorization': 'Bearer $token'
-  //       },
-  //     ).timeout(const Duration(seconds: 20));
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       currentUser = UsuariosEmpl.fromJson(jsonResponse);
-  //     } else {
-  //       print('Failed to get user data: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error occurred: $e');
-  //     rethrow;
-  //   }
-  // }
-
-  // Future<String?> loginUser(LoginEmpleado loginEmpl) async {
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse('$baseUrl/api/UsuariosEmpls/login'),
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode(loginEmpl.toJson()),
-  //     ).timeout(const Duration(seconds: 20));
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       return jsonResponse['result']; // Retorna el JWT
-  //     } else {
-  //       print('Login failed: ${response.statusCode}');
-  //       return null;
-  //     }
-  //   } catch (e) {
-  //     // Manejo de excepciones
-  //     print('Error occurred: $e');
-  //     rethrow;
-  //   }
-  // }

@@ -28,7 +28,7 @@ class RegistroEmpl extends StatefulWidget {
 
 class _RegistroEmplState extends State<RegistroEmpl> {
   final ApiService _apiService = ApiService('https://10.0.2.2:7190'); // Cambia por tu URL
-  late Future<List<Usuarios>> _usuariosdata;
+  late Future<List<ObtenerEmpleados>> _usuariosdata;
   final TextEditingController datePicker = TextEditingController();
   DateTime? _selectedDate;
 
@@ -80,7 +80,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
         filtrarCedula: widget.filtrarCedula,
       ),
       appBar: AppBar(title: const Text('Registro Empleados')),
-      body: FutureBuilder<List<Usuarios>>(
+      body: FutureBuilder<List<ObtenerEmpleados>>(
         future: _usuariosdata,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting){
@@ -103,7 +103,19 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                   DataColumn(label: Text('Rol', style: TextStyle(fontSize: 23.0))),
                   DataColumn(label: Text('Accion', style: TextStyle(fontSize: 23.0)))
                 ], 
-                rows: usuariostabla.map((usuario){
+                rows: usuariostabla.map((obtenerEmpleado){
+                  Usuarios usuario = Usuarios(
+                    idUsuarios: obtenerEmpleado.idUsuarios$,
+                    cedula: obtenerEmpleado.cedula$,
+                    nombreApellido: obtenerEmpleado.nombreApellido$,
+                    usuario1: obtenerEmpleado.usuario$,
+                    email: obtenerEmpleado.email$,
+                    passwords: '',
+                    foto: null,
+                    fechaCreacion: obtenerEmpleado.fechaCreacion$,
+                    rol: obtenerEmpleado.rol$,
+                  );
+
                   return DataRow(
                     cells: [
                       DataCell(Text(usuario.idUsuarios, style: const TextStyle(fontSize: 20.0))),
@@ -113,6 +125,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                       DataCell(Text(usuario.email, style: const TextStyle(fontSize: 20.0))),
                       DataCell(Text(usuario.fechaCreacion, style: const TextStyle(fontSize: 20.0))),
                       DataCell(Text(usuario.rol, style: const TextStyle(fontSize: 20.0))),
+                      // DataCell(Text(usuario.estado.toString(), style: const TextStyle(fontSize: 20.0))),
                       DataCell(
                         Row(
                           children: [
@@ -170,204 +183,175 @@ class _RegistroEmplState extends State<RegistroEmpl> {
         return AlertDialog(
           title: const Text('Crear Usuario'),
           contentPadding: const EdgeInsets.fromLTRB(60, 20, 60, 50),  // Elimina el padding por defecto
-          content: Container(
-            // margin: const EdgeInsets.all(70),  // Aplica margen
-            child: FormBuilder(
-              key: formKey,
-            
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FormBuilderTextField(
-                    name: 'id',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Asignar ID',
-                      labelFrontSize: 25.5, // Tamaño de letra personalizado
-                      hintext: 'USER-000000000',
-                      hintFrontSize: 20.0,
-                      icono: const Icon(Icons.perm_identity_outlined,size: 30.0),
-                    ),
-                    // validator: FormBuilderValidators.required(),
-                    validator: (value) {
-                      if (value == null || value.isEmpty){
-                        return 'Por favor ingrese su ID-Empleado';
-                      }
-
-                      if (!RegExp(r'^USER-\d{4,10}$').hasMatch(value)){
-                        return 'Por favor ingrese un ID-Empleado valido';
-                      }
-
-                      return null;
-                    },
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'cedula',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Cedula',
-                      labelFrontSize: 25.5,
-                      hintext: '000-0000000-0',
-                      hintFrontSize: 20.0, 
-                      icono: const Icon(Icons.person_pin_circle_outlined, size: 30.0),
-                    ),
-                    // validator: FormBuilderValidators.required(),
-                    validator: FormBuilderValidators.compose([ //Combina varios validadores. En este caso, se utiliza el validador requerido y una función personalizada para la expresión regular.
-                      FormBuilderValidators.required(errorText: 'Debe de ingresar la cedula'), //Valida que el campo no esté vacío y muestra el mensaje 'El correo es obligatorio' si no se ingresa ningún valor.
-                      (value) {
-                        // Expresión regular para validar la cedula
-                        String pattern = r'^\d{3}-\d{7}-\d{1}$';
-                        RegExp regExp = RegExp(pattern);
-                        // if(value == null || value.isEmpty){
-                        //   return 'Por favor ingrese su cédula';
-                        // }
-
-                        if(!regExp.hasMatch(value ?? '')){
-                          return 'Formato de cédula incorrecto';
+          content: SingleChildScrollView(
+            child: Container(
+              // margin: const EdgeInsets.all(70),  // Aplica margen
+              margin: const EdgeInsets.fromLTRB(50, 20, 50, 10),  // Aplica margen
+              // width: 600,
+              child: FormBuilder(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FormBuilderTextField(
+                      name: 'id',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Asignar ID',
+                        labelFrontSize: 20.5, // Tamaño de letra personalizado
+                        hintext: 'USER-000000000',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.perm_identity_outlined,size: 30.0),
+                      ),
+                      // validator: FormBuilderValidators.required(),
+                      validator: (value) {
+                        if (value == null || value.isEmpty){
+                          return 'Por favor ingrese su ID-Empleado';
                         }
+            
+                        if (!RegExp(r'^USER-\d{4,10}$').hasMatch(value)){
+                          return 'Por favor ingrese un ID-Empleado valido';
+                        }
+            
                         return null;
                       },
-                    ]),                    
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'nombre',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Nombre Completo',
-                      labelFrontSize: 25.5,
-                      hintext: 'Nombre y Apellido',
-                      hintFrontSize: 20.0,
-                      icono: const Icon(Icons.person, size: 30.0),
                     ),
-                    validator: FormBuilderValidators.required(),
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'usuario',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Usuario',
-                      labelFrontSize: 25.5,
-                      hintext: 'MetroSantDom123',
-                      hintFrontSize: 20.0,
-                      icono: const Icon(Icons.account_circle, size: 30.0),
+            
+                    FormBuilderTextField(
+                      name: 'cedula',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Cedula',
+                        labelFrontSize: 20.5,
+                        hintext: '000-0000000-0',
+                        hintFrontSize: 15.0, 
+                        icono: const Icon(Icons.person_pin_circle_outlined, size: 30.0),
+                      ),
+                      // validator: FormBuilderValidators.required(),
+                      validator: FormBuilderValidators.compose([ //Combina varios validadores. En este caso, se utiliza el validador requerido y una función personalizada para la expresión regular.
+                        FormBuilderValidators.required(errorText: 'Debe de ingresar la cedula'), //Valida que el campo no esté vacío y muestra el mensaje 'El correo es obligatorio' si no se ingresa ningún valor.
+                        (value) {
+                          // Expresión regular para validar la cedula
+                          String pattern = r'^\d{3}-\d{7}-\d{1}$';
+                          RegExp regExp = RegExp(pattern);
+            
+                          if(!regExp.hasMatch(value ?? '')){
+                            return 'Formato de cédula incorrecto';
+                          }
+                          return null;
+                        },
+                      ]),                    
                     ),
-                    validator: FormBuilderValidators.required(),
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'email',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Email',
-                      labelFrontSize: 25.5,
-                      hintext: 'ejemplo20##@gmail.com',
-                      hintFrontSize: 20.0,
-                      icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
+            
+                    FormBuilderTextField(
+                      name: 'nombre',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Nombre Completo',
+                        labelFrontSize: 20.5,
+                        hintext: 'Nombre y Apellido',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.person, size: 30.0),
+                      ),
+                      validator: FormBuilderValidators.required(),
                     ),
-                    // validator: FormBuilderValidators.required(),
-                    validator: (value){
-                      // expresion regular
-                      String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
-                      RegExp regExp = RegExp(pattern);
-                      return regExp.hasMatch(value ?? '')
-                        ? null
-                        : 'Ingrese un correo electronico valido';
-                    },
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'password',
-                    autocorrect: false,
-                    obscureText: true,
-                    controller: passwordController,
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Contraseña',
-                      labelFrontSize: 25.5,
-                      hintext: '******',
-                      hintFrontSize: 20.0,
-                      icono: const Icon(Icons.lock_person_outlined, size: 30.0),
+            
+                    FormBuilderTextField(
+                      name: 'usuario',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Usuario',
+                        labelFrontSize: 20.5,
+                        hintext: 'MetroSantDom123',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.account_circle, size: 30.0),
+                      ),
+                      validator: FormBuilderValidators.required(),
                     ),
-                    // validator: FormBuilderValidators.required(),
-                    validator: (value) {
-                      if(value == null || value.isEmpty){
-                        return 'Por favor ingrese la nueva contraseña';
-                      }
-
-                      if(value.length < 6){
-                        return 'La contraseña debe tener al menos 6 caracteres';                                    
-                      }
-
-                      return null;
-                    },
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'fechaCreacion',
-                    controller: datePicker,
-                    decoration: InputDecorations.inputDecoration(
-                      hintext: 'Hora actual',
-                      hintFrontSize: 20.0,
-                      labeltext: 'Fecha de Encuesta',
-                      labelFrontSize: 25.0,
-                      icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
+            
+                    FormBuilderTextField(
+                      name: 'email',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Email',
+                        labelFrontSize: 20.5,
+                        hintext: 'ejemplo-0##@gmail.com',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
+                      ),
+                      // validator: FormBuilderValidators.required(),
+                      validator: (value){
+                        // expresion regular
+                        String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
+                        RegExp regExp = RegExp(pattern);
+                        return regExp.hasMatch(value ?? '')
+                          ? null
+                          : 'Ingrese un correo electronico valido';
+                      },
                     ),
-                    validator: FormBuilderValidators.required(),
-                    onTap: () async {
-                      FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
-                      await _showDatePicker(); // Muestra el DatePicker
-                    },
-                  ),
-
-                  // FormBuilderTextField(
-                  //   name: 'resptPassword',
-                  //   autocorrect: false,
-                  //   obscureText: true,
-                  //   controller: confirmPasswordController,
-                  //   decoration: InputDecorations.inputDecoration(
-                  //     labeltext: 'Repetir Contraseña',
-                  //     labelFrontSize: 25.5,
-                  //     hintext: '******',
-                  //     hintFrontSize: 20.0,
-                  //     icono: const Icon(Icons.lock_person_outlined, size: 30.0),
-                  //   ),
-                  //   // validator: FormBuilderValidators.required(),
-                  //   validator: (value) {
-                  //     if(value == null || value.isEmpty){
-                  //       return 'Por favor repita la contraseña';
-                  //     }
-
-                  //     if(value.length < 6){
-                  //       return 'La contraseña debe tener al menos 6 caracteres';                                    
-                  //     }
-
-                  //     if(value != passwordController.text){
-                  //       return 'Las contraseñas no coinciden';
-                  //     }
-
-                  //     return null;
-                  //   },
-                  // ),
-                  FormBuilderTextField(
-                    name: 'rol',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Rol',
-                      labelFrontSize: 25.5,
-                      hintext: 'Empleado',
-                      hintFrontSize: 20.0,
-                      icono: const Icon(Icons.groups_3_outlined, size: 30.0),
+            
+                    FormBuilderTextField(
+                      name: 'password',
+                      autocorrect: false,
+                      obscureText: true,
+                      controller: passwordController,
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Contraseña',
+                        labelFrontSize: 20.5,
+                        hintext: '******',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.lock_person_outlined, size: 30.0),
+                      ),
+                      // validator: FormBuilderValidators.required(),
+                      validator: (value) {
+                        if(value == null || value.isEmpty){
+                          return 'Por favor ingrese la nueva contraseña';
+                        }
+            
+                        if(value.length < 6){
+                          return 'La contraseña debe tener al menos 6 caracteres';                                    
+                        }
+            
+                        return null;
+                      },
                     ),
-                    // validator: FormBuilderValidators.required(),
-                    validator: (value) {
-                      if(value == null || value.isEmpty){
-                        return 'Por favor ingrese el rol';
-                      }
-
-                      if(value != 'Empleado'){
-                        return 'Solo se permite el rol de Empleado';
-                      }
-
-                      return null;
-                    },
-                  ),
-                ],
+            
+                    FormBuilderTextField(
+                      name: 'fechaCreacion',
+                      controller: datePicker,
+                      decoration: InputDecorations.inputDecoration(
+                        hintext: 'Hora actual',
+                        hintFrontSize: 15.0,
+                        labeltext: 'Fecha de Encuesta',
+                        labelFrontSize: 20.0,
+                        icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
+                      ),
+                      validator: FormBuilderValidators.required(),
+                      onTap: () async {
+                        FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
+                        await _showDatePicker(); // Muestra el DatePicker
+                      },
+                    ),
+                    
+                    FormBuilderTextField(
+                      name: 'rol',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Rol',
+                        labelFrontSize: 20.5,
+                        hintext: 'Empleado',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.groups_3_outlined, size: 30.0),
+                      ),
+                      // validator: FormBuilderValidators.required(),
+                      validator: (value) {
+                        if(value == null || value.isEmpty){
+                          return 'Por favor ingrese el rol';
+                        }
+            
+                        if(value != 'Empleado'){
+                          return 'Solo se permite el rol de Empleado';
+                        }
+            
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -385,7 +369,6 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     passwords: formData['password'], 
                     fechaCreacion: formData['fechaCreacion'], 
                     rol: formData['rol'], 
-                    // fotoEmpl: null, 
                   );
 
                   // Llamar al servicio para crear el usuario
@@ -416,7 +399,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
   // Mostrar diálogo para editar un usuario
   void _showEditDialog(Usuarios userUpload) {
     final formKey = GlobalKey<FormBuilderState>(); // Clave para manejar el estado del formulario
-    final passwordController = TextEditingController();
+    // final passwordController = TextEditingController();
     // final confirmPasswordController = TextEditingController();
     
     showDialog(
@@ -426,142 +409,154 @@ class _RegistroEmplState extends State<RegistroEmpl> {
         return AlertDialog(
           title: const Text('Editar Usuario'),
           contentPadding: const EdgeInsets.fromLTRB(60, 20, 60, 50),  // Adaptar el padding por defecto
-          content: FormBuilder(
-            key: formKey,
-            initialValue: { //la funicion de "initialValue" es firtral de manera automatica los datos de los diferentes campos de la base de datos
-              'nombreApellido': userUpload.nombreApellido,
-              'usuario': userUpload.usuario1,
-              'email': userUpload.email,
-              'password': userUpload.passwords,
-              // 'fechaCreacion': userUpload.fechaCreacion
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FormBuilderTextField(
-                  name: 'nombreApellido',
-                  decoration: InputDecorations.inputDecoration(
-                    labeltext: 'Nombre Completo',
-                    labelFrontSize: 30.5,
-                    hintext: 'Nombre y Apellido',
-                    hintFrontSize: 25.0,
-                    icono: const Icon(Icons.person, size: 30.0),
-                  ),
-                  style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                  validator: FormBuilderValidators.required(),
+          content: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(50, 20, 50, 10),  // Aplica margen
+              width: 600,
+              child: FormBuilder(
+                key: formKey,
+                initialValue: { //la funicion de "initialValue" es firtral de manera automatica los datos de los diferentes campos de la base de datos
+                  'nombreApellido': userUpload.nombreApellido,
+                  'usuario': userUpload.usuario1,
+                  'email': userUpload.email,
+                  // 'password': userUpload.passwords,
+                  // 'fechaCreacion': userUpload.fechaCreacion
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FormBuilderTextField(
+                      name: 'nombreApellido',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Nombre Completo',
+                        labelFrontSize: 30.5,
+                        hintext: 'Nombre y Apellido',
+                        hintFrontSize: 15.0,
+                        icono: const Icon(Icons.person, size: 30.0),
+                      ),
+                      style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                      validator: FormBuilderValidators.required(),
+                    ),
+              
+                    FormBuilderTextField(
+                      name: 'usuario',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Usuario',
+                        labelFrontSize: 15.5,
+                        hintext: 'MetroSantDom123',
+                        hintFrontSize: 20.0,
+                        icono: const Icon(Icons.account_circle, size: 30.0),
+                      ),
+                      style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                      validator: FormBuilderValidators.required(),
+                    ),
+              
+                    FormBuilderTextField(
+                      name: 'email',
+                      decoration: InputDecorations.inputDecoration(
+                        labeltext: 'Email',
+                        labelFrontSize: 15.5,
+                        hintext: 'ejemplo20##@gmail.com',
+                        hintFrontSize: 20.0,
+                        icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
+                      ),
+                      // validator: FormBuilderValidators.required(),
+                      style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                      validator: (value){
+                        // expresion regular
+                        String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
+                        RegExp regExp = RegExp(pattern);
+                        return regExp.hasMatch(value ?? '')
+                          ? null
+                          : 'Ingrese un correo electronico valido';
+                      },
+                    ),
+              
+                    // FormBuilderTextField(
+                    //   name: 'password',
+                    //   autocorrect: false,
+                    //   obscureText: true,
+                    //   controller: passwordController,
+                    //   decoration: InputDecorations.inputDecoration(
+                    //     labeltext: 'Contraseña',
+                    //     labelFrontSize: 15.5,
+                    //     hintext: '******',
+                    //     hintFrontSize: 20.0,
+                    //     icono: const Icon(Icons.lock_person_outlined, size: 30.0),
+                    //   ),
+                    //   // validator: FormBuilderValidators.required(),
+                    //   style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                    //   validator: (value) {
+                    //     if(value == null || value.isEmpty){
+                    //       return 'Por favor ingrese la nueva contraseña';
+                    //     }
+              
+                    //     if(value.length < 6){
+                    //       return 'La contraseña debe tener al menos 6 caracteres';                                    
+                    //     }
+              
+                    //     return null;
+                    //   },
+                    // ),
+                    // FormBuilderTextField(
+                    //   name: 'fechaCreacion',
+                    //   controller: datePicker,
+                    //   decoration: InputDecorations.inputDecoration(
+                    //     hintext: 'Hora actual',
+                    //     hintFrontSize: 20.0,
+                    //     labeltext: 'Fecha de Encuesta',
+                    //     labelFrontSize: 15.0,
+                    //     icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
+                    //   ),
+                    //   validator: FormBuilderValidators.required(),
+                    //   onTap: () async {
+                    //     FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
+                    //     await _showDatePicker(); // Muestra el DatePicker
+                    //   },
+                    // ),
+              
+                    // FormBuilderTextField(
+                    //   name: 'resptPassword',
+                    //   autocorrect: false,
+                    //   obscureText: true,
+                    //   controller: confirmPasswordController,
+                    //   decoration: InputDecorations.inputDecoration(
+                    //     labeltext: 'Contraseña',
+                    //     labelFrontSize: 15.5,
+                    //     hintext: '******',
+                    //     hintFrontSize: 20.0,
+                    //     icono: const Icon(Icons.lock_person_outlined, size: 30.0),
+                    //   ),
+                    //   // validator: FormBuilderValidators.required(),
+                    //   style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                    //   validator: (value) {
+                    //     if(value == null || value.isEmpty){
+                    //       return 'Por favor repita la contraseña';
+                    //     }
+              
+                    //     if(value.length < 6){
+                    //       return 'La contraseña debe tener al menos 6 caracteres';                                    
+                    //     }
+              
+                    //     if(value != passwordController.text){
+                    //       return 'Las contraseñas no coinciden';
+                    //     }
+              
+                    //     return null;
+                    //   },
+                    // ),
+                  ],
                 ),
-
-                FormBuilderTextField(
-                  name: 'usuario',
-                  decoration: InputDecorations.inputDecoration(
-                    labeltext: 'Usuario',
-                    labelFrontSize: 25.5,
-                    hintext: 'MetroSantDom123',
-                    hintFrontSize: 20.0,
-                    icono: const Icon(Icons.account_circle, size: 30.0),
-                  ),
-                  style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                  validator: FormBuilderValidators.username(),
-                ),
-
-                FormBuilderTextField(
-                  name: 'email',
-                  decoration: InputDecorations.inputDecoration(
-                    labeltext: 'Email',
-                    labelFrontSize: 25.5,
-                    hintext: 'ejemplo20##@gmail.com',
-                    hintFrontSize: 20.0,
-                    icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
-                  ),
-                  // validator: FormBuilderValidators.required(),
-                  style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                  validator: (value){
-                    // expresion regular
-                    String pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$';
-                    RegExp regExp = RegExp(pattern);
-                    return regExp.hasMatch(value ?? '')
-                      ? null
-                      : 'Ingrese un correo electronico valido';
-                  },
-                ),
-
-                FormBuilderTextField(
-                  name: 'password',
-                  autocorrect: false,
-                  obscureText: true,
-                  controller: passwordController,
-                  decoration: InputDecorations.inputDecoration(
-                    labeltext: 'Contraseña',
-                    labelFrontSize: 25.5,
-                    hintext: '******',
-                    hintFrontSize: 20.0,
-                    icono: const Icon(Icons.lock_person_outlined, size: 30.0),
-                  ),
-                  // validator: FormBuilderValidators.required(),
-                  style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                  validator: (value) {
-                    if(value == null || value.isEmpty){
-                      return 'Por favor ingrese la nueva contraseña';
-                    }
-
-                    if(value.length < 6){
-                      return 'La contraseña debe tener al menos 6 caracteres';                                    
-                    }
-
-                    return null;
-                  },
-                ),
-                // FormBuilderTextField(
-                //   name: 'fechaCreacion',
-                //   controller: datePicker,
-                //   decoration: InputDecorations.inputDecoration(
-                //     hintext: 'Hora actual',
-                //     hintFrontSize: 20.0,
-                //     labeltext: 'Fecha de Encuesta',
-                //     labelFrontSize: 25.0,
-                //     icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
-                //   ),
-                //   validator: FormBuilderValidators.required(),
-                //   onTap: () async {
-                //     FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
-                //     await _showDatePicker(); // Muestra el DatePicker
-                //   },
-                // ),
-
-                // FormBuilderTextField(
-                //   name: 'resptPassword',
-                //   autocorrect: false,
-                //   obscureText: true,
-                //   controller: confirmPasswordController,
-                //   decoration: InputDecorations.inputDecoration(
-                //     labeltext: 'Contraseña',
-                //     labelFrontSize: 25.5,
-                //     hintext: '******',
-                //     hintFrontSize: 20.0,
-                //     icono: const Icon(Icons.lock_person_outlined, size: 30.0),
-                //   ),
-                //   // validator: FormBuilderValidators.required(),
-                //   style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                //   validator: (value) {
-                //     if(value == null || value.isEmpty){
-                //       return 'Por favor repita la contraseña';
-                //     }
-
-                //     if(value.length < 6){
-                //       return 'La contraseña debe tener al menos 6 caracteres';                                    
-                //     }
-
-                //     if(value != passwordController.text){
-                //       return 'Las contraseñas no coinciden';
-                //     }
-
-                //     return null;
-                //   },
-                // ),
-              ],
+              ),
             ),
           ),
           actions: [
+            TextButton(
+              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
+              },
+            ),
             TextButton(
               child: const Text('Actualizar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               onPressed: () async {
@@ -575,11 +570,13 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     nombreApellido: formData['nombreApellido'],
                     usuario1: formData['usuario'],
                     email: formData['email'],
-                    passwords: formData['password'], // Mantener la contraseña original
+                    passwords: userUpload.passwords, // Mantener la contraseña original
                     fechaCreacion: userUpload.fechaCreacion, // Mantener la fecha original
                     rol: userUpload.rol, // Mantener el rol original
                     // fotoEmpl: usuario.fotoEmpl, // Mantener la foto original
                   );
+
+                  print(formData);
 
                   // Llamar al servicio para actualizar el usuario
                   try {
@@ -626,7 +623,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
               onPressed: () async {
                 // Llamar al servicio de eliminación
                 try {
-                  final response = await ApiService('https://10.0.2.2:7128')
+                  final response = await ApiService('https://10.0.2.2:7190')
                       .deleteUsuario(userDelete.idUsuarios);
                   if (response.statusCode == 204) {
                     print('Usuario eliminado con éxito');

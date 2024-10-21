@@ -251,7 +251,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                                   
                                   IconButton(
                                     onPressed: () {
-                                      // _showDeleteDialogSubPregunta(sub);
+                                      _showDeleteDialogSesion(section);
                                     },
                                     icon: const Icon(Icons.delete)
                                   )
@@ -779,18 +779,6 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // FormBuilderTextField(
-                  //   name: 'tipoRespuesta',
-                  //   decoration: InputDecorations.inputDecoration(
-                  //     labeltext: 'Tipo de Respuesta',
-                  //     labelFrontSize: 30.5,
-                  //     hintext: 'Como se respondera esta pregunta',
-                  //     hintFrontSize: 30.0,
-                  //     icono: const Icon(Icons.numbers,size: 30.0),
-                  //   ),
-                  //   style: const TextStyle(fontSize: 30.0),
-                  //   validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  // ),
                   FormBuilderDropdown<String>(
                     name: 'tipoRespuesta',
                     decoration: InputDecorations.inputDecoration(
@@ -1079,7 +1067,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                         selectedTipRespuestas = value!;
                       });
                     },
-                    initialValue: 'Respuesta Abierta',
+                    // initialValue: 'Respuesta Abierta',
                   ),
 
                   FormBuilderTextField(
@@ -1178,9 +1166,11 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     tipoRespuesta: selectedTipRespuestas,
                     grupoTema: dataSesion['grupoTema'],
                     codPregunta: int.parse(dataSesion['codPregunta']),
-                    codSubPregunta: dataSesion['codSubPregunta'] ?? '',
-                    rango: dataSesion['rango'] ?? ''
+                    codSubPregunta: dataSesion['codSubPregunta'],
+                    rango: dataSesion['rango']
                   );
+
+                  print('Resultados de sesionUpLoad: $sesionUpLoad');
 
                   try{
                     final response = await ApiServiceSesion('https://10.0.2.2:7190')
@@ -1189,7 +1179,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     if(response.statusCode == 204) {
                       print('La Sesion fue modificada con éxito');
                       Navigator.of(context).pop();
-                      _refreshSubPreguntas();
+                      _refreshSesion();
                     } else {
                       print('Error al modificar la Sesion: ${response.body}');
                     }
@@ -1199,6 +1189,45 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                 }
               }, 
               child: const Text('Editar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+            )
+          ],
+        );
+      }
+    );
+  }
+
+  void _showDeleteDialogSesion(Sesion sectionDelete) {
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Eliminar Sesion', style: TextStyle(fontSize: 33.0)),
+          content: Text('¿Estás seguro de que deseas eliminar la sesion no. ${sectionDelete.idSesion}?', style: const TextStyle(fontSize: 30)),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
+              },
+            ),
+            TextButton(
+              child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              onPressed: () async {
+                try{
+                  final response = await ApiServiceSesion('https://10.0.2.2:7190').deleteSesion(sectionDelete.idSesion!);
+
+                  if (response.statusCode == 204) {
+                    print('Sesion eliminado con éxito');
+                    Navigator.of(context).pop(); // Cerrar el diálogo después de la eliminación
+                    // Refrescar la lista de usuarios aquí
+                    _refreshSesion();
+                  } else {
+                    print('Error al eliminar la sesion: ${response.body}');
+                  }
+                } catch (e) {
+                  print('Excepción al eliminar la sesion: $e');
+                }
+              },
             )
           ],
         );

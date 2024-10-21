@@ -3,6 +3,8 @@ import 'package:formulario_opret/screens/interfaz_Admin/administrador_screen.dar
 // import 'package:formulario_opret/screens/navbar/editar_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/registro_Empldo.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/settings_screen.dart';
+import 'package:formulario_opret/services/login_services_token.dart';
 // import 'package:formulario_opret/services/admin_services.dart';
 
 class Navbar extends StatefulWidget {
@@ -27,6 +29,8 @@ class _NavbarState extends State<Navbar> {
 
   @override
   Widget build(BuildContext context) {
+    final ApiServiceToken _apiServiceToken = ApiServiceToken('https://10.0.2.2:7190',false);
+
     return Drawer(
       // Creación del menú desplegable
       child: ListView(
@@ -98,7 +102,6 @@ class _NavbarState extends State<Navbar> {
                   filtrarCedula: widget.filtrarCedula,
                 ))
               );
-              Navigator.of(context).pop();
             }
           ),
           ListTile(
@@ -130,16 +133,21 @@ class _NavbarState extends State<Navbar> {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.account_circle_outlined, size: 30.0),
+            leading: const Icon(Icons.settings, size: 30.0),
             title: const Text(
-              'Perfile',
+              'Ajustes',
               style: TextStyle(fontSize: 20.0),
             ),
             onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => PagEdit(/*idAdmin: data*/))
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsScreen(
+                  filtrarUsuarioController: widget.filtrarUsuarioController,
+                  filtrarEmailController: widget.filtrarEmailController,
+                  filtrarId: widget.filtrarId,
+                  filtrarCedula: widget.filtrarCedula,
+                ))
+              );
             },
           ),
           const Divider(),
@@ -149,7 +157,9 @@ class _NavbarState extends State<Navbar> {
               'Cerrar Sesion',
               style: TextStyle(fontSize: 20.0),
             ),
-            onTap: () => print('Cerrando la Seccion del Usuario Administrador ...'),
+            onTap: () async {
+              await _apiServiceToken.logout(context); // Llama a la función para cerrar sesión
+            },
           ),
       ]),
     );

@@ -68,9 +68,9 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
       List<EstacionPorLinea> estaciones = await _apiServiceEstacion.getEstacionesPorLinea(idLinea);
       setState(() {
         _estaciones = estaciones;
-        for (var estacion in _estaciones) {
-          print('Estación obtenida: idEstacion=${estacion.idEstacion}, nombreEstacion=${estacion.nombreEstacion}');
-        }
+        // for (var estacion in _estaciones) {
+        //   print('Estación obtenida: idEstacion=${estacion.idEstacion}, nombreEstacion=${estacion.nombreEstacion}');
+        // }
       });
     } catch (e) {
       print('Error fetching estaciones: $e');
@@ -203,7 +203,7 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                       style: const TextStyle(fontSize: 30.0), // Cambiar tamaño de letra del texto filtrado
                       validator: FormBuilderValidators.required(),
                       onChanged: (val) {
-                        noEncuestaFiltrar.text = '$year - $val';
+                        // noEncuestaFiltrar.text = '$year - $val';
                         noEncuestaFiltrar.selection = TextSelection.fromPosition(TextPosition(offset: noEncuestaFiltrar.text.length));
                         print('Numero seleccionada: $val');
                       },

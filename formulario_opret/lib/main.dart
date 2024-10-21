@@ -1,6 +1,7 @@
 // "mateapp" utilizado para importar de manera automatica el main()
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/modifyTable_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 import 'package:formulario_opret/screens/interfaz_User/Empleado_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/administrador_screen.dart';
@@ -118,10 +119,17 @@ class MyApp extends StatelessWidget {
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
           filtrarCedula: filtrarCedula,
+        ),
+
+        'ModifyTable': (_) => ModifyTable(
+          filtrarUsuarioController: filtrarUsuarioController,
+          filtrarEmailController: filtrarEmailController,
+          filtrarId: filtrarId,
+          filtrarCedula: filtrarCedula,
         )
       },
 
-      initialRoute: 'FormularioEncuesta',
+      initialRoute: 'ModifyTable',
     );
   }
 }

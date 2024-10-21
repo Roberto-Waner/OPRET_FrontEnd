@@ -36,14 +36,14 @@ class ApiService {
   }
 
   // GET: api/Usuarios
-  Future<List<Usuarios>> getUsuarios() async {
+  Future<List<ObtenerEmpleados>> getUsuarios() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/Usuarios'))
+      final response = await http.get(Uri.parse('$baseUrl/api/RegistroUsuarios/ObtenerEmpl'))
         .timeout(const Duration(seconds: 20));
 
       if (response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
-        return body.map((json) => Usuarios.fromJson(json)).toList();
+        return body.map((json) => ObtenerEmpleados.fromJson(json)).toList();
       } else {
         throw Exception('Error al cargar usuarios: ${response.statusCode}');
       }
@@ -53,42 +53,11 @@ class ApiService {
     }
   }
 
-  // Future<UsuariosEmpl?> getUsuarioEmplByToken() async {
-  //   try {
-  //     // Obtener el token almacenado
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     String? token = prefs.getString('token');
-
-  //     if (token == null) {
-  //       throw Exception('Token no encontrado');
-  //     }
-
-  //     // Realizar solicitud GET con el token
-  //     final response = await http.get(
-  //       Uri.parse('$baseUrl/api/UsuariosEmpls/getUser'),
-  //       headers: {
-  //         HttpHeaders.contentTypeHeader: 'application/json',
-  //         HttpHeaders.authorizationHeader: 'Bearer $token',
-  //       },
-  //     ).timeout(const Duration(seconds: 20));
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       return UsuariosEmpl.fromJson(jsonResponse);
-  //     } else {
-  //       throw Exception('Error al cargar el usuario: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error al cargar el usuario: $e');
-  //     rethrow;
-  //   }
-  // }
-
   // PUT: api/Usuarios/{id}
   Future<http.Response> updateUsuario(String id, Usuarios user) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl/api/Usuarios/$id'),
+        Uri.parse('$baseUrl/api/RegistroUsuarios/$id'),
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
@@ -113,7 +82,7 @@ class ApiService {
   Future<http.Response> deleteUsuario(String id) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl/api/Usuarios/$id'),
+        Uri.parse('$baseUrl/api/RegistroUsuarios/$id'),
       ).timeout(const Duration(seconds: 20));
 
       if (response.statusCode == 204) {
@@ -172,6 +141,37 @@ class ApiService {
   //     }
   //   } catch (e) {
   //     print('Error al cargar usuarios: $e');
+  //     rethrow;
+  //   }
+  // }
+
+    // Future<UsuariosEmpl?> getUsuarioEmplByToken() async {
+  //   try {
+  //     // Obtener el token almacenado
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString('token');
+
+  //     if (token == null) {
+  //       throw Exception('Token no encontrado');
+  //     }
+
+  //     // Realizar solicitud GET con el token
+  //     final response = await http.get(
+  //       Uri.parse('$baseUrl/api/UsuariosEmpls/getUser'),
+  //       headers: {
+  //         HttpHeaders.contentTypeHeader: 'application/json',
+  //         HttpHeaders.authorizationHeader: 'Bearer $token',
+  //       },
+  //     ).timeout(const Duration(seconds: 20));
+
+  //     if (response.statusCode == 200) {
+  //       var jsonResponse = jsonDecode(response.body);
+  //       return UsuariosEmpl.fromJson(jsonResponse);
+  //     } else {
+  //       throw Exception('Error al cargar el usuario: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error al cargar el usuario: $e');
   //     rethrow;
   //   }
   // }

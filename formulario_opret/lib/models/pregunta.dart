@@ -36,7 +36,7 @@ class Sesion {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    // data['idSesion'] = idSesion;
+    data['idSesion'] = idSesion;
     data['tipoRespuesta'] = tipoRespuesta;
     data['grupoTema'] = grupoTema;
     data['codPregunta'] = codPregunta;
