@@ -27,24 +27,75 @@ class ApiServicePreguntas {
     }
   }
 
+  Future<Preguntas?> getOnePregunta(int id) async {
+    try{
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/Preguntas/$id'),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        return Preguntas.fromJson(body);
+      } else if (response.statusCode == 404) {
+        print('Preguntas no encontrada');
+        return null;
+      } else {
+        throw Exception('Error al obtener la Preguntas. Código de estado: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en la solicitud HTTP: $e');
+      rethrow;
+    }
+  }
+
+  // Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
+  //   List<SpPreguntascompleta> dataQuestion = [];
+
+  //   try{
+  //     final response = await http
+  //     .get(Uri.parse('$baseUrl/api/PreguntasCompletas/obtenerQuestion'))
+  //     .timeout(const Duration(seconds: 20));
+
+  //     if(response.statusCode == 200) {
+  //       List<dynamic> jsonData = jsonDecode(response.body);
+  //       dataQuestion = jsonData.map((json) => SpPreguntascompleta.fromJson(json)).toList();
+  //     } else {
+  //       throw Exception('Error al cargar las SpPreguntascompleta: ${response.statusCode}');
+  //     }
+
+  //   }catch(e){
+  //     print('Error al cargar la SpPreguntascompleta: $e');
+  //     rethrow;
+  //   }
+
+  //   return dataQuestion;
+  // }
+
   Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
     List<SpPreguntascompleta> dataQuestion = [];
 
-    try{
-      final response = await http.get(Uri.parse('$baseUrl/api/PreguntasCompletas/obtenerPreguntasCompleto')).timeout(const Duration(seconds: 20));
+    try {
+      final response = await http
+          .get(Uri.parse('$baseUrl/api/PreguntasCompletas/obtenerQuestion'))
+          .timeout(const Duration(seconds: 20));
 
-      if(response.statusCode == 200) {
+      if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
-        dataQuestion = jsonData.map((json) => SpPreguntascompleta.fromJson(json)).toList();
+        dataQuestion =
+            jsonData.map((json) => SpPreguntascompleta.fromJson(json)).toList();
+      } else if (response.statusCode == 404) {
+        print('No hay preguntas disponibles');
+        return [];
       } else {
         throw Exception('Error al cargar las SpPreguntascompleta: ${response.statusCode}');
       }
-
-    }catch(e){
+    } catch (e) {
       print('Error al cargar la SpPreguntascompleta: $e');
       rethrow;
     }
-
     return dataQuestion;
   }
 

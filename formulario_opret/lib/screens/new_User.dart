@@ -321,11 +321,12 @@ class _NewUserState extends State<NewUser> {
                           FormBuilderDropdown<String>(
                             name: 'rol',
                             decoration: InputDecorations.inputDecoration(
-                                labeltext: 'Tipo Usuario',
-                                labelFrontSize: 30.0,
-                                hintext: 'Selecciona el tipo de usuario',
-                                hintFrontSize: 22.0,
-                                icono: const Icon(Icons.people_outline_rounded, size: 30.0)),
+                              labeltext: 'Tipo Usuario',
+                              labelFrontSize: 30.0,
+                              hintext: 'Selecciona el tipo de usuario',
+                              hintFrontSize: 22.0,
+                              icono: const Icon(Icons.people_outline_rounded, size: 30.0)
+                            ),
                             initialValue: 'Empleado',
                             items: const [
                               DropdownMenuItem(

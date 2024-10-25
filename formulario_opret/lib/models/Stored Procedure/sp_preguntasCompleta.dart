@@ -1,14 +1,14 @@
 class SpPreguntascompleta {
-  int sp_CodPregunta;
-  String sp_TipoRespuesta;
-  String sp_Pregunta;
+  int? sp_CodPregunta;
+  String? sp_TipoRespuesta;
+  String? sp_Pregunta;
   String? sp_SubPregunta;
   String? sp_Rango;
 
   SpPreguntascompleta({
-    required this.sp_CodPregunta,
-    required this.sp_TipoRespuesta,
-    required this.sp_Pregunta,
+    this.sp_CodPregunta,
+    this.sp_TipoRespuesta,
+    this.sp_Pregunta,
     this.sp_SubPregunta,
     this.sp_Rango,
   });

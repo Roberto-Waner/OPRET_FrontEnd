@@ -53,6 +53,30 @@ class ApiService {
     }
   }
 
+  Future<Usuarios?> getOneUsuarios(String id) async {
+    try{
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/RegistroUsuarios/$id'),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        return Usuarios.fromJson(body);
+      } else if (response.statusCode == 404) {
+        print('Usuarios no encontrada');
+        return null;
+      } else {
+        throw Exception('Error al obtener la Usuarios. Código de estado: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en la solicitud HTTP: $e');
+      rethrow;
+    }
+  }
+
   // PUT: api/Usuarios/{id}
   Future<http.Response> updateUsuario(String id, Usuarios user) async {
     try {
@@ -99,79 +123,3 @@ class ApiService {
     }
   }
 }
-//-------------------------------------Login del Administrador------------------------------------------
-  // Future<String?> loginUser(LoginEmpleado loginEmpl) async {
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse('$baseUrl/api/UsuariosEmpls/login'),
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode(loginEmpl.toJson()),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       return jsonResponse['result']; // Retorna el JWT
-  //     } else {
-  //       print('Login failed: ${response.statusCode}');
-  //       return null;
-  //     }
-  //   } catch (e) {
-  //     // Manejo de excepciones
-  //     print('Error occurred: $e');
-  //     rethrow;
-  //   }
-  // }
-
-// GET: api/UsuariosEmpls/{token}
-  // Future<List<UsuariosEmpl>> getUsuariosEmpl(String token) async {
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse('$baseUrl/api/UsuariosEmpls'),
-  //       headers: {
-  //         HttpHeaders.contentTypeHeader: 'application/json',
-  //         HttpHeaders.authorizationHeader: 'Bearer $token', // JWT Token
-  //       },
-  //     ).timeout(const Duration(seconds: 20));
-
-  //     if (response.statusCode == 200) {
-  //       List<dynamic> body = jsonDecode(response.body);
-  //       return body.map((json) => UsuariosEmpl.fromJson(json)).toList();
-  //     } else {
-  //       throw Exception('Error al cargar usuarios: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error al cargar usuarios: $e');
-  //     rethrow;
-  //   }
-  // }
-
-    // Future<UsuariosEmpl?> getUsuarioEmplByToken() async {
-  //   try {
-  //     // Obtener el token almacenado
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     String? token = prefs.getString('token');
-
-  //     if (token == null) {
-  //       throw Exception('Token no encontrado');
-  //     }
-
-  //     // Realizar solicitud GET con el token
-  //     final response = await http.get(
-  //       Uri.parse('$baseUrl/api/UsuariosEmpls/getUser'),
-  //       headers: {
-  //         HttpHeaders.contentTypeHeader: 'application/json',
-  //         HttpHeaders.authorizationHeader: 'Bearer $token',
-  //       },
-  //     ).timeout(const Duration(seconds: 20));
-
-  //     if (response.statusCode == 200) {
-  //       var jsonResponse = jsonDecode(response.body);
-  //       return UsuariosEmpl.fromJson(jsonResponse);
-  //     } else {
-  //       throw Exception('Error al cargar el usuario: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error al cargar el usuario: $e');
-  //     rethrow;
-  //   }
-  // }

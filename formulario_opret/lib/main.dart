@@ -129,7 +129,7 @@ class MyApp extends StatelessWidget {
         )
       },
 
-      initialRoute: 'ModifyTable',
+      initialRoute: 'pregunta',
     );
   }
 }

@@ -25,6 +25,30 @@ class ApiServiceSubPreguntas {
     }
   }
 
+  Future<SubPregunta?> getOneSubPreg(String id) async {
+    try{
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/SubPreguntas/$id'),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+        },
+      ).timeout(const Duration(seconds: 20));
+
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        return SubPregunta.fromJson(body);
+      } else if (response.statusCode == 404) {
+        print('SubPregunta no encontrada');
+        return null;
+      } else {
+        throw Exception('Error al obtener la SubPregunta. Código de estado: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error en la solicitud HTTP: $e');
+      rethrow;
+    }
+  }
+
   Future<http.Response> postSubPreg (SubPregunta subPreg) async {
     try{
       final response = await http.post(

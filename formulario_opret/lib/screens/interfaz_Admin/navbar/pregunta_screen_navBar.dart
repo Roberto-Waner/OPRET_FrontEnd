@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:formulario_opret/models/pregunta.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
@@ -38,6 +39,11 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
   final tipoRespuestaController = TextEditingController();
   List<double> rangoArray = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
   int _rangoValor = 0;
+  Offset position = const Offset(700, 1150);
+  List<Preguntas> _questions = [];
+  int? _savedQuestion;
+  List<SubPregunta> _subQuestions = [];
+  // String? _savedSubQuestion;
 
   String numbersToRango(int rango) {
     String result = '';
@@ -53,6 +59,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
     _preguntas = _apiServicePreguntas.getPreguntas();
     _subPreguntas = _apiServiceSubPreguntas.getSubPreg();
     _sesion = _apiServiceSesion.getSesion();
+    _fetchData();
+    _fetchDataSubPregu();
   }
 
   void _refreshPreguntas() {
@@ -71,6 +79,32 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
     setState(() {
       _sesion = _apiServiceSesion.getSesion();
     });
+  }
+
+  Future<void> _fetchData() async {
+    try{
+      List<Preguntas> questions = await _apiServicePreguntas.getPreguntas();
+
+      setState(() {
+        _questions = questions;
+        print('Lineas obtenidas: $_questions');
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> _fetchDataSubPregu() async {
+    try{
+      List<SubPregunta>  subPreguntas = await _apiServiceSubPreguntas.getSubPreg();
+
+      setState(() {
+        _subQuestions = subPreguntas;
+        print('Lineas obtenidas: $_subQuestions');
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
   }
 
   @override
@@ -272,43 +306,83 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
       floatingActionButton: Stack(
         children: [
           Positioned(
-            bottom: 155,
-            right: 10,
-            child: FloatingActionButton.extended( //aqui se crea un boton flotante para agregar
-              heroTag: 'Preguntas_tap',
-              onPressed: () {
-                _showCreateDialog();
+            left: position.dx,
+            top: position.dy,
+            child: Draggable(
+              feedback: _bottonSaveSpeedDial(),
+              childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
+              onDragEnd: (details) {
+                setState(() {
+                  // Limitar la posición del botón a los límites de la pantalla
+                  double dx = details.offset.dx;
+                  double dy = details.offset.dy;
+
+                  if (dx < 0) dx = 0;
+                  if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
+                      dx = MediaQuery.of(context).size.width - 56;
+                  }
+
+                  if (dy < 0) dy = 0;
+                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 200) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
+                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 200;
+                  }
+
+                  position = Offset(dx, dy);
+                });
               },
-              icon: const Icon(Icons.add),
-              label: const Text('Agregar Pregunta')
-            ),
-          ),
-          Positioned(
-            bottom: 80,
-            right: 10,
-            child: FloatingActionButton.extended( //aqui se crea un boton flotante para agregar
-              heroTag: 'SubPreguntas_tap',
-              onPressed: () {
-                _showCreateDialogSubPregunta();
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Agregar Sub-preguntas')
-            ),
-          ),
-          Positioned(
-            bottom: 5,
-            right: 10,
-            child: FloatingActionButton.extended( //aqui se crea un boton flotante para agregar
-              heroTag: 'Sesion_tap',
-              onPressed: () {
-                _showCreateDialogSesion();
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Agregar Sesion')
-            ),
-          ),
+              child: _bottonSaveSpeedDial(),
+            )
+          )
         ]
       ),
+    );
+  }
+
+  SpeedDial _bottonSaveSpeedDial(){
+    ValueNotifier<bool> isDialOpen = ValueNotifier(false);
+
+    return SpeedDial(
+      openCloseDial: isDialOpen,
+      direction: SpeedDialDirection.up,
+      icon: Icons.menu_open,
+      activeIcon: Icons.close,
+      backgroundColor: Colors.blue,
+      foregroundColor: Colors.white,
+      activeBackgroundColor: Colors.red,
+      activeForegroundColor: Colors.white,
+      buttonSize: const Size(60.0, 60.0),
+      visible: true,
+      closeManually: false,
+      curve: Curves.bounceIn,
+      overlayColor: Colors.black,
+      overlayOpacity: 0.5,
+      shape: const CircleBorder(),
+      children: [
+        SpeedDialChild(
+          child: const Icon(Icons.add, size: 20),
+          backgroundColor: const Color.fromARGB(255, 10, 212, 27),
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+          label: 'Agregar Pregunta',
+          labelStyle: const TextStyle(fontSize: 20.0),
+          onTap: () => _showCreateDialog()
+        ),
+        SpeedDialChild(
+          child: const Icon(Icons.add, size: 20),
+          backgroundColor: const Color.fromARGB(255, 10, 25, 239),
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+          label: 'Agregar SubPregunta',
+          labelStyle: const TextStyle(fontSize: 20.0),
+          onTap: () => _showCreateDialogSubPregunta()
+        ),
+        SpeedDialChild(
+          child: const Icon(Icons.add, size: 20),
+          backgroundColor: const Color.fromARGB(255, 193, 0, 252),
+          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+          label: 'Agregar Sesion',
+          labelStyle: const TextStyle(fontSize: 20.0),
+          onTap: () => _showCreateDialogSesion()
+        ),
+      ],
     );
   }
 
@@ -358,18 +432,43 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
             ),
           ),
           actions: [
+            buttonStop(context),
             TextButton(
               onPressed: () async {
                 if (_formKey.currentState!.saveAndValidate()) {
                   final dataPreg = _formKey.currentState!.value;
+                  final newQuestion = int.parse(dataPreg['noPregunta']);
+
+                  Preguntas? existingQuestion = await ApiServicePreguntas('https://10.0.2.2:7190').getOnePregunta(newQuestion);
+
+                  if (existingQuestion != null) {
+                    showDialog(
+                      context: context, 
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('No de pregunta ya existente', style: TextStyle(fontSize: 33.0, fontWeight: FontWeight.bold)),
+                          contentPadding: EdgeInsets.zero,
+                          content: Container(
+                            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+                            child: Text('El No. $newQuestion ya está en uso. Por favor ingrese otro.', style: const TextStyle(fontSize: 28.0))
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+                              },
+                              child: const Text('Aceptar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                    return;
+                  }
 
                   Preguntas nuevaPregunta = Preguntas(
-                    codPregunta: int.parse(dataPreg['noPregunta']), 
-                    // tipoRespuesta: dataPreg['tipoRespuesta'],
-                    // grupoTema: dataPreg['grupoTema'] ?? 'Sin grupo tema',
-                    pregunta: dataPreg['pregunta'] ?? 'Sin pregunta',
-                    // idSubPregunta: int.tryParse(dataPreg['idSubPregunta']?.toString() ?? ''),
-                    // rango: dataPreg['rango']
+                    codPregunta: newQuestion, 
+                    pregunta: dataPreg['pregunta'],
                   ); // Para verificar el valor antes de la asignación
 
                   try{
@@ -379,6 +478,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       print('La pregunta fue creado con éxito');
                       Navigator.of(context).pop();
                       _refreshPreguntas();
+                      _fetchData();
                     } else {
                       print('Error al crear la pregunta: ${response.body}');
                     }
@@ -407,43 +507,11 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
             child: FormBuilder(
               key: _formKey,
               initialValue: {
-                // 'no': questionUpLoad.idPreguntas.toString(),
-                // 'tipoRespuesta': questionUpLoad.tipoRespuesta,
-                // 'grupoTema': questionUpLoad.grupoTema,
                 'pregunta': questionUpLoad.pregunta,
-                // 'idSubPregunta': questionUpLoad.idSubPregunta,
-                // 'rango': questionUpLoad.rango
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  /*
-                  FormBuilderTextField(
-                    name: 'tipoRespuesta',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Tipo de Respuesta',
-                      labelFrontSize: 30.5,
-                      hintext: 'Como se respondera esta pregunta',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.numbers,size: 30.0),
-                    ),
-                    style: const TextStyle(fontSize: 30.0),
-                    validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'grupoTema',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Tema',
-                      labelFrontSize: 30.5,
-                      hintext: ' ',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.numbers,size: 30.0),
-                    ),
-                    style: const TextStyle(fontSize: 30.0),
-                    // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  ),
-                  */
                   FormBuilderTextField(
                     name: 'pregunta',
                     decoration: InputDecorations.inputDecoration(
@@ -455,50 +523,20 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     ),
                     style: const TextStyle(fontSize: 30.0),
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  ),
-                  /*
-                  FormBuilderTextField(
-                    name: 'idSubPregunta',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'ID de Sub. Pregunta',
-                      labelFrontSize: 30.5,
-                      hintext: 'Asipnar el id de la sub. pregunta',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.numbers,size: 30.0),
-                    ),
-                    style: const TextStyle(fontSize: 30.0),
-                    // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  ),
-
-                  FormBuilderTextField(
-                    name: 'rango',
-                    decoration: InputDecorations.inputDecoration(
-                      labeltext: 'Identificador de Rango',
-                      labelFrontSize: 30.5,
-                      hintext: '#',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.numbers,size: 30.0),
-                    ),
-                    style: const TextStyle(fontSize: 30.0),
-                    // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  ),
-                  */
+                  )
                 ],
               )
             ),
           ),
           actions: [
+            buttonStop(context),
             TextButton(
               onPressed: () async {
                 if(_formKey.currentState!.saveAndValidate()){
                   final formData = _formKey.currentState!.value;
                   Preguntas askUpLoad = Preguntas(
                     codPregunta: questionUpLoad.codPregunta.toInt(),
-                    // tipoRespuesta: formData['tipoRespuesta'],
-                    // grupoTema: formData['grupoTema'],
                     pregunta: formData['pregunta'],
-                    // idSubPregunta: formData['idSubPregunta'],
-                    // rango: formData['rango']
                   );
 
                   try{
@@ -509,6 +547,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       print('La pregunta fue modificada con éxito');
                       Navigator.of(context).pop();
                       _refreshPreguntas();
+                      _fetchData();
                     } else {
                       print('Error al modificar la pregunta: ${response.body}');
                     }
@@ -552,6 +591,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     Navigator.of(context).pop(); // Cerrar el diálogo después de la eliminación
                     // Refrescar la lista de usuarios aquí
                     _refreshPreguntas();
+                    _fetchData();
                   } else {
                     print('Error al eliminar la pregunta: ${response.body}');
                   }
@@ -610,19 +650,42 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo sin realizar acción
-              }, 
-              child: const Text('Cancelar', style: TextStyle(fontSize: 30)),
-            ),
+            buttonStop(context),
             TextButton(
               onPressed: () async {
                 if(_formKey.currentState!.saveAndValidate()){
                   final dataSebPreg = _formKey.currentState!.value;
+                  final newSubPregunta = dataSebPreg['codigo'];
+
+                  SubPregunta? existingSubPregunta = await ApiServiceSubPreguntas('https://10.0.2.2:7190').getOneSubPreg(newSubPregunta);
+
+                  if (existingSubPregunta != null) {
+                    showDialog(
+                      context: context, 
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('No de la sub-pregunta ya existente', style: TextStyle(fontSize: 33.0, fontWeight: FontWeight.bold)),
+                          contentPadding: EdgeInsets.zero,
+                          content: Container(
+                            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+                            child: Text('El No. $newSubPregunta ya está en uso. Por favor ingrese otro.', style: const TextStyle(fontSize: 28.0))
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+                              },
+                              child: const Text('Aceptar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                    return;
+                  }
 
                   SubPregunta nuevaSubPregunta = SubPregunta(
-                    codSubPregunta: dataSebPreg['codigo'],
+                    codSubPregunta: newSubPregunta,
                     subPreguntas: dataSebPreg['subPreguntas']
                   );
 
@@ -633,6 +696,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       print('Las sub-Preguntas fue creado con éxito');
                       Navigator.of(context).pop();
                       _refreshSubPreguntas();
+                      _fetchDataSubPregu();
                     } else {
                       print('Error al crear las sub-Preguntas: ${response.body}');
                     }
@@ -647,6 +711,15 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
         );
       }
     );
+  }
+
+  TextButton buttonStop(BuildContext context) {
+    return TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cerrar el diálogo sin realizar acción
+            }, 
+            child: const Text('Cancelar', style: TextStyle(fontSize: 30)),
+          );
   }
 
   void _showEditDialogSubPregunta(SubPregunta subQuestionUpLoad) {
@@ -683,12 +756,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
             ),
           ),
           actions: [
-            TextButton(
-              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
-              },
-            ),
+            buttonStop(context),
             TextButton(
               onPressed: () async {
                 if(_formKey.currentState!.saveAndValidate()) {
@@ -707,6 +775,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       print('La sub-pregunta fue modificada con éxito');
                       Navigator.of(context).pop();
                       _refreshSubPreguntas();
+                      _fetchDataSubPregu();
                     } else {
                       print('Error al modificar la sub-pregunta: ${response.body}');
                     }
@@ -750,6 +819,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     Navigator.of(context).pop(); // Cerrar el diálogo después de la eliminación
                     // Refrescar la lista de usuarios aquí
                     _refreshSubPreguntas();
+                    _fetchDataSubPregu();
                   } else {
                     print('Error al eliminar la sub-pregunta: ${response.body}');
                   }
@@ -857,7 +927,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Tema',
                       labelFrontSize: 30.5,
-                      hintext: ' ',
+                      hintext: '(Si lo requiere)',
                       hintFrontSize: 30.0,
                       icono: const Icon(Icons.numbers,size: 30.0),
                     ),
@@ -865,30 +935,77 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                   ),
 
-                  FormBuilderTextField(
+                  // FormBuilderTextField(
+                  //   name: 'codPregunta',
+                  //   decoration: InputDecorations.inputDecoration(
+                  //     labeltext: 'No. Pregunta',
+                  //     labelFrontSize: 30.5,
+                  //     hintext: ' ',
+                  //     hintFrontSize: 30.0,
+                  //     icono: const Icon(Icons.numbers,size: 30.0),
+                  //   ),
+                  //   style: const TextStyle(fontSize: 30.0),
+                  //   validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
+                  // ),
+
+                  FormBuilderDropdown<int>(
                     name: 'codPregunta',
+                    style: const TextStyle(fontSize: 30.0),
                     decoration: InputDecorations.inputDecoration(
-                      labeltext: 'No. Pregunta',
+                      labeltext: 'No. de Pregunta',
                       labelFrontSize: 30.5,
-                      hintext: ' ',
-                      hintFrontSize: 30.0,
                       icono: const Icon(Icons.numbers,size: 30.0),
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    items: _questions.map((preg) {
+                      return DropdownMenuItem(
+                        value: preg.codPregunta,
+                        child: Text(preg.pregunta, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _savedQuestion = value!;
+                        print('Pregunta seleccionada: $_savedQuestion');
+                      });
+                    },
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                   ),
 
-                  FormBuilderTextField(
+                  // FormBuilderTextField(
+                  //   name: 'codSubPregunta',
+                  //   decoration: InputDecorations.inputDecoration(
+                  //     labeltext: 'Cod. Sub Pregunta',
+                  //     labelFrontSize: 30.5,
+                  //     hintext: 'Ingrese el codigo de la Sub-pregunta',
+                  //     hintFrontSize: 30.0,
+                  //     icono: const Icon(Icons.numbers,size: 30.0),
+                  //   ),
+                  //   style: const TextStyle(fontSize: 30.0),
+                  //   // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
+                  // ),
+
+                  FormBuilderDropdown(
                     name: 'codSubPregunta',
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Cod. Sub Pregunta',
                       labelFrontSize: 30.5,
-                      hintext: 'Ingrese el codigo de la Sub-pregunta',
-                      hintFrontSize: 30.0,
+                      hintext: 'Elegir la Sub-Pregunta (si lo requiere)',
+                      hintFrontSize: 25.0,
                       icono: const Icon(Icons.numbers,size: 30.0),
                     ),
                     style: const TextStyle(fontSize: 30.0),
-                    // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
+                    items: _subQuestions.map((subPreg) {
+                      return DropdownMenuItem(
+                        value: subPreg.codSubPregunta,
+                        child: Text(subPreg.subPreguntas!, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                      );
+                    }).toList(),
+                    // onChanged: (value) {
+                    //   setState(() {
+                    //     _savedSubQuestion = value!;
+                    //     print('Sub-Pregunta seleccionada: $_savedSubQuestion');
+                    //   });
+                    // }
                   ),
 
                   FormBuilderTextField(
@@ -932,12 +1049,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
             ),
           ),
           actions: [
-            TextButton(
-              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
-              },
-            ),
+            buttonStop(context),
             TextButton(
               onPressed: () async {
                 if (_formKey.currentState!.saveAndValidate()) {
@@ -946,7 +1058,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   Sesion nuevaSesion = Sesion(
                     tipoRespuesta: dataSesion['tipoRespuesta'],
                     grupoTema: dataSesion['grupoTema'],
-                    codPregunta: int.parse(dataSesion['codPregunta']),
+                    codPregunta: _savedQuestion!,
                     codSubPregunta: dataSesion['codSubPregunta'],
                     rango: dataSesion['rango']
                   );
@@ -960,6 +1072,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       print('La Sesion fue creado con éxito');
                       Navigator.of(context).pop();
                       _refreshSesion();
+                      
                     } else {
                       print('Error al crear la Sesion: ${response.body}');
                     }
@@ -1150,12 +1263,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
             ),
           ),
           actions: [
-            TextButton(
-              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
-              },
-            ),
+            buttonStop(context),
             TextButton(
               onPressed: () async {
                 if(_formKey.currentState!.saveAndValidate()) {
@@ -1235,115 +1343,3 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
     );
   }
 }
-
-// void _showCreateDialogRangoRespuestas() {
-//   final tipoRespuestaController = TextEditingController();
-//   List<String> selectedValues = [];
-//   int _rangoValor = 1;
-
-//   showDialog(
-//     context: context, 
-//     builder: (context) {
-//       return StatefulBuilder(
-//         builder: (context, setState) {
-//           return AlertDialog(
-//             title: const Text('Determinar el Rango requerido', style: TextStyle(fontSize: 33.0)),
-//             contentPadding: EdgeInsets.zero,
-//             content: FormBuilder(
-//               key: _formKey,
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-                  
-//                   FormBuilderTextField(
-//                     name: 'rango',
-//                     controller: tipoRespuestaController,
-//                     decoration: InputDecorations.inputDecoration(
-//                       labeltext: 'Rango',
-//                       labelFrontSize: 30.5,
-//                       hintext: 'Determinar el Rango de la Respuestas',
-//                       hintFrontSize: 30.0,
-//                       icono: const Icon(Icons.question_answer,size: 30.0),
-//                     ),
-//                     style: const TextStyle(fontSize: 30.0),
-//                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
-//                   ),
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(vertical: 20.0),
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Slider(
-//                           value: _rangoValor.toDouble(),
-//                           min: 1,
-//                           max: 10,
-//                           divisions: 10,
-//                           label: _rangoValor.toString(),
-//                           onChanged: (double valor) {
-//                             setState(() {
-//                               _rangoValor = valor.toInt();
-//                               String valorString = _rangoValor.toString();
-
-//                               // Si el valor no está en la lista, lo añadimos.
-//                               if (!selectedValues.contains(valorString)) {
-//                                 selectedValues.add(valorString);
-//                               } else {
-//                                 // Si el valor ya está en la lista y se ha reducido, lo quitamos.
-//                                 selectedValues.remove(valorString);
-//                               }
-
-//                               // Ordenar la lista de valores seleccionados
-//                               selectedValues.sort((a, b) => int.parse(a).compareTo(int.parse(b)));
-
-//                               // Actualizar el campo de texto con los valores concatenados
-//                               tipoRespuestaController.text = selectedValues.join(' | ');
-//                             });
-//                           }
-//                         ),
-//                       ],
-//                     )
-//                   )
-//                 ],
-//               ),
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () {
-//                   Navigator.of(context).pop(); // Cerrar el diálogo sin realizar acción
-//                 }, 
-//                 child: const Text('Cancelar', style: TextStyle(fontSize: 30)),
-//               ),
-//               TextButton(
-//                 onPressed: () async {
-//                   // Validar el formulario antes de proceder
-//                   if (_formKey.currentState!.saveAndValidate()) {
-//                     final dataRango = _formKey.currentState!.value;
-
-//                     RangoRespuestas nuevoRango = RangoRespuestas(
-//                       // idTipRespuesta: int.tryParse(dataTipResp['idTipRespuesta']) ?? 0,
-//                       rango: dataRango['rango']
-//                     );
-
-//                     try{
-//                       final response = await ApiServiceRangoResp('https://10.0.2.2:7190').postRangoResp(nuevoRango);
-//                       if(response.statusCode == 201) {
-//                         print('El Tipo de Respuesta fue creado con éxito');
-//                         Navigator.of(context).pop(); // Cerrar el diálogo
-//                         _refreshTipoRespuestas();
-//                       } else {
-//                         print('Error al crear Tipo de Respuesta: ${response.body}');
-//                       }
-//                     } catch (e) {
-//                       print('Excepción al crear el tipo de respuesta: $e');
-//                     }
-//                   }
-//                 }, 
-//                 child: const Text('Crear', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
-//               ),
-//             ],
-//           );
-//         }
-//       );
-//     }
-//   );
-// }

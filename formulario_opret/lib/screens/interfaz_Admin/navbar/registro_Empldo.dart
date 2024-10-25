@@ -31,6 +31,8 @@ class _RegistroEmplState extends State<RegistroEmpl> {
   late Future<List<ObtenerEmpleados>> _usuariosdata;
   final TextEditingController datePicker = TextEditingController();
   DateTime? _selectedDate;
+  Offset position = const Offset(700, 1150); // Posición inicial del botón
+  // Offset position = const Offset(100, 100);
 
   @override
   void initState(){
@@ -80,86 +82,126 @@ class _RegistroEmplState extends State<RegistroEmpl> {
         filtrarCedula: widget.filtrarCedula,
       ),
       appBar: AppBar(title: const Text('Registro Empleados')),
-      body: FutureBuilder<List<ObtenerEmpleados>>(
-        future: _usuariosdata,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting){
-            return const Center(child: CircularProgressIndicator());
-          }else if (snapshot.hasError){
-            return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
-          }else {
-            final usuariostabla = snapshot.data ?? [];
-
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal, // Permitir scroll horizontal
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('ID', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Cedula', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Nombre Completo', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Usuario', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Correo Electronico', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Fecha de Creacion', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Rol', style: TextStyle(fontSize: 23.0))),
-                  DataColumn(label: Text('Accion', style: TextStyle(fontSize: 23.0)))
-                ], 
-                rows: usuariostabla.map((obtenerEmpleado){
-                  Usuarios usuario = Usuarios(
-                    idUsuarios: obtenerEmpleado.idUsuarios$,
-                    cedula: obtenerEmpleado.cedula$,
-                    nombreApellido: obtenerEmpleado.nombreApellido$,
-                    usuario1: obtenerEmpleado.usuario$,
-                    email: obtenerEmpleado.email$,
-                    passwords: '',
-                    foto: null,
-                    fechaCreacion: obtenerEmpleado.fechaCreacion$,
-                    rol: obtenerEmpleado.rol$,
-                  );
-
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(usuario.idUsuarios, style: const TextStyle(fontSize: 20.0))),
-                      DataCell(Text(usuario.cedula, style: const TextStyle(fontSize: 20.0))),
-                      DataCell(Text(usuario.nombreApellido, style: const TextStyle(fontSize: 20.0))),
-                      DataCell(Text(usuario.usuario1, style: const TextStyle(fontSize: 20.0))),
-                      DataCell(Text(usuario.email, style: const TextStyle(fontSize: 20.0))),
-                      DataCell(Text(usuario.fechaCreacion, style: const TextStyle(fontSize: 20.0))),
-                      DataCell(Text(usuario.rol, style: const TextStyle(fontSize: 20.0))),
-                      // DataCell(Text(usuario.estado.toString(), style: const TextStyle(fontSize: 20.0))),
-                      DataCell(
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit), 
-                              onPressed: (){
-                                _showEditDialog(usuario);
-                              },
-                            ),
-              
-                            IconButton(
-                              onPressed: () {
-                                _showDeleteDialog(usuario);
-                              }, 
-                              icon: const Icon(Icons.delete)
-                            )
-                          ],
+      body: SingleChildScrollView(
+        child: FutureBuilder<List<ObtenerEmpleados>>(
+          future: _usuariosdata,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting){
+              return const Center(child: CircularProgressIndicator());
+            }else if (snapshot.hasError){
+              return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
+            }else {
+              final usuariostabla = snapshot.data ?? [];
+        
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal, // Permitir scroll horizontal
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('ID', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Cedula', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Nombre Completo', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Usuario', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Correo Electronico', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Fecha de Creacion', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Rol', style: TextStyle(fontSize: 23.0))),
+                    DataColumn(label: Text('Accion', style: TextStyle(fontSize: 23.0)))
+                  ], 
+                  rows: usuariostabla.map((obtenerEmpleado){
+                    Usuarios usuario = Usuarios(
+                      idUsuarios: obtenerEmpleado.idUsuarios$,
+                      cedula: obtenerEmpleado.cedula$,
+                      nombreApellido: obtenerEmpleado.nombreApellido$,
+                      usuario1: obtenerEmpleado.usuario$,
+                      email: obtenerEmpleado.email$,
+                      passwords: '',
+                      foto: null,
+                      fechaCreacion: obtenerEmpleado.fechaCreacion$,
+                      rol: obtenerEmpleado.rol$,
+                    );
+        
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(usuario.idUsuarios, style: const TextStyle(fontSize: 20.0))),
+                        DataCell(Text(usuario.cedula, style: const TextStyle(fontSize: 20.0))),
+                        DataCell(Text(usuario.nombreApellido, style: const TextStyle(fontSize: 20.0))),
+                        DataCell(Text(usuario.usuario1, style: const TextStyle(fontSize: 20.0))),
+                        DataCell(Text(usuario.email, style: const TextStyle(fontSize: 20.0))),
+                        DataCell(Text(usuario.fechaCreacion, style: const TextStyle(fontSize: 20.0))),
+                        DataCell(Text(usuario.rol, style: const TextStyle(fontSize: 20.0))),
+                        // DataCell(Text(usuario.estado.toString(), style: const TextStyle(fontSize: 20.0))),
+                        DataCell(
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit), 
+                                onPressed: (){
+                                  _showEditDialog(usuario);
+                                },
+                              ),
+                
+                              IconButton(
+                                onPressed: () {
+                                  _showDeleteDialog(usuario);
+                                }, 
+                                icon: const Icon(Icons.delete)
+                              )
+                            ],
+                          )
                         )
-                      )
-                    ]
-                  );
-                }).toList(),
-              ),
-            );
+                      ]
+                    );
+                  }).toList(),
+                ),
+              );
+            }
           }
-        }
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'RegEmpleado_tag',
-        onPressed: () {
-          _showCreateDialog();
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Stack(
+        children: [
+          Positioned(
+            left: position.dx,
+            top: position.dy,
+            child: Draggable(
+              feedback: FloatingActionButton(
+                onPressed: () => _showCreateDialog(),
+                child: const Icon(Icons.add),
+              ),
+              // childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
+              onDragEnd: (details) {
+                setState(() {
+                  // Limitar la posición del botón a los límites de la pantalla
+                  double dx = details.offset.dx;
+                  double dy = details.offset.dy;
+
+                  if (dx < 0) dx = 0;
+                  if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
+                      dx = MediaQuery.of(context).size.width - 56;
+                  }
+
+                  if (dy < 0) dy = 0;
+                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 50) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
+                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 50;
+                  }
+
+                  position = Offset(dx, dy);
+                });
+              },
+              child: FloatingActionButton(
+                onPressed: () => _showCreateDialog(),
+                child: const Icon(Icons.add),
+              ), 
+            )
+          )
+        ]
       ),
+      // floatingActionButton: FloatingActionButton(
+      //   heroTag: 'RegEmpleado_tag',
+      //   onPressed: () {
+      //     _showCreateDialog();
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 
@@ -181,12 +223,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
       builder: (context) {
         // Formulario para crear usuario
         return AlertDialog(
-          title: const Text('Crear Usuario'),
-          contentPadding: const EdgeInsets.fromLTRB(60, 20, 60, 50),  // Elimina el padding por defecto
+          title: const Text('Crear Usuario', style: TextStyle(fontSize: 33.0)),
+          contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
           content: SingleChildScrollView(
             child: Container(
               // margin: const EdgeInsets.all(70),  // Aplica margen
-              margin: const EdgeInsets.fromLTRB(50, 20, 50, 10),  // Aplica margen
+              margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),  // Aplica margen
               // width: 600,
               child: FormBuilder(
                 key: formKey,
@@ -195,11 +237,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                   children: [
                     FormBuilderTextField(
                       name: 'id',
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Asignar ID',
-                        labelFrontSize: 20.5, // Tamaño de letra personalizado
+                        labelFrontSize: 30.5, // Tamaño de letra personalizado
                         hintext: 'USER-000000000',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.perm_identity_outlined,size: 30.0),
                       ),
                       // validator: FormBuilderValidators.required(),
@@ -218,11 +261,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             
                     FormBuilderTextField(
                       name: 'cedula',
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Cedula',
-                        labelFrontSize: 20.5,
+                        labelFrontSize: 30.5,
                         hintext: '000-0000000-0',
-                        hintFrontSize: 15.0, 
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.person_pin_circle_outlined, size: 30.0),
                       ),
                       // validator: FormBuilderValidators.required(),
@@ -243,11 +287,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             
                     FormBuilderTextField(
                       name: 'nombre',
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Nombre Completo',
-                        labelFrontSize: 20.5,
+                        labelFrontSize: 30.5,
                         hintext: 'Nombre y Apellido',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.person, size: 30.0),
                       ),
                       validator: FormBuilderValidators.required(),
@@ -255,11 +300,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             
                     FormBuilderTextField(
                       name: 'usuario',
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Usuario',
-                        labelFrontSize: 20.5,
+                        labelFrontSize: 30.5,
                         hintext: 'MetroSantDom123',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.account_circle, size: 30.0),
                       ),
                       validator: FormBuilderValidators.required(),
@@ -267,11 +313,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             
                     FormBuilderTextField(
                       name: 'email',
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Email',
-                        labelFrontSize: 20.5,
+                        labelFrontSize: 30.5,
                         hintext: 'ejemplo-0##@gmail.com',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
                       ),
                       // validator: FormBuilderValidators.required(),
@@ -289,12 +336,13 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                       name: 'password',
                       autocorrect: false,
                       obscureText: true,
+                      style: const TextStyle(fontSize: 30.0),
                       controller: passwordController,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Contraseña',
-                        labelFrontSize: 20.5,
+                        labelFrontSize: 30.5,
                         hintext: '******',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.lock_person_outlined, size: 30.0),
                       ),
                       // validator: FormBuilderValidators.required(),
@@ -314,11 +362,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     FormBuilderTextField(
                       name: 'fechaCreacion',
                       controller: datePicker,
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         hintext: 'Hora actual',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         labeltext: 'Fecha de Encuesta',
-                        labelFrontSize: 20.0,
+                        labelFrontSize: 30.5,
                         icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
                       ),
                       validator: FormBuilderValidators.required(),
@@ -330,11 +379,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     
                     FormBuilderTextField(
                       name: 'rol',
+                      style: const TextStyle(fontSize: 30.0),
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Rol',
-                        labelFrontSize: 20.5,
+                        labelFrontSize: 30.5,
                         hintext: 'Empleado',
-                        hintFrontSize: 15.0,
+                        hintFrontSize: 25.0,
                         icono: const Icon(Icons.groups_3_outlined, size: 30.0),
                       ),
                       // validator: FormBuilderValidators.required(),
@@ -360,6 +410,35 @@ class _RegistroEmplState extends State<RegistroEmpl> {
               onPressed: () async {
                 if(formKey.currentState!.saveAndValidate()){
                   final formData = formKey.currentState!.value;
+                  final newIdUser = formData['id'];
+
+                  Usuarios? existingUser = await ApiService('https://10.0.2.2:7190').getOneUsuarios(newIdUser);
+
+                  if (existingUser != null) {
+                    showDialog(
+                      context: context, 
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('ID de Usuario ya existente', style: TextStyle(fontSize: 33.0, fontWeight: FontWeight.bold)),
+                          contentPadding: EdgeInsets.zero,
+                          content: Container(
+                            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+                            child: Text('El ID. $newIdUser ya está en uso. Por favor ingrese otro.', style: const TextStyle(fontSize: 28.0))
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
+                              },
+                              child: const Text('Aceptar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                    return;
+                  }
+
                   Usuarios nuevoUsuario = Usuarios(
                     idUsuarios: formData['id'],
                     cedula: formData['cedula'],
@@ -470,81 +549,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                           ? null
                           : 'Ingrese un correo electronico valido';
                       },
-                    ),
-              
-                    // FormBuilderTextField(
-                    //   name: 'password',
-                    //   autocorrect: false,
-                    //   obscureText: true,
-                    //   controller: passwordController,
-                    //   decoration: InputDecorations.inputDecoration(
-                    //     labeltext: 'Contraseña',
-                    //     labelFrontSize: 15.5,
-                    //     hintext: '******',
-                    //     hintFrontSize: 20.0,
-                    //     icono: const Icon(Icons.lock_person_outlined, size: 30.0),
-                    //   ),
-                    //   // validator: FormBuilderValidators.required(),
-                    //   style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                    //   validator: (value) {
-                    //     if(value == null || value.isEmpty){
-                    //       return 'Por favor ingrese la nueva contraseña';
-                    //     }
-              
-                    //     if(value.length < 6){
-                    //       return 'La contraseña debe tener al menos 6 caracteres';                                    
-                    //     }
-              
-                    //     return null;
-                    //   },
-                    // ),
-                    // FormBuilderTextField(
-                    //   name: 'fechaCreacion',
-                    //   controller: datePicker,
-                    //   decoration: InputDecorations.inputDecoration(
-                    //     hintext: 'Hora actual',
-                    //     hintFrontSize: 20.0,
-                    //     labeltext: 'Fecha de Encuesta',
-                    //     labelFrontSize: 15.0,
-                    //     icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
-                    //   ),
-                    //   validator: FormBuilderValidators.required(),
-                    //   onTap: () async {
-                    //     FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
-                    //     await _showDatePicker(); // Muestra el DatePicker
-                    //   },
-                    // ),
-              
-                    // FormBuilderTextField(
-                    //   name: 'resptPassword',
-                    //   autocorrect: false,
-                    //   obscureText: true,
-                    //   controller: confirmPasswordController,
-                    //   decoration: InputDecorations.inputDecoration(
-                    //     labeltext: 'Contraseña',
-                    //     labelFrontSize: 15.5,
-                    //     hintext: '******',
-                    //     hintFrontSize: 20.0,
-                    //     icono: const Icon(Icons.lock_person_outlined, size: 30.0),
-                    //   ),
-                    //   // validator: FormBuilderValidators.required(),
-                    //   style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
-                    //   validator: (value) {
-                    //     if(value == null || value.isEmpty){
-                    //       return 'Por favor repita la contraseña';
-                    //     }
-              
-                    //     if(value.length < 6){
-                    //       return 'La contraseña debe tener al menos 6 caracteres';                                    
-                    //     }
-              
-                    //     if(value != passwordController.text){
-                    //       return 'Las contraseñas no coinciden';
-                    //     }
-              
-                    //     return null;
-                    //   },
-                    // ),
+                    )
                   ],
                 ),
               ),

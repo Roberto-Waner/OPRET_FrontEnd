@@ -60,139 +60,154 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
 
       appBar: AppBar(title: const Text('Preguntas de Encuesta')),
 
-      body: dataQuestion.isEmpty
-        ? const Center(child: CircularProgressIndicator())
-        : SingleChildScrollView(
-          child: Padding(
-              padding: const EdgeInsets.all(28.0),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: dataQuestion.length,
-                physics: const NeverScrollableScrollPhysics(), // Evita conflictos de desplazamiento
-                itemBuilder: (BuildContext context, int index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isExpandedList[index] = !_isExpandedList[index];
-                      });
-                    },
-                    child: Card(
-                      elevation: 3,//para elevar hacia delante los cuadros de la preguntas
-                      margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        height: _isExpandedList[index] ? null : 175, // Altura cambiable
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      const TextSpan(
-                                        text: 'Numero de la pregunta: ',
-                                        style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                      ),
-                                      TextSpan(
-                                        text: '${dataQuestion[index].sp_CodPregunta}',
-                                        style: const TextStyle(fontSize: 35.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                      )
-                                    ]
-                                  )
-                                ),
-                                const SizedBox(height: 10),
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      const TextSpan(
-                                        text: '- Respuesta que solo recibe es: ',
-                                        style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                      ),
-                                      TextSpan(
-                                        text: dataQuestion[index].sp_TipoRespuesta,
-                                        style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                      )
-                                    ]
-                                  )
-                                ),
-                                const SizedBox(height: 15),
-                                RichText(
-                                  text: TextSpan(
-                                    children: [
-                                      const TextSpan(
-                                        text: '- Pregunta: ',
-                                        style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                      ),
-                                      TextSpan(
-                                        text: dataQuestion[index].sp_Pregunta,
-                                        style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                      )
-                                    ]
-                                  )
-                                ),
-                                const SizedBox(height: 15),
-                                if (dataQuestion[index].sp_SubPregunta != null)
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        const TextSpan(
-                                          text: '-- Sub-Pregunta: ',
-                                          style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                        ),
-                                        TextSpan(
-                                          text: dataQuestion[index].sp_SubPregunta,
-                                          style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                        )
-                                      ]
+      body:FutureBuilder(
+        future: _apiQuestions.getSpPreguntascompletaListada(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return const Center(child: Text("Error al cargar las preguntas", style: TextStyle(fontSize: 30.0)));
+          } else if (dataQuestion.isEmpty) {
+            return const Center(child: Text("No hay preguntas disponibles", style: TextStyle(fontSize: 30.0)));
+          } else {
+            return _buildPreguntaList(); // Construye la lista de preguntas si hay datos
+          }
+        }
+      )
+    );
+  }
+
+  SingleChildScrollView _buildPreguntaList() {
+    return SingleChildScrollView(
+        child: Padding(
+            padding: const EdgeInsets.all(28.0),
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: dataQuestion.length,
+              physics: const NeverScrollableScrollPhysics(), // Evita conflictos de desplazamiento
+              itemBuilder: (BuildContext context, int index) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isExpandedList[index] = !_isExpandedList[index];
+                    });
+                  },
+                  child: Card(
+                    elevation: 3,//para elevar hacia delante los cuadros de la preguntas
+                    margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      height: _isExpandedList[index] ? null : 175, // Altura cambiable
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Numero de la pregunta: ',
+                                      style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                    ),
+                                    TextSpan(
+                                      text: '${dataQuestion[index].sp_CodPregunta}',
+                                      style: const TextStyle(fontSize: 35.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                     )
-                                  ),
-                                const SizedBox(height: 5),
-                                if (dataQuestion[index].sp_Rango != null)
-                                  RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        const TextSpan(
-                                          text: '- Rango Determinado: \n    ',
-                                          style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
-                                        ),
-                                        TextSpan(
-                                          text: dataQuestion[index].sp_Rango,
-                                          style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
-                                        )
-                                      ]
+                                  ]
+                                )
+                              ),
+                              const SizedBox(height: 10),
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: '- Respuesta que solo recibe es: ',
+                                      style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                    ),
+                                    TextSpan(
+                                      text: dataQuestion[index].sp_TipoRespuesta,
+                                      style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                     )
-                                  ),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () {
-                                      _showPreguntaDialog(dataQuestion[index]); // Muestra el diálogo al hacer clic
-                                    },
-                                    child: const Text('Responder.', style: TextStyle(fontSize: 26.0)),
-                                  ),
+                                  ]
+                                )
+                              ),
+                              const SizedBox(height: 15),
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: '- Pregunta: ',
+                                      style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                    ),
+                                    TextSpan(
+                                      text: dataQuestion[index].sp_Pregunta,
+                                      style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                    )
+                                  ]
+                                )
+                              ),
+                              const SizedBox(height: 15),
+                              if (dataQuestion[index].sp_SubPregunta != null)
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                        text: '-- Sub-Pregunta: ',
+                                        style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                      ),
+                                      TextSpan(
+                                        text: dataQuestion[index].sp_SubPregunta,
+                                        style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                      )
+                                    ]
+                                  )
                                 ),
-                              ]
-                            ),
+                              const SizedBox(height: 5),
+                              if (dataQuestion[index].sp_Rango != null)
+                                RichText(
+                                  text: TextSpan(
+                                    children: [
+                                      const TextSpan(
+                                        text: '- Rango Determinado: \n    ',
+                                        style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
+                                      ),
+                                      TextSpan(
+                                        text: dataQuestion[index].sp_Rango,
+                                        style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
+                                      )
+                                    ]
+                                  )
+                                ),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    _showPreguntaDialog(dataQuestion[index]); // Muestra el diálogo al hacer clic
+                                  },
+                                  child: const Text('Responder.', style: TextStyle(fontSize: 26.0)),
+                                ),
+                              ),
+                            ]
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              )
-          ),
+                  ),
+                );
+              },
+            )
         ),
-    );
+      );
   }
 
   void _showPreguntaDialog(SpPreguntascompleta question) {
-    String? selectedResponse = question.sp_TipoRespuesta;
+    // String? selectedResponse = question.sp_TipoRespuesta;
 
     showDialog(
       context: context, 
@@ -506,7 +521,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
       Respuesta nuevaRespuesta = Respuesta(
         idUsuarios: widget.filtrarId.text, // ID del usuario
         noEncuesta: widget.noEncuestaFiltrar.text, // Identificador de la encuesta
-        codPregunta: question.sp_CodPregunta,
+        codPregunta: question.sp_CodPregunta!,
         respuestas: respuestaFinal,
         // valoracion: dataAnswer['valoracion'],
         comentarios: dataAnswer['comentarios'],
