@@ -11,9 +11,19 @@ import 'package:formulario_opret/screens/login_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/registro_Empldo.dart';
 import 'package:formulario_opret/screens/new_User.dart';
 import 'package:formulario_opret/screens/presentation_screen.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
+
+Future<void> getDatabasePath() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final path = join(directory.path, 'database_FormOpret.db');
+  print('Database path: $path');
+}
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
+  getDatabasePath();
 
   // Inicializa los controladores
   final TextEditingController filtrarUsuarioController = TextEditingController();
@@ -129,7 +139,7 @@ class MyApp extends StatelessWidget {
         )
       },
 
-      initialRoute: 'pregunta',
+      initialRoute: 'registroEmpleados',
     );
   }
 }

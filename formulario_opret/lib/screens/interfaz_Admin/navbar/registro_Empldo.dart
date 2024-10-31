@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:formulario_opret/Controllers/User_Controller.dart';
 // import 'package:formulario_opret/models/userEmpleado.dart';
 import 'package:formulario_opret/models/usuarios.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
-import 'package:formulario_opret/services/user_services.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
 import 'package:intl/intl.dart';
 
@@ -27,23 +27,28 @@ class RegistroEmpl extends StatefulWidget {
 }
 
 class _RegistroEmplState extends State<RegistroEmpl> {
-  final ApiService _apiService = ApiService('https://10.0.2.2:7190'); // Cambia por tu URL
-  late Future<List<ObtenerEmpleados>> _usuariosdata;
+  // final ApiServiceUser _apiService = ApiServiceUser('https://10.0.2.2:7190'); // Cambia por tu URL
+  final UserController _userController = UserController();
+  late Future<List<Usuarios>> _usuariosdata;
   final TextEditingController datePicker = TextEditingController();
   DateTime? _selectedDate;
   Offset position = const Offset(700, 1150); // Posición inicial del botón
-  // Offset position = const Offset(100, 100);
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _usuariosdata = _apiService.getUsuarios(); // Cargar los usuarios al iniciar
+    _loadUsuarios();
   }
 
-  // Llamada para refrescar datos
+  Future<void> _loadUsuarios() async {
+    setState(() {
+      _usuariosdata = _userController.getUsers();
+    });
+  }
+
   void _refreshUsuarios() {
     setState(() {
-      _usuariosdata = _apiService.getUsuarios();
+      _usuariosdata = _userController.getUsers();
     });
   }
 
@@ -83,7 +88,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
       ),
       appBar: AppBar(title: const Text('Registro Empleados')),
       body: SingleChildScrollView(
-        child: FutureBuilder<List<ObtenerEmpleados>>(
+        child: FutureBuilder<List<Usuarios>>(
           future: _usuariosdata,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting){
@@ -106,19 +111,8 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     DataColumn(label: Text('Rol', style: TextStyle(fontSize: 23.0))),
                     DataColumn(label: Text('Accion', style: TextStyle(fontSize: 23.0)))
                   ], 
-                  rows: usuariostabla.map((obtenerEmpleado){
-                    Usuarios usuario = Usuarios(
-                      idUsuarios: obtenerEmpleado.idUsuarios$,
-                      cedula: obtenerEmpleado.cedula$,
-                      nombreApellido: obtenerEmpleado.nombreApellido$,
-                      usuario1: obtenerEmpleado.usuario$,
-                      email: obtenerEmpleado.email$,
-                      passwords: '',
-                      foto: null,
-                      fechaCreacion: obtenerEmpleado.fechaCreacion$,
-                      rol: obtenerEmpleado.rol$,
-                    );
-        
+                  rows: usuariostabla.map((usuario){
+                    // Usuarios usuario = _convertirAUsuario(obtenerEmpleado);
                     return DataRow(
                       cells: [
                         DataCell(Text(usuario.idUsuarios, style: const TextStyle(fontSize: 20.0))),
@@ -164,7 +158,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             top: position.dy,
             child: Draggable(
               feedback: FloatingActionButton(
-                onPressed: () => _showCreateDialog(),
+                onPressed: () => _showCreateDialog(context),
                 child: const Icon(Icons.add),
               ),
               // childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
@@ -188,35 +182,41 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                 });
               },
               child: FloatingActionButton(
-                onPressed: () => _showCreateDialog(),
+                onPressed: () => _showCreateDialog(context),
                 child: const Icon(Icons.add),
               ), 
             )
           )
         ]
-      ),
-      // floatingActionButton: FloatingActionButton(
-      //   heroTag: 'RegEmpleado_tag',
-      //   onPressed: () {
-      //     _showCreateDialog();
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
+      )
     );
   }
 
-  // Mostrar diálogo para crear un nuevo usuario
-  void _showCreateDialog() {
-    final formKey = GlobalKey<FormBuilderState>();
-    final passwordController = TextEditingController();
-    final confirmPasswordController = TextEditingController();
+  // Usuarios _convertirAUsuario(ObtenerEmpleados obtenerEmpleado) {
+  //   return Usuarios(
+  //     idUsuarios: obtenerEmpleado.idUsuarios$,
+  //     cedula: obtenerEmpleado.cedula$,
+  //     nombreApellido: obtenerEmpleado.nombreApellido$,
+  //     usuario1: obtenerEmpleado.usuario$,
+  //     email: obtenerEmpleado.email$,
+  //     passwords: '',  // Campo vacío o cargado según sea necesario
+  //     fechaCreacion: obtenerEmpleado.fechaCreacion$,
+  //     rol: obtenerEmpleado.rol$,
+  //   );
+  // }
 
-    @override
-    void dispose(){
-      passwordController.dispose();
-      confirmPasswordController.dispose();
-      super.dispose();
-    }
+  // Mostrar diálogo para crear un nuevo usuario
+  void _showCreateDialog(BuildContext parentContext) {
+    final formKey = GlobalKey<FormBuilderState>();
+    // final passwordController = TextEditingController();
+    // final confirmPasswordController = TextEditingController();
+
+    // @override
+    // void dispose(){
+    //   passwordController.dispose();
+    //   confirmPasswordController.dispose();
+    //   super.dispose();
+    // }
 
     showDialog(
       context: context,
@@ -337,7 +337,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                       autocorrect: false,
                       obscureText: true,
                       style: const TextStyle(fontSize: 30.0),
-                      controller: passwordController,
+                      // controller: passwordController,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Contraseña',
                         labelFrontSize: 30.5,
@@ -412,11 +412,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                   final formData = formKey.currentState!.value;
                   final newIdUser = formData['id'];
 
-                  Usuarios? existingUser = await ApiService('https://10.0.2.2:7190').getOneUsuarios(newIdUser);
+                  // Usuarios? existingUser = await _apiService('https://10.0.2.2:7190').getOneUsuarios(newIdUser);
+                  Usuarios? existingUser = await _userController.getOneUser(newIdUser);
 
                   if (existingUser != null) {
                     showDialog(
-                      context: context, 
+                      context: parentContext, 
                       builder: (context) {
                         return AlertDialog(
                           title: const Text('ID de Usuario ya existente', style: TextStyle(fontSize: 33.0, fontWeight: FontWeight.bold)),
@@ -446,24 +447,19 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     usuario1: formData['usuario'],
                     email: formData['email'],
                     passwords: formData['password'], 
-                    fechaCreacion: formData['fechaCreacion'], 
+                    fechaCreacion: formData['fechaCreacion'],
+                    // fechaCreacion: DateFormat("yyyy-MM-dd").format(DateTime.now()), // Fecha actual
                     rol: formData['rol'], 
                   );
 
                   // Llamar al servicio para crear el usuario
+                  // Guardar el nuevo usuario
                   try {
-                    final response = await ApiService('https://10.0.2.2:7190')
-                        .createUsuarios(nuevoUsuario);
-                    if (response.statusCode == 201) {
-                      print('Usuario creado con éxito');
-                      Navigator.of(context).pop(); // Cerrar el diálogo
-                      // Refrescar la lista de usuarios aquí
-                      _refreshUsuarios();
-                    } else {
-                      print('Error al crear usuario: ${response.body}');
-                    }
+                    await _userController.createUser(nuevoUsuario);
+                    Navigator.of(parentContext).pop();
+                    _refreshUsuarios();
                   } catch (e) {
-                    print('Excepción al crear usuario: $e');
+                    print('Error al crear usuario: $e');
                   }
                 }
               }, 
@@ -583,20 +579,13 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
                   print(formData);
 
-                  // Llamar al servicio para actualizar el usuario
+                  // Actualizar usuario
                   try {
-                    final response = await ApiService('https://10.0.2.2:7190')
-                        .updateUsuario(userUpload.idUsuarios, usuarioActualizado);
-                    if (response.statusCode == 204) {
-                      print('Usuario actualizado con éxito');
-                      Navigator.of(context).pop(); // Cerrar el diálogo
-                      // Refrescar la lista de usuarios aquí
-                      _refreshUsuarios();
-                    } else {
-                      print('Error al actualizar usuario: ${response.body}');
-                    }
+                    await _userController.updateUser(userUpload.idUsuarios, usuarioActualizado);
+                    Navigator.of(context).pop();
+                    _refreshUsuarios();
                   } catch (e) {
-                    print('Excepción al actualizar usuario: $e');
+                    print('Error al actualizar usuario: $e');
                   }
                 }
               },
@@ -626,20 +615,13 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             TextButton(
               child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               onPressed: () async {
-                // Llamar al servicio de eliminación
+                // Eliminar usuario
                 try {
-                  final response = await ApiService('https://10.0.2.2:7190')
-                      .deleteUsuario(userDelete.idUsuarios);
-                  if (response.statusCode == 204) {
-                    print('Usuario eliminado con éxito');
-                    Navigator.of(context).pop(); // Cerrar el diálogo después de la eliminación
-                    // Refrescar la lista de usuarios aquí
-                    _refreshUsuarios();
-                  } else {
-                    print('Error al eliminar usuario: ${response.body}');
-                  }
+                  await _userController.deleteUser(userDelete.idUsuarios);
+                  Navigator.of(context).pop();
+                  _refreshUsuarios();
                 } catch (e) {
-                  print('Excepción al eliminar usuario: $e');
+                  print('Error al eliminar usuario: $e');
                 }
               },
             ),
