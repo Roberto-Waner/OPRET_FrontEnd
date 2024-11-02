@@ -23,4 +23,14 @@ class SpPreguntascompleta {
       sp_Rango: json['rango']
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['codPregunta'] = sp_CodPregunta;
+    data['tipoRespuesta'] = sp_TipoRespuesta;
+    data['pregunta'] = sp_Pregunta;
+    data['subPregunta'] = sp_SubPregunta;
+    data['rango'] = sp_Rango;
+    return data;
+  }
 }

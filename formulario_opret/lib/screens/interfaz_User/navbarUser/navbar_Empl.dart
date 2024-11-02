@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:formulario_opret/screens/interfaz_User/form_Encuesta_Screen.dart';
+import 'package:formulario_opret/services/login_services_token.dart';
 // import 'package:formulario_opret/screens/interfaz_User/formEncuesta_screen.dart';
 
 class NavbarEmpl extends StatefulWidget {
@@ -24,6 +25,8 @@ class NavbarEmpl extends StatefulWidget {
 class _NavbarEmplState extends State<NavbarEmpl> {
   @override
   Widget build(BuildContext context) {
+    final ApiServiceToken _apiServiceToken = ApiServiceToken('https://10.0.2.2:7190',false);
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -92,20 +95,20 @@ class _NavbarEmplState extends State<NavbarEmpl> {
               );
             }
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.account_circle_outlined, size: 30.0),
-            title: const Text(
-              'Perfile',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => PagEdit(/*idAdmin: data*/))
-              // );
-            },
-          ),
+          // const Divider(),
+          // ListTile(
+          //   leading: const Icon(Icons.account_circle_outlined, size: 30.0),
+          //   title: const Text(
+          //     'Perfile',
+          //     style: TextStyle(fontSize: 20.0),
+          //   ),
+          //   onTap: () {
+          //     // Navigator.push(
+          //     //   context,
+          //     //   MaterialPageRoute(builder: (context) => PagEdit(/*idAdmin: data*/))
+          //     // );
+          //   },
+          // ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, size: 30.0),
@@ -113,7 +116,9 @@ class _NavbarEmplState extends State<NavbarEmpl> {
               'Cerrar Sesion',
               style: TextStyle(fontSize: 20.0),
             ),
-            onTap: () => print('Cerrando la Seccion del Usuario Administrador ...'),
+            onTap: () async {
+              await _apiServiceToken.logout(context); // Llama a la función para cerrar sesión
+            }
           ),
         ],
       ),

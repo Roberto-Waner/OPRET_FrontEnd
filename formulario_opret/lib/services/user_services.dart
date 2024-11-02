@@ -13,10 +13,11 @@ class ApiServiceUser {
 
   // Método para crear un usuario (POST: api/Usuarios)
   Future<http.Response> createUsuario(Usuarios user) async {
+    var cache = await _usuariosCRUD.insertUserCrud(user).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.postData('$baseUrl/api/RegistroUsuarios', user.toJson()).timeout(const Duration(seconds: 30));
+        final response = await service.postData('RegistroUsuarios', user.toJson()).timeout(const Duration(seconds: 30));
         if (response.statusCode == 201) {
           print('Usuario creado con éxito');
         } else {
@@ -30,17 +31,19 @@ class ApiServiceUser {
       }
     } else {
       // Guardar en SQLite
-      await _usuariosCRUD.insertUserCrud(user).timeout(const Duration(seconds: 30));
+      // await _usuariosCRUD.insertUserCrud(user).timeout(const Duration(seconds: 30));
+      cache;
       return http.Response('Creado en SQLite', 201);
     }
   }
 
   // GET: api/Usuarios
   Future<List<Usuarios>> getUsuarios() async {
+    var cache = await _usuariosCRUD.getUsersCrud().timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.getAllData('$baseUrl/api/RegistroUsuarios').timeout(const Duration(seconds: 30));
+        final response = await service.getAllData('RegistroUsuarios').timeout(const Duration(seconds: 30));
         return response.map((json) => Usuarios.fromJson(json)).toList();
       } catch (e) {
         print('Error al cargar usuarios: $e');
@@ -48,12 +51,13 @@ class ApiServiceUser {
       }
     } else {
       // Leer desde SQLite
-      return await _usuariosCRUD.getUsersCrud().timeout(const Duration(seconds: 30));
+      return cache;
     }
   }
 
   // Método para obtener un usuario por ID (GET: api/Usuarios/{id})
   Future<Usuarios?> getOneUsuario(String id) async {
+    var cache = await _usuariosCRUD.getOneUserCrud(id).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
@@ -72,16 +76,17 @@ class ApiServiceUser {
       }
     } else {
       // Leer desde SQLite
-      return await _usuariosCRUD.getOneUserCrud(id).timeout(const Duration(seconds: 30));
+      return cache;
     }
   }
 
   // Método para actualizar un usuario (PUT: api/Usuarios/{id})
   Future<http.Response> updateUsuario(String id, Usuarios user) async {
+    var cache = await _usuariosCRUD.updateUserCrud(id, user).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.putData('$baseUrl/api/RegistroUsuarios/$id', user.toJson()).timeout(const Duration(seconds: 30));
+        final response = await service.putData('RegistroUsuarios', user.toJson(), id).timeout(const Duration(seconds: 30));
         if (response.statusCode == 204) {
           print('Usuario actualizado con éxito');
         } else {
@@ -95,17 +100,18 @@ class ApiServiceUser {
       }
     } else {
       // Actualizar en SQLite
-      await _usuariosCRUD.updateUserCrud(id, user).timeout(const Duration(seconds: 30));
+      cache;
       return http.Response('Actualizado en SQLite', 204);
     }
   }
 
   // Método para eliminar un usuario (DELETE: api/Usuarios/{id})
   Future<http.Response> deleteUsuario(String id) async {
+    var cache = await _usuariosCRUD.deleteUserCrud(id).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.deleteData('$baseUrl/api/RegistroUsuarios/$id').timeout(const Duration(seconds: 30));
+        final response = await service.deleteData('RegistroUsuarios', id).timeout(const Duration(seconds: 30));
         if (response.statusCode == 204) {
           print('Usuario eliminado con éxito');
         } else {
@@ -119,7 +125,7 @@ class ApiServiceUser {
       }
     } else {
       // Marcar como eliminado en SQLite
-      await _usuariosCRUD.deleteUserCrud(id).timeout(const Duration(seconds: 30));
+      cache;
       return http.Response('Eliminado en SQLite', 204);
     }
   }

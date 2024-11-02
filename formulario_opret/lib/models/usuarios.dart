@@ -7,6 +7,8 @@ class Usuarios {
   String passwords;
   String fechaCreacion;
   String rol;
+  final int isUpdated;
+  final int isDeleted;
 
   Usuarios({
     required this.idUsuarios,
@@ -17,6 +19,8 @@ class Usuarios {
     required this.passwords,
     required this.fechaCreacion,
     required this.rol,
+    this.isUpdated = 0,
+    this.isDeleted = 0,
   });
 
   // Constructor para crear una instancia desde JSON
@@ -29,7 +33,9 @@ class Usuarios {
       email: json['email'], 
       passwords: json['passwords'],
       fechaCreacion: json['fechaCreacion'],
-      rol: json['rol']
+      rol: json['rol'],
+      isUpdated: json['isUpdated'] ?? 0,
+      isDeleted: json['isDeleted'] ?? 0,
     );
   }
 
@@ -44,6 +50,8 @@ class Usuarios {
     data['passwords'] = passwords;
     data['fechaCreacion'] = fechaCreacion;
     data['rol'] = rol;
+    data['isUpdated'] = isUpdated;
+    data['isDeleted'] = isDeleted;
     return data;
   }
 }

@@ -16,7 +16,7 @@ class UserCrud {
 
   Future<List<Usuarios>> getUsersCrud() async {
     final db = await _databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query('RegistroUsuarios');
+    final List<Map<String, dynamic>> maps = await db.query('RegistroUsuarios', where: 'isDeleted = 0');
     return List.generate(maps.length, (i) {
       return Usuarios.fromJson(maps[i]);
     });
@@ -37,11 +37,30 @@ class UserCrud {
     }
   }
 
+  // Future<int> updateUserCrud(String id, Usuarios user) async {
+  //   final db = await _databaseHelper.database;
+  //   return await db.update(
+  //     'RegistroUsuarios',
+  //     user.toJson(),
+  //     where: 'idUsuarios = ?',
+  //     whereArgs: [id],
+  //   );
+  // }
+
+  // Future<int> deleteUserCrud(String id) async {
+  //   final db = await _databaseHelper.database;
+  //   return await db.delete(
+  //     'RegistroUsuarios',
+  //     where: 'idUsuarios = ?',
+  //     whereArgs: [id],
+  //   );
+  // }
+
   Future<int> updateUserCrud(String id, Usuarios user) async {
     final db = await _databaseHelper.database;
     return await db.update(
       'RegistroUsuarios',
-      user.toJson(),
+      user.toJson()..['isUpdated'] = 1,
       where: 'idUsuarios = ?',
       whereArgs: [id],
     );
@@ -49,8 +68,9 @@ class UserCrud {
 
   Future<int> deleteUserCrud(String id) async {
     final db = await _databaseHelper.database;
-    return await db.delete(
+    return await db.update(
       'RegistroUsuarios',
+      {'isDeleted': 1},
       where: 'idUsuarios = ?',
       whereArgs: [id],
     );

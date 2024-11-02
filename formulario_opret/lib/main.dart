@@ -139,7 +139,7 @@ class MyApp extends StatelessWidget {
         )
       },
 
-      initialRoute: 'registroEmpleados',
+      initialRoute: 'pregunta',
     );
   }
 }

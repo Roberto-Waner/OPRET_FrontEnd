@@ -9,7 +9,7 @@ class ApiService {
   // Método para consultar el endpoint 'check'
   Future<bool> check() async {
     final url = Uri.parse('$baseUrl/api/Check');
-    final response = await http.get(url).timeout(const Duration(seconds: 30));
+    final response = await http.get(url).timeout(const Duration(seconds: 20));
 
     // Suponiendo que el endpoint 'check' devuelve un 200 si está disponible
     if (response.statusCode == 200) {
@@ -23,8 +23,8 @@ class ApiService {
   Future<List<dynamic>> getAllData(String endpoint) async {
     final isCheckOk = await check();
     if (isCheckOk) {
-      final url = Uri.parse(endpoint);
-      final response = await http.get(url).timeout(const Duration(seconds: 30));
+      final url = Uri.parse('$baseUrl/api/$endpoint');
+      final response = await http.get(url).timeout(const Duration(seconds: 1));
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -41,7 +41,7 @@ class ApiService {
     final isCheckOk = await check();
     if (!isCheckOk) throw Exception('El endpoint check getOneData falló');
 
-    final url = Uri.parse('$baseUrl/$endpoint/$id');
+    final url = Uri.parse('$baseUrl/api/$endpoint/$id');
     final response = await http.get(url).timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
@@ -55,7 +55,7 @@ class ApiService {
   Future<http.Response> postData(String endpoint, Map<String, dynamic> data) async {
     final isCheckOk = await check();
     if (isCheckOk) {
-      final url = Uri.parse(endpoint);
+      final url = Uri.parse('$baseUrl/api/$endpoint');
       return await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -66,13 +66,13 @@ class ApiService {
       return http.Response('Creado en SQLite', 201);
     }
   }
-
+  /*
   // Método PUT
-  Future<http.Response> putData(String endpoint, Map<String, dynamic> data) async {
+  Future<http.Response> putData(/*String id, */String endpoint, Map<String, dynamic> data) async {
     final isCheckOk = await check();
     if (!isCheckOk) throw Exception('El endpoint check de putData falló');
 
-    final url = Uri.parse(endpoint);
+    final url = Uri.parse('$baseUrl/api/$endpoint/{id}');
     final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -87,9 +87,35 @@ class ApiService {
     final isCheckOk = await check();
     if (!isCheckOk) throw Exception('El endpoint check falló');
 
-    final url = Uri.parse(endpoint);
+    final url = Uri.parse('$baseUrl/api/$endpoint');
     final response = await http.delete(url).timeout(const Duration(seconds: 30));
 
     return response; // Retorna el response completo
+  }
+  */
+  // Método PUT
+  Future<http.Response> putData(String endpoint, Map<String, dynamic> data, String id) async {
+    final isCheckOk = await check();
+    if (isCheckOk) {
+      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
+      return await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      ).timeout(const Duration(seconds: 30));
+    } else {
+      throw Exception('La API no está disponible');
+    }
+  }
+
+  // Método DELETE
+  Future<http.Response> deleteData(String endpoint, String id) async {
+    final isCheckOk = await check();
+    if (isCheckOk) {
+      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
+      return await http.delete(url).timeout(const Duration(seconds: 30));
+    } else {
+      throw Exception('La API no está disponible');
+    }
   }
 }

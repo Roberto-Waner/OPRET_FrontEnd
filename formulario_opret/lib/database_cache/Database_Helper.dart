@@ -50,29 +50,9 @@ class DatabaseHelper {
         email TEXT unique not null,
         passwords TEXT unique not null,
         fechaCreacion  TEXT,
-        rol TEXT
-      )
-    ''');
-    await db.execute('''
-      create table Sesion(
-        idSesion INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        tipoRespuesta TEXT NOT NULL,
-        grupoTema TEXT NULL,
-        codPregunta INTEGER NOT NULL,
-        codSubPregunta TEXT NULL,
-        rango TEXT NULL
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE Pregunta (
-        codPregunta INTEGER PRIMARY KEY NOT NULL,
-        pregunta1 TEXT NULL
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE SubPreguntas (
-        codSubPregunta TEXT PRIMARY KEY NOT NULL,
-        subPreguntas TEXT NULL
+        rol TEXT,
+        isUpdated INTEGER DEFAULT 0,
+        isDeleted INTEGER DEFAULT 0
       )
     ''');
     await db.execute('''
@@ -84,36 +64,24 @@ class DatabaseHelper {
         respuesta1 TEXT NULL,
         valoracion TEXT NULL,
         comentarios TEXT NULL,
-        justificacion TEXT NULL
+        justificacion TEXT NULL,
+        isUpdated INTEGER DEFAULT 0,
+        isDeleted INTEGER DEFAULT 0
       )
     ''');
     await db.execute('''
-      CREATE TABLE Formulario (
-        identifacadorForm INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        noEncuesta TEXT NOT NULL,
-        idUsuarios TEXT NOT NULL,
-        cedula TEXT NOT NULL,
-        fecha TEXT NULL,
-        hora TEXT NULL,
-        idEstacion INTEGER NULL,
-        idLinea TEXT NULL
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE Linea (
-        idLinea TEXT PRIMARY KEY NOT NULL,
-        tipoLinea TEXT NOT NULL,
-        nombreLinea TEXT
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE Estacion (
-        idEstacion INTEGER PRIMARY KEY NOT NULL,
-        idLinea TEXT NOT NULL,
-        nombreEstacion TEXT
+      CREATE TABLE SeccionPreguntas (
+        codPregunta integer null,
+        tipoRespuesta text null,
+        pregunta text null,
+        subPregunta text null,
+        rango text null,
+        isUpdated INTEGER DEFAULT 0,
+        isDeleted INTEGER DEFAULT 0
       )
     ''');
   }
+}
 
   /*
   // Método genérico para insertar datos
@@ -146,4 +114,3 @@ class DatabaseHelper {
     return await db.query(table, where: whereClause, whereArgs: whereArgs);
   }
   */
-}

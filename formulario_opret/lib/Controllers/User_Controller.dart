@@ -28,6 +28,7 @@ class UserController {
         print('Error al crear usuario en la API: ${response.statusCode}');
         print('Cuerpo de la respuesta: ${response.body}');
         await _usuariosCRUD.insertUserCrud(user).timeout(const Duration(seconds: 30));
+        // await syncData();
         print('Usuario creado con éxito en SQLite');
       }
     } catch (e) {
@@ -77,6 +78,7 @@ class UserController {
         print('Usuario actualizado con éxito en la API');
       } else {
         await _usuariosCRUD.updateUserCrud(id, user).timeout(const Duration(seconds: 30));
+        // await syncData();
         print('Usuario actualizado con éxito en SQLite');
       }
     } catch (e) {
@@ -98,6 +100,7 @@ class UserController {
         print('Usuario eliminado con éxito en la API');
       } else {
         await _usuariosCRUD.deleteUserCrud(id).timeout(const Duration(seconds: 30));
+        // await syncData();
         print('Usuario marcado como eliminado en SQLite');
       }
     } catch (e) {
@@ -111,28 +114,96 @@ class UserController {
   usuario ha sido eliminado en el servidor o si se debe remover 
   desde la aplicación.*/
 
-  // Sincronizar datos entre SQLite y la API
   Future<void> syncData() async {
     try {
+      // Obtener usuarios locales desde SQLite
       List<Usuarios> usuariosLocales = await _usuariosCRUD.getUsersCrud();
+
       for (Usuarios user in usuariosLocales) {
         final isCheckOk = await _apiServiceUser.service.check();
+
         if (isCheckOk) {
-          final response = await _apiServiceUser.createUsuario(user);
-          if (response.statusCode == 201) {
-            await _usuariosCRUD.clearSyncFlags(user.idUsuarios);
+          if (user.isDeleted == 1) {
+            // Si el usuario está marcado como eliminado
+            final response = await _apiServiceUser.deleteUsuario(user.idUsuarios);
+            if (response.statusCode == 204) {
+              await _usuariosCRUD.clearSyncFlags(user.idUsuarios);
+            } else {
+              print('Error al eliminar usuario en la API: ${response.statusCode}');
+            }
+          } else if (user.isUpdated == 1) {
+            // Si el usuario está marcado como actualizado
+            final response = await _apiServiceUser.updateUsuario(user.idUsuarios, user);
+            if (response.statusCode == 204) {
+              await _usuariosCRUD.clearSyncFlags(user.idUsuarios);
+            } else {
+              print('Error al actualizar usuario en la API: ${response.statusCode}');
+            }
           } else {
-            print('Error al sincronizar usuario en la API: ${response.statusCode}');
+            // Si el usuario es nuevo
+            final response = await _apiServiceUser.createUsuario(user);
+            if (response.statusCode == 201) {
+              await _usuariosCRUD.clearSyncFlags(user.idUsuarios);
+            } else {
+              print('Error al crear usuario en la API: ${response.statusCode}');
+            }
           }
         } else {
-          await _usuariosCRUD.insertUserCrud(user);
+          // Si la API no está disponible, guardar localmente y marcar como pendiente
+          print('La API no está disponible, se guardarán los cambios localmente.');
         }
       }
+
+      // Obtener usuarios desde la API y actualizar SQLite si hay discrepancias
+      final usuariosDesdeApi = await _apiServiceUser.getUsuarios();
+      for (Usuarios apiUser in usuariosDesdeApi) {
+        final localUser = await _usuariosCRUD.getOneUserCrud(apiUser.idUsuarios);
+        if (localUser == null || !compareUsersIgnoringFlags(localUser, apiUser)) {
+          await _usuariosCRUD.updateUserCrud(apiUser.idUsuarios, apiUser);
+        }
+      }
+
       print('Datos sincronizados con éxito.');
     } catch (e) {
       print('Error al sincronizar datos: $e');
     }
   }
+
+  // Método para comparar usuarios ignorando isUpdated e isDeleted
+  bool compareUsersIgnoringFlags(Usuarios localUser, Usuarios apiUser) {
+    return localUser.idUsuarios == apiUser.idUsuarios &&
+          localUser.cedula == apiUser.cedula &&
+          localUser.nombreApellido == apiUser.nombreApellido &&
+          localUser.usuario1 == apiUser.usuario1 &&
+          localUser.email == apiUser.email &&
+          localUser.passwords == apiUser.passwords &&
+          localUser.fechaCreacion == apiUser.fechaCreacion &&
+          localUser.rol == apiUser.rol;
+  }
+
+
+  // Sincronizar datos entre SQLite y la API
+  // Future<void> syncData() async {
+  //   try {
+  //     List<Usuarios> usuariosLocales = await _usuariosCRUD.getUsersCrud();
+  //     for (Usuarios user in usuariosLocales) {
+  //       final isCheckOk = await _apiServiceUser.service.check();
+  //       if (isCheckOk) {
+  //         final response = await _apiServiceUser.createUsuario(user);
+  //         if (response.statusCode == 201) {
+  //           await _usuariosCRUD.clearSyncFlags(user.idUsuarios);
+  //         } else {
+  //           print('Error al al crear usuario en la API: ${response.statusCode}');
+  //         }
+  //       } else {
+  //         await _usuariosCRUD.insertUserCrud(user);
+  //       }
+  //     }
+  //     print('Datos sincronizados con éxito.');
+  //   } catch (e) {
+  //     print('Error al sincronizar datos: $e');
+  //   }
+  // }
 }
 
 /*// Método para obtener usuarios actualizados desde SQLite
