@@ -1,20 +1,18 @@
 class Respuesta {
   // int idRespuesta;
   String idUsuarios;
-  String noEncuesta;
-  int codPregunta;
+  String? noEncuesta;
+  int? idSesion;
   String? respuestas;
-  String? valoracion;
   String? comentarios;
   String? justificacion;
 
   Respuesta({
     // required this.idRespuesta,
     required this.idUsuarios,
-    required this.noEncuesta,
-    required this.codPregunta,
+    this.noEncuesta,
+    required this.idSesion,
     this.respuestas,
-    this.valoracion,
     this.comentarios,
     this.justificacion,
   });
@@ -24,9 +22,8 @@ class Respuesta {
       // idRespuesta: json['idRespuesta'],
       idUsuarios: json['idUsuarios'],
       noEncuesta: json['noEncuesta'],
-      codPregunta: json['codPregunta'],
+      idSesion: json['idSesion'],
       respuestas: json['respuesta1'],
-      valoracion: json['valoracion'],
       comentarios: json['comentarios'],
       justificacion: json['justificacion']
     );
@@ -37,11 +34,12 @@ class Respuesta {
     // data['idRespuesta'] = idRespuesta;
     data['idUsuarios'] = idUsuarios;
     data['noEncuesta'] = noEncuesta;
-    data['codPregunta'] = codPregunta;
+    data['idSesion'] = idSesion;
     data['respuesta1'] = respuestas;
-    data['valoracion'] = valoracion;
     data['comentarios'] = comentarios;
     data['justificacion'] = justificacion;
     return data;
   }
-}
+} 
+// hay que determinar la relacion foreign key ya que 
+//no deja mostrar los datos de la tabla respuesta

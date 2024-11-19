@@ -35,19 +35,25 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
   late Future<List<SubPregunta>> _subPreguntas;
   final ApiServiceSesion _apiServiceSesion = ApiServiceSesion('https://10.0.2.2:7190');
   late Future<List<Sesion>> _sesion;
-  String selectedTipRespuestas = '';
+  String selectedTipRespuestas = 'Respuesta Abierta';
+  int _rangoValor = 1; // Valor inicial dentro del rango permitido
+  String rango = "1,10"; // Ejemplo de rango
   final tipoRespuestaController = TextEditingController();
-  List<double> rangoArray = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
-  int _rangoValor = 0;
+  late List<String> rangos;
+  late int desde;
+  late int hasta;
+  late List<int> opcionesRango;
   Offset position = const Offset(700, 1150);
   List<Preguntas> _questions = [];
   int? _savedQuestion;
   List<SubPregunta> _subQuestions = [];
   // String? _savedSubQuestion;
 
-  String numbersToRango(int rango) {
+  String numbersToRango(int desde, int hasta) {
+    if (hasta == 0) return 'null';
+    
     String result = '';
-    for (var i = 0; i <= rango; i++) {
+    for (var i = desde; i <= hasta; i++) {
       result += '|$i| ';
     }
     return result.trim();
@@ -61,7 +67,17 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
     _sesion = _apiServiceSesion.getSesion();
     _fetchData();
     _fetchDataSubPregu();
+    _refreshSesion();
+    initializeRango();
   }
+
+  void initializeRango() {
+    rangos = rango.split(','); // Dividir el rango en una lista
+    desde = int.parse(rangos[0].trim());
+    hasta = int.parse(rangos[1].trim());
+    opcionesRango = [0] + List<int>.generate(hasta - desde + 1, (i) => desde + i);
+  }
+
 
   void _refreshPreguntas() {
     setState(() {
@@ -323,8 +339,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   }
 
                   if (dy < 0) dy = 0;
-                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 200) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
-                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 200;
+                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 60) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
+                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 60;
                   }
 
                   position = Offset(dx, dy);
@@ -633,6 +649,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     style: const TextStyle(fontSize: 30.0),
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                   ),
+
                   FormBuilderTextField(
                     name: 'subPreguntas',
                     decoration: InputDecorations.inputDecoration(
@@ -858,61 +875,61 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       // hintFrontSize: 30.0,
                       icono: const Icon(Icons.numbers,size: 30.0),
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                     items: const [
                       DropdownMenuItem(
                         value: 'Respuesta Abierta',
-                        child: Text('Respuesta Abierta', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1)))
+                        child: Text('Respuesta Abierta')
                       ),
                       DropdownMenuItem(
                         value: 'Selecionar: Si, No, N/A',
-                        child: Text('Selecionar: Si, No, N/A', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Selecionar: Si, No, N/A'),
                       ),
                       DropdownMenuItem(
                         value: 'Calificar del 1 a 10',
-                        child: Text('Calificar del 1 a 10', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Calificar del 1 a 10'),
                       ),
                       DropdownMenuItem(
                         value: 'Solo SI o No',
-                        child: Text('Solo SI o No', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Solo SI o No'),
                       ),
                       DropdownMenuItem(
                         value: 'Edad',
-                        child: Text('Edad', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Edad'),
                       ),
                       DropdownMenuItem(
                         value: 'Nacionalidad',
-                        child: Text('Nacionalidad', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Nacionalidad'),
                       ),
                       DropdownMenuItem(
                         value: 'Título de transporte',
-                        child: Text('Título de transporte', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Título de transporte'),
                       ),
                       DropdownMenuItem(
                         value: 'Producto utilizado',
-                        child: Text('Producto utilizado', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Producto utilizado'),
                       ),
                       DropdownMenuItem(
                         value: 'Genero',
-                        child: Text('Genero', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Genero'),
                       ),
                       DropdownMenuItem(
                         value: 'Frecuencia de viajes por semana',
-                        child: Text('Frecuencia de viajes por semana', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Frecuencia de viajes por semana'),
                       ),
                       DropdownMenuItem(
                         value: 'Expectativa del pasajero',
-                        child: Text('Expectativa del pasajero', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Expectativa del pasajero'),
                       ),
                       DropdownMenuItem(
                         value: 'Conclusion',
-                        child: Text('Conclusion', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Conclusion'),
                       ),
-                      // DropdownMenuItem(
-                      //   value: 'Calificar del 1 a 10',
-                      //   child: Text('Calificar del 1 a 10', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
-                      // )
+                      DropdownMenuItem(
+                        value: 'Motivo del viaje',
+                        child: Text('Motivo del viaje'),
+                      )
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -934,23 +951,11 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     style: const TextStyle(fontSize: 30.0),
                     // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                   ),
-
-                  // FormBuilderTextField(
-                  //   name: 'codPregunta',
-                  //   decoration: InputDecorations.inputDecoration(
-                  //     labeltext: 'No. Pregunta',
-                  //     labelFrontSize: 30.5,
-                  //     hintext: ' ',
-                  //     hintFrontSize: 30.0,
-                  //     icono: const Icon(Icons.numbers,size: 30.0),
-                  //   ),
-                  //   style: const TextStyle(fontSize: 30.0),
-                  //   validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  // ),
+                  const SizedBox(height: 20),
 
                   FormBuilderDropdown<int>(
                     name: 'codPregunta',
-                    style: const TextStyle(fontSize: 30.0),
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'No. de Pregunta',
                       labelFrontSize: 30.5,
@@ -959,7 +964,15 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     items: _questions.map((preg) {
                       return DropdownMenuItem(
                         value: preg.codPregunta,
-                        child: Text(preg.pregunta, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                              child: Text(preg.pregunta, overflow: TextOverflow.clip)
+                            ),
+                            const SizedBox(width: 20),
+                          ],
+                        ),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -968,21 +981,10 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                         print('Pregunta seleccionada: $_savedQuestion');
                       });
                     },
-                    validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
+                    validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                    isExpanded: true,
                   ),
-
-                  // FormBuilderTextField(
-                  //   name: 'codSubPregunta',
-                  //   decoration: InputDecorations.inputDecoration(
-                  //     labeltext: 'Cod. Sub Pregunta',
-                  //     labelFrontSize: 30.5,
-                  //     hintext: 'Ingrese el codigo de la Sub-pregunta',
-                  //     hintFrontSize: 30.0,
-                  //     icono: const Icon(Icons.numbers,size: 30.0),
-                  //   ),
-                  //   style: const TextStyle(fontSize: 30.0),
-                  //   // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
-                  // ),
+                  const SizedBox(height: 20),
 
                   FormBuilderDropdown(
                     name: 'codSubPregunta',
@@ -993,57 +995,57 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       hintFrontSize: 25.0,
                       icono: const Icon(Icons.numbers,size: 30.0),
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
                     items: _subQuestions.map((subPreg) {
                       return DropdownMenuItem(
                         value: subPreg.codSubPregunta,
-                        child: Text(subPreg.subPreguntas!, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                subPreg.subPreguntas!, overflow: TextOverflow.clip)
+                            ),
+                          ],
+                        )
                       );
                     }).toList(),
-                    // onChanged: (value) {
-                    //   setState(() {
-                    //     _savedSubQuestion = value!;
-                    //     print('Sub-Pregunta seleccionada: $_savedSubQuestion');
-                    //   });
-                    // }
+                    isExpanded: true, // Permite que los ítems se expandan al ancho disponible
                   ),
+                  const SizedBox(height: 20),
 
                   FormBuilderTextField(
                     name: 'rango',
                     controller: tipoRespuestaController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Determinar el Rango requerido',
                       labelFrontSize: 30.5,
                       hintext: 'Usa el slider para determinar el rango deseado.',
                       hintFrontSize: 20.0,
-                      icono: const Icon(Icons.numbers,size: 30.0),
+                      icono: const Icon(Icons.numbers, size: 30.0),
                     ),
                     style: const TextStyle(fontSize: 30.0),
-                    // validator: FormBuilderValidators.numeric(errorText: 'Este campo es requerido')
+                    enabled: false,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Slider(
-                          value: _rangoValor.toDouble(),
-                          min: 0,
-                          max: (rangoArray.length - 1).toDouble(),
-                          divisions: rangoArray.length - 1,
-                          label: rangoArray[_rangoValor].toString(),
-                          onChanged: (double valor) {
-                            setState(() {
-                              _rangoValor = valor.toInt();
-                              // Actualiza el valor del controlador con el formato requerido
-                              tipoRespuestaController.text = numbersToRango(_rangoValor);
-                            });
-                          },
-                        ),
-                      ]
-                    ),
-                  )
+                  const SizedBox(height: 20.0),
+                  const Text(
+                    'Selecciona el Rango:',
+                    style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    children: opcionesRango.map((int value) {
+                      return ChoiceChip(
+                        label: Text(value.toString(), style: const TextStyle(fontSize: 20.0)),
+                        selected: _rangoValor == value,
+                        onSelected: (bool selected) {
+                          setState(() {
+                            _rangoValor = selected ? value : _rangoValor;
+                            tipoRespuestaController.text = numbersToRango(desde, _rangoValor);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ] 
               )
             ),
@@ -1119,61 +1121,61 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       // hintFrontSize: 30.0,
                       icono: const Icon(Icons.numbers,size: 30.0),
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                     items: const [
                       DropdownMenuItem(
                         value: 'Respuesta Abierta',
-                        child: Text('Respuesta Abierta', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1)))
+                        child: Text('Respuesta Abierta')
                       ),
                       DropdownMenuItem(
                         value: 'Selecionar: Si, No, N/A',
-                        child: Text('Selecionar: Si, No, N/A', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Selecionar: Si, No, N/A'),
                       ),
                       DropdownMenuItem(
                         value: 'Calificar del 1 a 10',
-                        child: Text('Calificar del 1 a 10', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Calificar del 1 a 10'),
                       ),
                       DropdownMenuItem(
                         value: 'Solo SI o No',
-                        child: Text('Solo SI o No', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Solo SI o No'),
                       ),
                       DropdownMenuItem(
                         value: 'Edad',
-                        child: Text('Edad', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Edad'),
                       ),
                       DropdownMenuItem(
                         value: 'Nacionalidad',
-                        child: Text('Nacionalidad', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Nacionalidad'),
                       ),
                       DropdownMenuItem(
                         value: 'Título de transporte',
-                        child: Text('Título de transporte', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Título de transporte'),
                       ),
                       DropdownMenuItem(
                         value: 'Producto utilizado',
-                        child: Text('Producto utilizado', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Producto utilizado'),
                       ),
                       DropdownMenuItem(
                         value: 'Genero',
-                        child: Text('Genero', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Genero'),
                       ),
                       DropdownMenuItem(
                         value: 'Frecuencia de viajes por semana',
-                        child: Text('Frecuencia de viajes por semana', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Frecuencia de viajes por semana'),
                       ),
                       DropdownMenuItem(
                         value: 'Expectativa del pasajero',
-                        child: Text('Expectativa del pasajero', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Expectativa del pasajero'),
                       ),
                       DropdownMenuItem(
                         value: 'Conclusion',
-                        child: Text('Conclusion', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
+                        child: Text('Conclusion'),
                       ),
-                      // DropdownMenuItem(
-                      //   value: 'Calificar del 1 a 10',
-                      //   child: Text('Calificar del 1 a 10', style: TextStyle(fontSize: 30.0, color: Color.fromARGB(255, 1, 1, 1))),
-                      // )
+                      DropdownMenuItem(
+                        value: 'Motivo del viaje',
+                        child: Text('Motivo del viaje'),
+                      )
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -1225,39 +1227,36 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   FormBuilderTextField(
                     name: 'rango',
                     controller: tipoRespuestaController,
-                    keyboardType: TextInputType.number,
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Determinar el Rango requerido',
                       labelFrontSize: 30.5,
                       hintext: 'Usa el slider para determinar el rango deseado.',
                       hintFrontSize: 20.0,
-                      icono: const Icon(Icons.numbers,size: 30.0),
+                      icono: const Icon(Icons.numbers, size: 30.0),
                     ),
                     style: const TextStyle(fontSize: 30.0),
-                    // validator: FormBuilderValidators.numeric(errorText: 'Este campo es requerido')
+                    enabled: false,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Slider(
-                          value: _rangoValor.toDouble(),
-                          min: 0,
-                          max: (rangoArray.length - 1).toDouble(),
-                          divisions: rangoArray.length - 1,
-                          label: rangoArray[_rangoValor].toString(),
-                          onChanged: (double valor) {
-                            setState(() {
-                              _rangoValor = valor.toInt();
-                              // Actualiza el valor del controlador con el formato requerido
-                              tipoRespuestaController.text = numbersToRango(_rangoValor);
-                            });
-                          },
-                        ),
-                      ]
-                    ),
-                  )
+                  const SizedBox(height: 20.0),
+                  const Text(
+                    'Selecciona el Rango:',
+                    style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    children: opcionesRango.map((int value) {
+                      return ChoiceChip(
+                        label: Text(value.toString(), style: const TextStyle(fontSize: 20.0)),
+                        selected: _rangoValor == value,
+                        onSelected: (bool selected) {
+                          setState(() {
+                            _rangoValor = selected ? value : _rangoValor;
+                            tipoRespuestaController.text = numbersToRango(desde, _rangoValor);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ],
               )
             ),
@@ -1273,7 +1272,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     idSesion: sectionUpload.idSesion,
                     tipoRespuesta: selectedTipRespuestas,
                     grupoTema: dataSesion['grupoTema'],
-                    codPregunta: int.parse(dataSesion['codPregunta']),
+                    codPregunta: int.parse(dataSesion['codPregunta'].toString()),
                     codSubPregunta: dataSesion['codSubPregunta'],
                     rango: dataSesion['rango']
                   );

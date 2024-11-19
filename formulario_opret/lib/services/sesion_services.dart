@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:formulario_opret/data/section_crud.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_preguntasCompleta.dart';
 import 'package:formulario_opret/models/pregunta.dart';
 import 'package:formulario_opret/services/http_interactor_services.dart';
@@ -9,13 +8,11 @@ import 'package:http/http.dart' as http;
 class ApiServiceSesion2 {
   final String baseUrl;
   final ApiService service;
-  final SectionCrud _sectionCrud = SectionCrud();
 
   ApiServiceSesion2(this.baseUrl) : service = ApiService(baseUrl);
 
   Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
     List<SpPreguntascompleta> dataQuestion = [];
-    var cache = await _sectionCrud.querySectionCrud().timeout(const Duration(seconds: 5));
     final isCheckOk = await service.check();
 
     if (isCheckOk) {
@@ -23,25 +20,16 @@ class ApiServiceSesion2 {
         final response = await service.getAllData('PreguntasCompletas/obtenerQuestion');
         if (response.isNotEmpty) {
           dataQuestion = response.map<SpPreguntascompleta>((json) => SpPreguntascompleta.fromJson(json)).toList();
-
-          // Guardar automáticamente los datos obtenidos en SQLite
-          for (var question in dataQuestion) {
-            await _sectionCrud.insertSectionCrud(question);
-          }
-
-          print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
           return dataQuestion;
         } else {
-          print('Error: No se recibieron datos de la API o la respuesta está vacía.');
-          return cache; // Devolver los datos de la caché en caso de error
+          throw Exception('API response is empty.');
         }
       } catch (e) {
-        print('Excepción durante la solicitud a la API: $e');
-        return cache; // Devolver los datos de la caché en caso de excepción
+        print('Excepción durante la solicitud a la API: $e'); 
+        rethrow;
       }
     } else {
-      print('La API no está disponible. Cargando datos desde SQLite.');
-      return cache; // Devolver los datos de la caché si la API no está disponible
+      throw Exception('La API no está disponible.');
     }
   }
 }
@@ -165,3 +153,80 @@ class ApiServiceSesion {
   //   print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
   //   return dataQuestion;
   // }
+
+  /*
+  class ApiServiceSesion2 {
+  final String baseUrl;
+  final ApiService service;
+  final SectionCrud _sectionCrud = SectionCrud();
+
+  ApiServiceSesion2(this.baseUrl) : service = ApiService(baseUrl);
+
+  Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
+    List<SpPreguntascompleta> dataQuestion = [];
+    var cache = await _sectionCrud.querySectionCrud();
+    final isCheckOk = await service.check();
+
+    if (isCheckOk) {
+      try {
+        final response = await service.getAllData('PreguntasCompletas/obtenerQuestion');
+        if (response.isNotEmpty) {
+          dataQuestion = response.map<SpPreguntascompleta>((json) => SpPreguntascompleta.fromJson(json)).toList();
+
+          // Guardar automáticamente los datos obtenidos en SQLite
+          if(!listEquals(dataQuestion, cache)) {
+            await _sectionCrud.truncateSectionCrud();
+
+            for(var question in dataQuestion) {
+              await _sectionCrud.insertSectionCrud(question);
+            }
+            print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
+          }
+
+          print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
+          return dataQuestion;
+        } else {
+          print('Error: No se recibieron datos de la API o la respuesta está vacía.');
+          return cache; // Devolver los datos de la caché en caso de error
+        }
+      } catch (e) {
+        print('Excepción durante la solicitud a la API: $e');
+        return cache; // Devolver los datos de la caché en caso de excepción
+      }
+    } else {
+      print('La API no está disponible. Cargando datos desde SQLite.');
+      return cache; // Devolver los datos de la caché si la API no está disponible
+    }
+  }
+}*/
+
+/*
+class ApiServiceSesion2 {
+  final String baseUrl;
+  final ApiService service;
+
+  ApiServiceSesion2(this.baseUrl) : service = ApiService(baseUrl);
+
+  Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
+    List<SpPreguntascompleta> dataQuestion = [];
+    final isCheckOk = await service.check();
+
+    if (isCheckOk) {
+      try {
+        final response = await service.getAllData('PreguntasCompletas/obtenerQuestion');
+        if (response.isNotEmpty) {
+          dataQuestion = response.map<SpPreguntascompleta>((json) => SpPreguntascompleta.fromJson(json)).toList();
+          return dataQuestion;
+        } else {
+          throw Exception('API response is empty.');
+        }
+      } catch (e) {
+        print('Excepción durante la solicitud a la API: $e'); 
+        rethrow;
+      }
+    } else {
+      throw Exception('La API no está disponible.');
+    }
+  }
+}
+ */

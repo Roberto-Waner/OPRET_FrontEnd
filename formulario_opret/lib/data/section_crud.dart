@@ -47,4 +47,11 @@ class SectionCrud {
       return null;
     }
   }
+
+  // Método para truncar la tabla SeccionPreguntas
+  Future<void> truncateSectionCrud() async {
+    final db = await _databaseHelper.database;
+    await db.execute('DELETE FROM SeccionPreguntas');
+    print('Tabla SeccionPreguntas truncada.');
+  }
 }

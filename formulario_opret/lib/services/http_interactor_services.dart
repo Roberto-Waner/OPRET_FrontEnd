@@ -66,6 +66,63 @@ class ApiService {
       return http.Response('Creado en SQLite', 201);
     }
   }
+
+  // Método POST en listados
+  Future<http.Response> postDataList(String endpoint, List<Map<String, dynamic>> data) async {
+    final isCheckOk = await check();
+    if (isCheckOk) {
+      final url = Uri.parse('$baseUrl/api/$endpoint');
+      return await http.post( 
+        url, 
+        headers: {'Content-Type': 'application/json'}, 
+        body: json.encode(data), 
+      ).timeout(const Duration(seconds: 30));
+    } else {
+      throw Exception('La API no está disponible');
+    }
+  }
+
+  // Método PUT
+  Future<http.Response> putData(String endpoint, Map<String, dynamic> data, String id) async {
+    final isCheckOk = await check();
+    if (isCheckOk) {
+      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
+      return await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      ).timeout(const Duration(seconds: 30));
+    } else {
+      throw Exception('La API no está disponible');
+    }
+  }
+
+  Future<http.Response> putDataInt(String endpoint, Map<String, dynamic> data, int id) async {
+    final isCheckOk = await check();
+    if (isCheckOk) {
+      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
+      return await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      ).timeout(const Duration(seconds: 30));
+    } else {
+      throw Exception('La API no está disponible');
+    }
+  }
+
+  // Método DELETE
+  Future<http.Response> deleteData(String endpoint, String id) async {
+    final isCheckOk = await check();
+    if (isCheckOk) {
+      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
+      return await http.delete(url).timeout(const Duration(seconds: 30));
+    } else {
+      throw Exception('La API no está disponible');
+    }
+  }
+}
+
   /*
   // Método PUT
   Future<http.Response> putData(/*String id, */String endpoint, Map<String, dynamic> data) async {
@@ -93,29 +150,3 @@ class ApiService {
     return response; // Retorna el response completo
   }
   */
-  // Método PUT
-  Future<http.Response> putData(String endpoint, Map<String, dynamic> data, String id) async {
-    final isCheckOk = await check();
-    if (isCheckOk) {
-      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
-      return await http.put(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
-      ).timeout(const Duration(seconds: 30));
-    } else {
-      throw Exception('La API no está disponible');
-    }
-  }
-
-  // Método DELETE
-  Future<http.Response> deleteData(String endpoint, String id) async {
-    final isCheckOk = await check();
-    if (isCheckOk) {
-      final url = Uri.parse('$baseUrl/api/$endpoint/$id');
-      return await http.delete(url).timeout(const Duration(seconds: 30));
-    } else {
-      throw Exception('La API no está disponible');
-    }
-  }
-}

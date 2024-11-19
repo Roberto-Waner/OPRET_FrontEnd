@@ -36,7 +36,7 @@ class Sesion {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['idSesion'] = idSesion;
+    if (idSesion != null) { data['idSesion'] = idSesion; }
     data['tipoRespuesta'] = tipoRespuesta;
     data['grupoTema'] = grupoTema;
     data['codPregunta'] = codPregunta;
@@ -100,29 +100,3 @@ class SubPregunta {
     return data;
   }
 }
-
-// class RangoRespuestas {
-//   int? idRango;
-//   String? rango;
-
-//   RangoRespuestas({
-//     this.idRango,
-//     this.rango
-//   });
-
-//   factory RangoRespuestas.fromJson(Map<String, dynamic> json) {
-//     return RangoRespuestas(
-//       idRango: json['idRango'],
-//       rango: json['rango']
-//     );
-//   }
-
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = <String, dynamic>{};
-//     // data['idRango'] = idRango;
-//     data['rango'] = rango;
-//     return data;
-//   }
-// }
-
-// class SubPregunta

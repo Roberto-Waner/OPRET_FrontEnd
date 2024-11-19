@@ -34,10 +34,9 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
   final ApiServiceFormRegistro _apiServiceFormRegistro = ApiServiceFormRegistro('https://10.0.2.2:7190');
   final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('https://10.0.2.2:7190');
   final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('https://10.0.2.2:7190');
-  final TextEditingController timePicker = TextEditingController();
-  final TextEditingController datePicker = TextEditingController();
+  // final TextEditingController timePicker = TextEditingController();
+  // final TextEditingController datePicker = TextEditingController();
   final TextEditingController noEncuestaFiltrar = TextEditingController();
-  DateTime? _selectedDate;  // Variable para almacenar la fecha seleccionada.
   String? _selectLineMetro; // Línea seleccionada
   int? _selectedStation; // Estación seleccionada
   String year = DateFormat('yyyy').format(DateTime.now()); // Obtener el año actual en el momento del registro
@@ -45,9 +44,13 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
   List<Linea> _lineas = [];
   List<EstacionPorLinea> _estaciones = [];
 
+  final TextEditingController fechaController = TextEditingController();
+  final TextEditingController horaController = TextEditingController();
+
   void initState() {
     super.initState();
     _fetchData();
+    _setInitialValues();
   }
 
   Future<void> _fetchData() async {
@@ -68,13 +71,18 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
       List<EstacionPorLinea> estaciones = await _apiServiceEstacion.getEstacionesPorLinea(idLinea);
       setState(() {
         _estaciones = estaciones;
-        // for (var estacion in _estaciones) {
-        //   print('Estación obtenida: idEstacion=${estacion.idEstacion}, nombreEstacion=${estacion.nombreEstacion}');
-        // }
       });
     } catch (e) {
       print('Error fetching estaciones: $e');
     }
+  }
+
+  void _setInitialValues() {
+    String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
+    String currentTime = DateFormat('hh:mm a').format(DateTime.now());
+
+    fechaController.text = currentDate;
+    horaController.text = currentTime;
   }
 
   //método se utiliza para filtrar una lista de objetos Estacion basándose en el idLinea seleccionado. 
@@ -83,43 +91,43 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
   //   return _estaciones.where((e) => e.nombreLinea == idLinea).toList();
   // }
 
-  Future<void> _showDatePicker() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(), 
-      firstDate: DateTime(2024, 9, 1), 
-      lastDate: DateTime.now(),
-      builder: (BuildContext content, Widget? child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(primary: Colors.green),
-            buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          ),
-          child: child!,
-        );
-      }
-    );
+  // Future<void> _showDatePicker() async {
+  //   final picked = await showDatePicker(
+  //     context: context,
+  //     initialDate: DateTime.now(), 
+  //     firstDate: DateTime(2024, 9, 1), 
+  //     lastDate: DateTime.now(),
+  //     builder: (BuildContext content, Widget? child) {
+  //       return Theme(
+  //         data: ThemeData.light().copyWith(
+  //           colorScheme: const ColorScheme.light(primary: Colors.green),
+  //           buttonTheme: const ButtonThemeData(textTheme: ButtonTextTheme.primary),
+  //         ),
+  //         child: child!,
+  //       );
+  //     }
+  //   );
 
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        datePicker.text = DateFormat("yyyy-MM-dd").format(_selectedDate!); // Formatea la fecha seleccionada
-      });
-    }
-  }
+  //   if (picked != null && picked != _selectedDate) {
+  //     setState(() {
+  //       _selectedDate = picked;
+  //       datePicker.text = DateFormat("yyyy-MM-dd").format(_selectedDate!); // Formatea la fecha seleccionada
+  //     });
+  //   }
+  // }
 
   void _registrarFormEncuesta() async {
     if (_formKey.currentState!.saveAndValidate()) {
       final data = _formKey.currentState!.value;
-      String surveyNumber = data['noEncuesta'].toString().padLeft(2, '0'); //para hacer que no_encuesta tenga como minimo 2 digitos
-      String concatenarYearId = '$year - $surveyNumber';
+
+      String currentDate = fechaController.text;
+      String currentTime = horaController.text;
 
       FormularioRegistro formEncuesta = FormularioRegistro(
-        noEncuesta: concatenarYearId,
         idUsuarios: data['idUsuarios'],
         cedula: data['cedula'],
-        fecha: datePicker.text, // Utiliza la fecha seleccionada
-        hora: data['hora'],
+        fecha: currentDate,
+        hora: currentTime,
         idEstacion: _selectedStation,
         idLinea: _selectLineMetro
       );
@@ -186,35 +194,36 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: FormBuilderTextField(
-                      name: 'noEncuesta',
-                      controller: noEncuestaFiltrar,
-                      decoration: InputDecorations.inputDecoration(
-                        hintext: '#',
-                        hintFrontSize: 25.0,
-                        labeltext: 'No. de Encuesta',
-                        labelFrontSize: 30.5,
-                        prefixText: '$year - ',
-                        icono: const Icon(Icons.numbers, size: 30.0)
-                      ),
-                      style: const TextStyle(fontSize: 30.0), // Cambiar tamaño de letra del texto filtrado
-                      validator: FormBuilderValidators.required(),
-                      onChanged: (val) {
-                        // noEncuestaFiltrar.text = '$year - $val';
-                        noEncuestaFiltrar.selection = TextSelection.fromPosition(TextPosition(offset: noEncuestaFiltrar.text.length));
-                        print('Numero seleccionada: $val');
-                      },
-                    ),
-                  )
-                ]
-              ),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: FormBuilderTextField(
+              //         name: 'noEncuesta',
+              //         controller: noEncuestaFiltrar,
+              //         decoration: InputDecorations.inputDecoration(
+              //           hintext: '#',
+              //           hintFrontSize: 25.0,
+              //           labeltext: 'No. de Encuesta',
+              //           labelFrontSize: 30.5,
+              //           prefixText: '$year - ',
+              //           icono: const Icon(Icons.numbers, size: 30.0)
+              //         ),
+              //         style: const TextStyle(fontSize: 30.0), // Cambiar tamaño de letra del texto filtrado
+              //         validator: FormBuilderValidators.required(),
+              //         onChanged: (val) {
+              //           // noEncuestaFiltrar.text = '$year - $val';
+              //           noEncuestaFiltrar.selection = TextSelection.fromPosition(TextPosition(offset: noEncuestaFiltrar.text.length));
+              //           print('Numero seleccionada: $val');
+              //         },
+              //       ),
+              //     )
+              //   ]
+              // ),
 
               FormBuilderTextField(
                 name: 'idUsuarios',
                 initialValue: widget.filtrarId.text,
+                enabled: false,
                 decoration: InputDecorations.inputDecoration(
                   labeltext: 'Asignar ID',
                   labelFrontSize: 25.5, // Tamaño de letra personalizado
@@ -243,6 +252,7 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
               FormBuilderTextField(
                 name: 'cedula',
                 initialValue: widget.filtrarCedula.text,
+                enabled: false,
                 decoration: InputDecorations.inputDecoration(
                   labeltext: 'Cedula',
                   labelFrontSize: 25.5,
@@ -275,35 +285,19 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
 
               FormBuilderTextField(
                 name: 'hora',
-                controller: timePicker,
+                controller: horaController,
                 decoration: const InputDecoration(
-                  // hintext: 'Fecha actual',
-                  // hintFrontSize: 20.0, 
                   labelText: 'Hora de Encuesta',
                   labelStyle: TextStyle(fontSize: 25.0),
                   prefixIcon: Icon(Icons.access_time, size: 30.0)
                 ),
                 style: const TextStyle(fontSize: 30.0),
-                onTap: () async {
-                  var time = await showTimePicker(
-                    context: context, 
-                    initialTime: TimeOfDay.now()
-                  );
-
-                  if (time != null) {
-                    setState(() {
-                      timePicker.text = time.format(context);
-                    });
-                  }
-                },
-                onChanged: (val) {
-                  print('Hora seleccionada: $val');
-                },
+                enabled: false,
               ),
 
               FormBuilderTextField(
                 name: 'fechaEncuesta',
-                controller: datePicker,
+                controller: fechaController,
                 decoration: const InputDecoration(
                   // hintext: 'Hora actual',
                   // hintFrontSize: 20.0,
@@ -312,15 +306,12 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                   prefixIcon: Icon(Icons.calendar_month_outlined, size: 30.0)
                 ),
                 style: const TextStyle(fontSize: 30.0),
-                validator: FormBuilderValidators.required(),
-                onTap: () async {
-                  FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
-                  await _showDatePicker(); // Muestra el DatePicker
-                },
+                enabled: false
               ),
               
               FormBuilderDropdown<String>(
                 name: 'linea_metro',
+                validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                 decoration: InputDecorations.inputDecoration(
                   labeltext: 'Linea del metro',
                   labelFrontSize: 30.0,
@@ -348,10 +339,11 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                   }
                 },
               ),
-              if (_selectLineMetro != null)
+              // if (_selectLineMetro != null)
                 FormBuilderDropdown<int>(
                   name: 'estacion_metro',
                   style: const TextStyle(fontSize: 30.0),
+                  validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                   decoration: InputDecorations.inputDecoration(
                     labeltext: 'Estacion del metro - $_selectLineMetro',
                     labelFrontSize: 30.0,

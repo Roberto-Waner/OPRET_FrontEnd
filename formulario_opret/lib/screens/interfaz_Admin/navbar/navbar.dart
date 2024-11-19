@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:formulario_opret/screens/interfaz_Admin/administrador_screen.dart';
 // import 'package:formulario_opret/screens/navbar/editar_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/registro_Empldo.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/report_Formulario.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/repuesta_resultados_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/settings_screen.dart';
 import 'package:formulario_opret/services/login_services_token.dart';
 // import 'package:formulario_opret/services/admin_services.dart';
@@ -68,22 +69,22 @@ class _NavbarState extends State<Navbar> {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home_work_outlined, size: 30.0),
+            leading: const Icon(Icons.poll_outlined, size: 30.0),
             title: const Text(
-              'Home',
-              style: TextStyle(fontSize: 20.0), // Aquí se cambia el tamaño del texto
+              'Encuesta',
+              style: TextStyle(fontSize: 20.0),
             ),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AdministradorScreen(
+                MaterialPageRoute(builder: (context) => PreguntaScreenNavbar(
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
                   filtrarCedula: widget.filtrarCedula,
-                ))
+                )),
               );
-              Navigator.of(context).pop();
+              // Navigator.of(context).pop();
             }
           ),
           ListTile(
@@ -104,33 +105,45 @@ class _NavbarState extends State<Navbar> {
               );
             }
           ),
+          
+          ListTile(
+            leading: const Icon(Icons.home_work_outlined, size: 30.0),
+            title: const Text(
+              'Reporte de Respuestas',
+              style: TextStyle(fontSize: 20.0), // Aquí se cambia el tamaño del texto
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RepuestaResultadosScreen(
+                  filtrarUsuarioController: widget.filtrarUsuarioController,
+                  filtrarEmailController: widget.filtrarEmailController,
+                  filtrarId: widget.filtrarId,
+                  filtrarCedula: widget.filtrarCedula,
+                ))
+              );
+            }
+          ),
+          
           ListTile(
             leading: const Icon(Icons.admin_panel_settings_outlined, size: 30.0),
             title: const Text(
-              'Administradores',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            onTap: () => print('Cargando la lista de Administradores ...'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.poll_outlined, size: 30.0),
-            title: const Text(
-              'Encuesta',
+              'Reportes de Formularios',
               style: TextStyle(fontSize: 20.0),
             ),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PreguntaScreenNavbar(
+                MaterialPageRoute(builder: (context) => ReportFormulario(
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
                   filtrarCedula: widget.filtrarCedula,
-                )),
+                ))
               );
-              // Navigator.of(context).pop();
             }
           ),
+          
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings, size: 30.0),

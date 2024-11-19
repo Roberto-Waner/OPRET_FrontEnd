@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:formulario_opret/models/login.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 // import 'package:formulario_opret/models/login_Admin.dart';
-import 'package:formulario_opret/screens/interfaz_Admin/administrador_screen.dart';
 import 'package:formulario_opret/screens/interfaz_User/Empleado_screen.dart';
 import 'package:formulario_opret/screens/presentation_screen.dart';
 import 'package:formulario_opret/services/login_services_token.dart';
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Si el rol es Administrador, redirige a la pantalla de administrador
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => AdministradorScreen(
+          MaterialPageRoute(builder: (context) => PreguntaScreenNavbar(
             filtrarUsuarioController: _filtrarUsuarioController,
             filtrarEmailController: _filtrarEmailController,
             filtrarId: _filtrarId,

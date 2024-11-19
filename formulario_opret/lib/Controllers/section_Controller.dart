@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:formulario_opret/data/section_crud.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_preguntasCompleta.dart';
 import 'package:formulario_opret/services/Stream/stream_services.dart';
@@ -16,30 +17,55 @@ class SectionController {
     });
   }
 
-  Future<void> createQuestion(SpPreguntascompleta question) async {
+  // Future<void> createQuestion(SpPreguntascompleta question) async {
+  //   try{
+  //     await _sectionCrud.insertSectionCrud(question);
+  //     print('Sección de preguntas creada con éxito en SQLite');
+  //     await syncData();
+  //   } catch (e) {
+  //     print('Error al crear sección de preguntas: $e');
+  //   }
+  // }
+
+  // Future<List<SpPreguntascompleta>> getQuestion() async {
+  //   try{
+  //     return await _sectionCrud.querySectionCrud().timeout(const Duration(seconds: 5));
+  //   } catch(e) {
+  //     print('Error al cargar secciones de preguntas de la API, cargando desde SQLite: $e');
+  //     return await _apiServiceSesion2.getSpPreguntascompletaListada();
+  //   }
+  // }
+
+  Future<List<SpPreguntascompleta>> loadFromSQLite() async {
     try{
-      await _sectionCrud.insertSectionCrud(question);
-      print('Sección de preguntas creada con éxito en SQLite');
-      await syncData();
-    } catch (e) {
-      print('Error al crear sección de preguntas: $e');
+      return await _sectionCrud.querySectionCrud();
+    } catch (e) { 
+      print('Error loading from SQLite: $e'); 
+      rethrow; 
     }
   }
 
-  Future<List<SpPreguntascompleta>> getQuestion() async {
+  Future<List<SpPreguntascompleta>> loadFromApi() async {
     try{
-      return await _sectionCrud.querySectionCrud().timeout(const Duration(seconds: 5));
-    } catch(e) {
-      print('Error al cargar secciones de preguntas de la API, cargando desde SQLite: $e');
-      return await _apiServiceSesion2.getSpPreguntascompletaListada();
+      final response = await _apiServiceSesion2.getSpPreguntascompletaListada();
+      if(response.isNotEmpty) {
+        await syncData(response);
+        print('Datos sincronizados con éxito desde la API y guardando preguntas en SQLite.');
+        return response;
+      } else { 
+        throw Exception('API response is empty.'); 
+      }
+    } catch (e) { 
+      print('Error loading from API: $e'); 
+      rethrow; 
     }
   }
 
   // Sincronizar datos entre SQLite y la API
-  Future<void> syncData() async {
+  Future<void> syncData([List<SpPreguntascompleta>? preguntasDesdeApi]) async {
     try {
       // Obtener preguntas desde la API y actualizar SQLite
-      final preguntasDesdeApi = await _apiServiceSesion2.getSpPreguntascompletaListada();
+      preguntasDesdeApi ??= await _apiServiceSesion2.getSpPreguntascompletaListada(); 
       final preguntasLocales = await _sectionCrud.querySectionCrud();
 
       // Mapear las preguntas locales por su ID
