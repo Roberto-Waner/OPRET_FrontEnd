@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:formulario_opret/data/user_crud.dart';
 import 'package:formulario_opret/models/usuarios.dart';
 import 'package:formulario_opret/services/http_interactor_services.dart';
 import 'package:http/http.dart' as http;
@@ -7,13 +5,11 @@ import 'package:http/http.dart' as http;
 class ApiServiceUser {
   final String baseUrl;
   final ApiService service;
-  final UserCrud _usuariosCRUD = UserCrud();
 
   ApiServiceUser(this.baseUrl) : service = ApiService(baseUrl);
 
   // Método para crear un usuario (POST: api/Usuarios)
   Future<http.Response> createUsuario(Usuarios user) async {
-    var cache = await _usuariosCRUD.insertUserCrud(user).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
@@ -30,16 +26,12 @@ class ApiServiceUser {
         rethrow;
       }
     } else {
-      // Guardar en SQLite
-      // await _usuariosCRUD.insertUserCrud(user).timeout(const Duration(seconds: 30));
-      cache;
-      return http.Response('Creado en SQLite', 201);
+      throw Exception('No hay conexión con la API.');
     }
   }
 
   // GET: api/Usuarios
   Future<List<Usuarios>> getUsuarios() async {
-    var cache = await _usuariosCRUD.getUsersCrud().timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
@@ -51,24 +43,22 @@ class ApiServiceUser {
       }
     } else {
       // Leer desde SQLite
-      return cache;
+      throw Exception('No hay conexión con la API.');
     }
   }
 
   // Método para obtener un usuario por ID (GET: api/Usuarios/{id})
   Future<Usuarios?> getOneUsuario(String id) async {
-    var cache = await _usuariosCRUD.getOneUserCrud(id).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.getOneData('$baseUrl/api/RegistroUsuarios', id).timeout(const Duration(seconds: 30));
-        if (response.statusCode == 200) {
-          return Usuarios.fromJson(jsonDecode(response.body));
-        } else if (response.statusCode == 404) {
-          print('Usuario no encontrado');
-          return null;
-        } else {
-          throw Exception('Error al obtener el usuario. Código de estado: ${response.statusCode}');
+        final response = await service.getOneData('RegistroUsuarios', id).timeout(const Duration(seconds: 30));
+
+        if (response.isNotEmpty) { // Verificar que response no está vacío 
+          return Usuarios.fromJson(response); 
+        } else { 
+          print('Usuario no encontrado'); 
+          return null; 
         }
       } catch (e) {
         print('Error en la solicitud HTTP: $e');
@@ -76,13 +66,13 @@ class ApiServiceUser {
       }
     } else {
       // Leer desde SQLite
-      return cache;
+      throw Exception('No hay conexión con la API.');
     }
   }
 
   // Método para actualizar un usuario (PUT: api/Usuarios/{id})
   Future<http.Response> updateUsuario(String id, Usuarios user) async {
-    var cache = await _usuariosCRUD.updateUserCrud(id, user).timeout(const Duration(seconds: 30));
+    // var cache = await _usuariosCRUD.updateUserCrud(id, user).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
@@ -99,15 +89,13 @@ class ApiServiceUser {
         rethrow;
       }
     } else {
-      // Actualizar en SQLite
-      cache;
-      return http.Response('Actualizado en SQLite', 204);
+      throw Exception('No hay conexión con la API.');
     }
   }
 
   // Método para eliminar un usuario (DELETE: api/Usuarios/{id})
   Future<http.Response> deleteUsuario(String id) async {
-    var cache = await _usuariosCRUD.deleteUserCrud(id).timeout(const Duration(seconds: 30));
+    // var cache = await _usuariosCRUD.deleteUserCrud(id).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
@@ -124,9 +112,7 @@ class ApiServiceUser {
         rethrow;
       }
     } else {
-      // Marcar como eliminado en SQLite
-      cache;
-      return http.Response('Eliminado en SQLite', 204);
+      throw Exception('No hay conexión con la API.');
     }
   }
 }

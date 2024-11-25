@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/modifyTable_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/report_Formulario.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/repuesta_resultados_screen.dart';
 import 'package:formulario_opret/screens/interfaz_User/Empleado_screen.dart';
 import 'package:formulario_opret/screens/interfaz_User/form_Encuesta_Screen.dart';
@@ -42,6 +43,7 @@ void main() {
   ));
 }
 
+// la conexion hacia el backEnd con .net c#
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -96,13 +98,6 @@ class MyApp extends StatelessWidget {
           filtrarCedula: filtrarCedula,
         ),
 
-        // 'adminScreens': (_) => AdministradorScreen(
-        //   filtrarUsuarioController: filtrarUsuarioController,
-        //   filtrarEmailController: filtrarEmailController,
-        //   filtrarId: filtrarId,
-        //   filtrarCedula: filtrarCedula,
-        // ),
-
         'registroEmpleados': (_) => RegistroEmpl(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
@@ -151,10 +146,17 @@ class MyApp extends StatelessWidget {
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
           filtrarCedula: filtrarCedula,
+        ),
+
+        'reportForm': (_) => ReportFormulario(
+          filtrarUsuarioController: filtrarUsuarioController,
+          filtrarEmailController: filtrarEmailController,
+          filtrarId: filtrarId,
+          filtrarCedula: filtrarCedula,
         )
       },
 
-      initialRoute: 'login',
+      initialRoute: 'presentation',
     );
   }
 }

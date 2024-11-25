@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:formulario_opret/models/login.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 // import 'package:formulario_opret/models/login_Admin.dart';
@@ -28,6 +29,29 @@ class _LoginScreenState extends State<LoginScreen> {
   final ApiServiceToken _serviceToken = ApiServiceToken('https://10.0.2.2:7190',false);
   String myToken ="";
   bool _isLoading = false;
+
+  // Bloquear la orientación de la pantalla
+  @override
+  void initState() {
+    super.initState();
+    // Bloquear la orientación a solo vertical
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp, // Para orientación vertical hacia arriba
+      DeviceOrientation.portraitDown, // Para orientación vertical hacia abajo
+    ]);
+  }
+
+  // Restaurar la orientación cuando la pantalla se cierre
+  @override
+  void dispose() {
+    super.dispose();
+    // Restaurar la orientación de la pantalla
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
 
   Future<void> _login() async {
     setState(() {

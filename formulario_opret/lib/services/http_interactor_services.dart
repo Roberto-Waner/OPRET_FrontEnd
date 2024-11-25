@@ -45,9 +45,11 @@ class ApiService {
     final response = await http.get(url).timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      return json.decode(response.body); // Devolver JSON decodificado
+    } else if (response.statusCode == 404) {
+      return {}; // Si no se encuentra, devolver un mapa vacío
     } else {
-      throw Exception('Error al obtener el elemento');
+      throw Exception('La API no está disponible');
     }
   }
 
@@ -63,7 +65,7 @@ class ApiService {
       ).timeout(const Duration(seconds: 30));
     } else {
       // Guardar en SQLite (esto debería ser manejado por el controlador correspondiente)
-      return http.Response('Creado en SQLite', 201);
+      throw Exception('La API no está disponible');
     }
   }
 
