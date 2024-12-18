@@ -1,7 +1,7 @@
 class Sesion {
   int? idSesion;
   String tipoRespuesta;
-  String? grupoTema;
+  // String? grupoTema;
   int codPregunta;
   String? codSubPregunta;
   String? rango;
@@ -11,7 +11,7 @@ class Sesion {
   Sesion({
     this.idSesion,
     required this.tipoRespuesta,
-    this.grupoTema,
+    // this.grupoTema,
     required this.codPregunta,
     this.codSubPregunta,
     this.rango,
@@ -23,7 +23,7 @@ class Sesion {
     return Sesion(
       idSesion: json['idSesion'],
       tipoRespuesta: json['tipoRespuesta'],
-      grupoTema: json['grupoTema'],
+      // grupoTema: json['grupoTema'],
       codPregunta: json['codPregunta'],
       codSubPregunta: json['codSubPregunta'],
       rango: json['rango'],
@@ -38,7 +38,7 @@ class Sesion {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (idSesion != null) { data['idSesion'] = idSesion; }
     data['tipoRespuesta'] = tipoRespuesta;
-    data['grupoTema'] = grupoTema;
+    // data['grupoTema'] = grupoTema;
     data['codPregunta'] = codPregunta;
     data['codSubPregunta'] = codSubPregunta;
     data['rango'] = rango;

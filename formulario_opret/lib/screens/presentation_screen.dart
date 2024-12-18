@@ -7,11 +7,11 @@ class PresentationScreen extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
   final TextEditingController filtrarEmailController;
   final TextEditingController filtrarId;
-  final TextEditingController filtrarCedula;
+  // final TextEditingController filtrarCedula;
 
   const PresentationScreen({
     required this.filtrarId,
-    required this.filtrarCedula,
+    // required this.filtrarCedula,
     required this.filtrarUsuarioController,
     required this.filtrarEmailController,
     super.key
@@ -125,7 +125,7 @@ class _PresentationScreenState extends State<PresentationScreen> {
                                     filtrarUsuarioController: widget.filtrarUsuarioController,
                                     filtrarEmailController: widget.filtrarEmailController,
                                     filtrarId: widget.filtrarId,
-                                    filtrarCedula: widget.filtrarCedula,
+                                    // // filtrarCedula: widget.filtrarCedula,
                                   ),
                                 ),
                               );

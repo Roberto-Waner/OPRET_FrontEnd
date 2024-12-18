@@ -159,9 +159,13 @@ class ApiServicePreguntas {
 
       if(response.statusCode == 204) {
         print('Pregunta eliminada con éxito');
-      }else{
-        print('Error al eliminar la pregunta: ${response.statusCode}');
-        print('Cuerpo de la respuesta: ${response.body}');
+        return response;
+      } else if (response.statusCode == 400) {
+        final responseBody = jsonDecode(response.body);
+        print('Error al eliminar la pregunta: ${responseBody['message']}');
+        return response;
+        // print('Error al eliminar la pregunta: ${response.statusCode}');
+        // print('Cuerpo de la respuesta: ${response.body}');
       }
 
       return response;

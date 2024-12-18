@@ -24,11 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _filtrarUsuarioController = TextEditingController();
   final TextEditingController _filtrarEmailController = TextEditingController();
   final TextEditingController _filtrarId = TextEditingController();
-  final TextEditingController _filtrarCedula = TextEditingController();
+  // final TextEditingController _filtrarCedula = TextEditingController();
 
   final ApiServiceToken _serviceToken = ApiServiceToken('https://10.0.2.2:7190',false);
   String myToken ="";
   bool _isLoading = false;
+  bool _obscureText = true;
 
   // Bloquear la orientación de la pantalla
   @override
@@ -70,7 +71,8 @@ class _LoginScreenState extends State<LoginScreen> {
       redireccionPerRoles();
 
     }catch (e) {
-      _showSnackBar('An error occurred. Please try again later.');
+      // _showSnackBar('An error occurred. Please try again later.');
+      _showErrorDialog(context, 'Ha ocurrido un error. Por favor intentelo mas tarde.');
       setState(() {
         _isLoading = false;
       });
@@ -85,42 +87,51 @@ class _LoginScreenState extends State<LoginScreen> {
       String userNameEmpl = decodedToken['usuario'];
       String email = decodedToken['email'];
       String id = decodedToken['id'];
-      String cedula = decodedToken['cedula'];
+      // String cedula = decodedToken['cedula'];
 
       _filtrarUsuarioController.text = userNameEmpl;
       _filtrarEmailController.text = email;
       _filtrarId.text = id;
-      _filtrarCedula.text = cedula;
+      // _filtrarCedula.text = cedula;
 
       if (role == 'Administrador'){
+        _showSuccessDialog(context);
+
         // Si el rol es Administrador, redirige a la pantalla de administrador
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PreguntaScreenNavbar(
-            filtrarUsuarioController: _filtrarUsuarioController,
-            filtrarEmailController: _filtrarEmailController,
-            filtrarId: _filtrarId,
-            filtrarCedula: _filtrarCedula
-          ))
-        );
-      } else {
-        // Si el rol es falso, redirige a la pantalla de empleado
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EmpleadoScreens(
+        Future.delayed(const Duration(seconds: 2), () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PreguntaScreenNavbar(
               filtrarUsuarioController: _filtrarUsuarioController,
               filtrarEmailController: _filtrarEmailController,
               filtrarId: _filtrarId,
-              filtrarCedula: _filtrarCedula
+              // filtrarCedula: _filtrarCedula
+            ))
+          );
+          
+        });
+      } else {
+        _showSuccessDialog(context);
+        // Si el rol es falso, redirige a la pantalla de empleado
+        Future.delayed(const Duration(seconds: 2), () {
+           Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EmpleadoScreens(
+                filtrarUsuarioController: _filtrarUsuarioController,
+                filtrarEmailController: _filtrarEmailController,
+                filtrarId: _filtrarId,
+                // filtrarCedula: _filtrarCedula
+              )
             )
-          )
-        );
+          );
+        });
       } 
 
     } else {
       // Manejar el error de login
-      _showSnackBar('Credenciales incorrectas.');
+      // _showSnackBar('Credenciales incorrectas.');
+      _showErrorDialog(context, 'Credenciales incorrectas.');
       setState(() {
         _isLoading = false;
       });
@@ -133,9 +144,93 @@ class _LoginScreenState extends State<LoginScreen> {
     return json.decode(utf8.decode(payload));
   }
 
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
+  // cuadro de acceso exito
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 60.0),
+                const SizedBox(height: 20),
+                const Text( 
+                  '¡Éxito!', 
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold), 
+                ),
+                const SizedBox(height: 8.0),
+                const Text( 
+                  'Ha iniciado Sesión',
+                  style: TextStyle(fontSize: 18.0), 
+                  textAlign: TextAlign.center, 
+                ), 
+                const SizedBox(height: 24.0),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(), 
+                  child: const Text('OK', style: TextStyle(fontSize: 18.0)),
+                )
+              ]
+            )
+          )
+        );
+      }
+    );
+
+    // Hacer que el cuadro de éxito se cierre automáticamente después de 2 segundos
+    // Future.delayed(const Duration(seconds: 5), () {
+    //   // Comprobamos si el widget aún está montado antes de intentar realizar cualquier acción
+    //   if (mounted) {
+    //     Navigator.of(context).pop(); // Cierra el cuadro de éxito solo si el widget está montado
+    //   }
+    // });
+  }
+
+  // cuadro de error
+  void _showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Error", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
+          content: Container(
+            margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
+            child: Text(message, style: const TextStyle(fontSize: 28))
+          ),
+          actions: [ 
+            TextButton( 
+              child: const Text("OK", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)), 
+              onPressed: () { 
+                Navigator.of(context).pop(); 
+              }, 
+            ), 
+          ],
+        );
+      }
     );
   }
 
@@ -151,11 +246,35 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Stack(
           children: [
             cajaverde(size), 
-            buttonBack(size),
+            // buttonBack(size),
             ventanalogin(size, context, orientation),
             if (_isLoading)
-              const Center(
-                child: CircularProgressIndicator(),
+              Center(
+                // child: CircularProgressIndicator(),
+                child: Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    width: 200,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                        ),
+                        SizedBox(height: 20),
+                        Text(
+                          'Cargando...',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               )
           ],
         ),
@@ -195,30 +314,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Positioned buttonBack(Size size) {
-    return Positioned( //ajuste de ubicacion del icono
-      top: size.height * 0.05,
-      right: size.width * 0.88,
-      child: IconButton(
-        icon: Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: size.height * 0.05,              
-        ), 
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PresentationScreen(
-              filtrarUsuarioController: _filtrarUsuarioController,
-              filtrarEmailController: _filtrarEmailController,
-              filtrarId: _filtrarId,
-              filtrarCedula: _filtrarId,
-            ))
-          );
-        },
-      ), 
-    );
-  }
-
   Container ventanalogin(Size size, BuildContext context, Orientation orientation) {
     if(_serviceToken.isLoggedFuncion()){
       return Container();
@@ -228,7 +323,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 50),
+              // const SizedBox(height: 50),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: size.width * 0.18),
                 margin: const EdgeInsets.symmetric(horizontal: 30),
@@ -251,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 100),
                       logoInsideLogin(size),
                       const SizedBox(height: 30),
-                      const Text('Inicio Sesion', style: TextStyle(fontSize: 54)),
+                      const Text('Inicio Sesión', style: TextStyle(fontSize: 54)),
                       const SizedBox(height: 30),
                       _loginForm(size),
                       const SizedBox(height: 50),
@@ -271,18 +366,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Form _loginForm(Size size) {
     return Form(
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: AutovalidateMode.disabled,
       child: Column(
         children: [
           TextFormField(
             controller: _userController,
             autocorrect: true,
             decoration: InputDecorations.inputDecoration(
-              hintext: 'User o Admin',
+              hintext: 'Ingrese el Usuario',
               hintFrontSize: 30.0,
               labeltext: 'Nombre Usuario',
               labelFrontSize: 30.5,
-              icono: const Icon(Icons.account_circle, size: 30.0)
+              icono: const Icon(Icons.account_circle, size: 30.0),
+              errorSize: 20
             ),
             style: const TextStyle(fontSize: 30.0),
             validator: (value) {
@@ -300,14 +396,22 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 30),
           TextFormField(
             autocorrect: false,
-            obscureText: true,
+            obscureText: _obscureText,
             controller: _passwordController,
             decoration: InputDecorations.inputDecoration(
               hintext: '******',
               hintFrontSize: 30.0,
               labeltext: 'Contraseña',
               labelFrontSize: 30.5,
-              icono: const Icon(Icons.lock_clock_outlined, size: 30.0)
+              icono: const Icon(Icons.lock_clock_outlined, size: 30.0),
+              suffIcon: IconButton(
+                onPressed: _togglePasswordVisibility, 
+                icon: Icon(
+                  _obscureText ? Icons.visibility_off : Icons.visibility,
+                  size: 30.0,
+                )
+              ),
+              errorSize: 20
             ),
             style: const TextStyle(fontSize: 30.0),
             validator: (value) {
@@ -325,20 +429,72 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  MaterialButton _loginButton(Size size) {
-    return MaterialButton(
-      minWidth: double.infinity,
-      height: size.height * 0.08,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-      color: const Color.fromARGB(255, 4, 111, 25),
-      onPressed: _login,
-      child: Text(
-        'Ingresar',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: size.height * 0.035,
-        ),
-      ),
+  Center _loginButton(Size size) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // Centra los botones horizontalmente
+        children: [
+          ElevatedButton(
+            onPressed: _login,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromRGBO(1, 135, 76, 1), // Color de fondo del primer botón
+              foregroundColor: const Color.fromARGB(255, 254, 255, 255), // Color del texto
+              padding: const EdgeInsets.symmetric(horizontal: 138, vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100)
+              ),
+            ),
+            child: const Text(
+              'Ingresar',
+              style: TextStyle(
+                fontSize: 40, 
+                fontWeight: FontWeight.bold
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // boton de retroceder de seccion
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PresentationScreen(
+                  filtrarUsuarioController: _filtrarUsuarioController,
+                  filtrarEmailController: _filtrarEmailController,
+                  filtrarId: _filtrarId,
+                  // filtrarCedula: _filtrarId,
+                ))
+              );
+            }, 
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromRGBO(1, 135, 76, 1), // Color de fondo del primer botón
+              foregroundColor: const Color.fromARGB(255, 254, 255, 255), // Color del texto
+              padding: const EdgeInsets.symmetric(horizontal: 65, vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(100)
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min, // Para que el Row no ocupe todo el espacio
+              children: [
+                Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: size.height * 0.03,
+                ),
+                const SizedBox(width: 5), // Espacio entre el ícono y el texto
+                const Text(
+                  'Volver a inicio',
+                  style: TextStyle(
+                    fontSize: 40, 
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ]
+      )      
     );
   }
 }

@@ -5,16 +5,6 @@ import 'package:sqflite/sqflite.dart';
 class RespuestaCrud {
   final DatabaseHelper _databaseHelper = DatabaseHelper.instance;
 
-  // Insertar respuesta localmente
-  Future<int> insertRespuesta(SpInsertarRespuestas respuesta) async {
-    final db = await _databaseHelper.database;
-    return await db.insert(
-      'localRespuestas',
-      respuesta.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
   // Insertar múltiples respuestas localmente
   Future<void> insertRespuestas(List<SpInsertarRespuestas> respuestas) async {
     final db = await _databaseHelper.database;
@@ -33,6 +23,18 @@ class RespuestaCrud {
     print('Respuestas guardadas en la base de datos local SQLite con éxito');
   }
 
+  Future<void> actualizarCrud(String idUsuarios) async {
+    final db = await _databaseHelper.database;
+
+    await db.update(
+      'localRespuestas',
+      {'finalizarSesion': 1},
+      where: 'idUsuarios = ?',
+      whereArgs: [idUsuarios],
+    );
+    print('Campo finalizarSesion actualizado a 1 para idUsuarios: $idUsuarios');
+  }
+
   Future<List<SpInsertarRespuestas>> getAnswerCrud() async {
     final db = await _databaseHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -42,17 +44,6 @@ class RespuestaCrud {
     return List.generate(maps.length, (i) {
       return SpInsertarRespuestas.fromJson(maps[i]);
     });
-  }
-
-  // Marcar respuesta como sincronizada
-  Future<void> marcarRespuestaSincronizada(int id) async {
-    final db = await _databaseHelper.database;
-    await db.update(
-      'localRespuestas',
-      {'isUpdated': 0},
-      where: 'idSesion = ?', 
-      whereArgs: [id]
-    );
   }
 
   // para vaciar la tabla despues de que se hayan guardado hacia la api
@@ -178,4 +169,61 @@ class RespuestaCrud {
 //     where: 'noEncuesta = ?',
 //     whereArgs: [noEncuesta],
 //   );
-// }
+// }// Insertar respuesta localmente
+//   /*
+//   Future<int> insertRespuesta(SpInsertarRespuestas respuesta) async {
+//     final db = await _databaseHelper.database;
+//     return await db.insert(
+//       'localRespuestas',
+//       respuesta.toJson(),
+//       conflictAlgorithm: ConflictAlgorithm.replace,
+//     );
+//   }*/
+
+// Marcar respuesta como sincronizada
+/*
+  Future<void> marcarRespuestaSincronizada(int id) async {
+    final db = await _databaseHelper.database;
+    await db.update(
+      'localRespuestas',
+      {'isUpdated': 0},
+      where: 'idSesion = ?',
+      whereArgs: [id]
+    );
+  }*/
+
+// Método para actualizar el campo finalizarSesion de múltiples respuestas usando el modelo
+/*
+  Future<void> actualizarCrud(List<SpInsertarRespuestas> respuetas, String id) async {
+    final db = await _databaseHelper.database;
+
+    // Usamos un batch para realizar múltiples actualizaciones en una sola transacción
+    Batch batch = db.batch();
+    for (var answer in respuetas) {
+      batch.update(
+        'localRespuestas',
+        answer.toJson(),
+        where: 'idUsuarios = ?',
+        whereArgs: [id]
+      );
+    }
+
+    await batch.commit(noResult: true);
+    print('Campo finalizarSesion actualizado en la base de datos local SQLite con éxito');
+  }*/
+
+/*
+  Future<void> actualizarCrud(List<SpInsertarRespuestas> respuestas, String id) async {
+    final db = await _databaseHelper.database;
+
+    // Usamos un batch para realizar múltiples actualizaciones en una sola transacción
+    Batch batch = db.batch();
+    for (var respuesta in respuestas) {
+      batch.update(
+          'localRespuestas',
+          {'finalizarSesion': respuesta.finalizarSesion}, // Solo actualizamos el campo finalizarSesion
+          where: 'idUsuarios = ?',
+          whereArgs: [id], // Usamos idUsuarios e idSesion para identificar la fila a actualizar
+      );
+    }
+  }*/

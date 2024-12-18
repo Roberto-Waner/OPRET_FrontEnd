@@ -15,8 +15,8 @@ class StreamServices {
   StreamServices(
         this.baseUrl,
         {
-          this.retryInterval = const Duration(seconds: 5),
-          this. httpTimeout = const Duration(seconds: 5),
+          this.retryInterval = const Duration(minutes: 30),
+          this.httpTimeout = const Duration(minutes: 30),
           this.maxRetries = 5
         }
       ) {

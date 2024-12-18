@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_Filtrar_Respuestas.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/graphic/graphic_Respuestas_Screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
 import 'package:formulario_opret/services/respuestas_services.dart';
 
@@ -8,12 +9,12 @@ class RepuestaResultadosScreen extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
   final TextEditingController filtrarEmailController;
   final TextEditingController filtrarId;
-  final TextEditingController filtrarCedula;
+  // final TextEditingController filtrarCedula;
 
   const RepuestaResultadosScreen({
     super.key,
     required this.filtrarId,
-    required this.filtrarCedula,
+    // required this.filtrarCedula,
     required this.filtrarUsuarioController,
     required this.filtrarEmailController,
   });
@@ -33,8 +34,8 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
   @override
   void initState() {
     super.initState();
-    _respuestaData = Future.value([]);
-    _respuestaData = _apiServiceRespuesta.getRespuestas();
+    // _respuestaData = Future.value([]);
+    // _respuestaData = _apiServiceRespuesta.getRespuestas();
     _loadRespuestas();
   }
 
@@ -48,34 +49,21 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
   }
 
   void _filtrarRespuestas(String query) async {
-    // final respuestas = await _respuestaData;
-    /*
-    final respuestasFiltradasTemp = todasLasRespuestas.where((answer) {
-      final queryLower = query.toLowerCase();
-      return (answer.sp_IdUsuarios?.toLowerCase().contains(queryLower) ?? false) ||
-            (answer.sp_Cedula?.toLowerCase().contains(queryLower) ?? false) || 
-            (answer.sp_NombreApellido?.toLowerCase().contains(queryLower) ?? false) || 
-            (answer.sp_Usuarios?.toLowerCase().contains(queryLower) ?? false) || 
-            (answer.sp_NoEncuesta?.toLowerCase().contains(queryLower) ?? false) || 
-            (answer.sp_IdSesion?.toString().toLowerCase().contains(queryLower) ?? false) || 
-            (answer.sp_CodPreguntas?.toString().toLowerCase().contains(queryLower) ?? false) || 
-            (answer.sp_CodSupPreguntas?.toLowerCase().contains(queryLower) ?? false);
-    }).toList();
-    */
+
     final queryLower = query.toLowerCase();
     final respuestasFiltradasTemp = todasLasRespuestas.where((answer) {
       switch (selectedFilter) {
         case 'ID del Usuario':
           return answer.sp_IdUsuarios?.toLowerCase().contains(queryLower) ?? false;
-        case 'Cedula de Identidad':
-          return answer.sp_Cedula?.toLowerCase().contains(queryLower) ?? false;
+        // case 'Cedula de Identidad':
+        //   return answer.sp_Cedula?.toLowerCase().contains(queryLower) ?? false;
         case 'Usuarios':
           return answer.sp_Usuarios?.toLowerCase().contains(queryLower) ?? false;
         case 'Nombre y Apellido':
           return answer.sp_NombreApellido?.toLowerCase().contains(queryLower) ?? false;
         case 'Numero de Encuesta':
           return answer.sp_NoEncuesta?.toLowerCase().contains(queryLower) ?? false;
-        case 'Numero de Sesion':
+        case 'Numero de Seccion':
           return answer.sp_IdSesion?.toString().toLowerCase().contains(queryLower) ?? false;
         case 'Numero de Pregunta':
           return answer.sp_CodPreguntas?.toString().toLowerCase().contains(queryLower) ?? false;
@@ -105,7 +93,7 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
         filtrarUsuarioController: widget.filtrarUsuarioController,
         filtrarEmailController: widget.filtrarEmailController,
         filtrarId: widget.filtrarId,
-        filtrarCedula: widget.filtrarCedula,
+        // // filtrarCedula: widget.filtrarCedula,
       ),
 
       appBar: AppBar(
@@ -141,11 +129,11 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
                     ),
                     items: [
                       'ID del Usuario', 
-                      'Cedula de Identidad', 
+                      // 'Cedula de Identidad',
                       'Usuarios', 
                       'Nombre y Apellido', 
                       'Numero de Encuesta',
-                      'Numero de Sesion',
+                      'Numero de Seccion',
                       'Numero de Pregunta',
                       'Numero de Sub-Pregunta'
                     ].map((filter) => DropdownMenuItem(
@@ -204,38 +192,79 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
                       : snapshot.data ?? [];
 
                   return SingleChildScrollView(
-                    child: PaginatedDataTable(
-                      header: const Text('Reporte de las Respuesta'),
-                      columns: const [
-                        DataColumn(label: Text('ID del Usuario', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Cedula de Identida', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Nombre y Apellido', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Usuarios', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('No. Encuesta', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Numero de Sesion', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Numero de Pregunta', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Pregunta', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Numero de Sub-Pregunta', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Sub-Pregunta', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Respuesta', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Comentarios', style: TextStyle(fontSize: 23.0))),
-                        DataColumn(label: Text('Justificacion', style: TextStyle(fontSize: 23.0))),
-                      ], 
-                      source: RespuestasDataSource(answerData),
-                      rowsPerPage: 11, //numeros de filas
-                      columnSpacing: 30, //espacios entre columnas
-                      horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                      showCheckboxColumn: false, //oculta la columna de checkboxes
-                      headingRowColor: WidgetStateProperty.all(Colors.grey[400]), //color del encabezado
-                      dataRowMinHeight: 60.0,  // Altura mínima de fila
-                      dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                      showFirstLastButtons: true,     
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        textTheme: Theme.of(context).textTheme.copyWith(
+                          bodySmall: const TextStyle(
+                            fontSize: 20,           // Ajusta el tamaño del número
+                            color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                            fontWeight: FontWeight.bold, // Hace el texto más visible
+                          ),
+                        ),
+                      ),
+                      child: PaginatedDataTable(
+                        header: const Text('Reporte de las Respuesta'),
+                        columns: const [
+                          DataColumn(label: Text('ID del Usuario', style: TextStyle(fontSize: 23.0))),
+                          // DataColumn(label: Text('Cedula de Identida', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Nombre y Apellido', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Usuarios', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('No. Encuesta', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Número de Sección', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Número de Pregunta', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Pregunta', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Número de Sub-Pregunta', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Sub-Pregunta', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Respuesta', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Comentarios', style: TextStyle(fontSize: 23.0))),
+                          DataColumn(label: Text('Justificacion', style: TextStyle(fontSize: 23.0))),
+                        ], 
+                        source: RespuestasDataSource(answerData),
+                        rowsPerPage: 10, //numeros de filas
+                        columnSpacing: 30, //espacios entre columnas
+                        horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                        showCheckboxColumn: false, //oculta la columna de checkboxes
+                        headingRowColor: WidgetStateProperty.all(Colors.grey[400]), //color del encabezado
+                        dataRowMinHeight: 60.0,  // Altura mínima de fila
+                        dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                        showFirstLastButtons: true,     
+                      ),
                     ),
                   );
                 }
               }
             ),
           ),
+          //boton para mostrar los graficos
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GraphicRespScreen(data: respuestasFiltrados.isNotEmpty ? respuestasFiltrados : todasLasRespuestas),
+                          )
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.blue,
+                      textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      )
+                    ),
+                    child: const Text('Ver gráfica')
+                  )
+                )
+              ],
+            ),
+          )
         ]
       )
     );
@@ -254,7 +283,7 @@ class RespuestasDataSource extends DataTableSource {
       index: index,
       cells: [
         DataCell(answer.sp_IdUsuarios != null ? Text(answer.sp_IdUsuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_Cedula != null ? Text(answer.sp_Cedula!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
+        // DataCell(answer.sp_Cedula != null ? Text(answer.sp_Cedula!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_NombreApellido != null ? Text(answer.sp_NombreApellido!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_Usuarios != null ? Text(answer.sp_Usuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_NoEncuesta != null ? Text(answer.sp_NoEncuesta!, style: const TextStyle(fontSize: 20.0)) : const Text('')),

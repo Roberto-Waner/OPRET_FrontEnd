@@ -2,8 +2,8 @@
 
 class FormularioRegistro {
   // String noEncuesta;
-  String idUsuarios;
-  String cedula;
+  String? idUsuarios;
+  // String cedula;
   String? fecha;
   String? hora;
   int? idEstacion;
@@ -11,8 +11,8 @@ class FormularioRegistro {
 
   FormularioRegistro({
     // required this.noEncuesta,
-    required this.idUsuarios,
-    required this.cedula,
+    this.idUsuarios,
+    // required this.cedula,
     this.fecha,
     this.hora,
     this.idEstacion,
@@ -23,7 +23,7 @@ class FormularioRegistro {
     return FormularioRegistro(
       // noEncuesta: json['noEncuesta'],
       idUsuarios: json['idUsuarios'],
-      cedula: json['cedula'],
+      // cedula: json['cedula'],
       fecha: json['fecha'],
       hora: json['hora'],
       idEstacion: json['idEstacion'],
@@ -34,8 +34,9 @@ class FormularioRegistro {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     // data['noEncuesta'] = noEncuesta;
-    data['idUsuarios'] = idUsuarios;
-    data['cedula'] = cedula;
+    // data['idUsuarios'] = idUsuarios;
+    if (idUsuarios != null) {data['idUsuarios'] = idUsuarios;}
+    // data['cedula'] = cedula;
     data['fecha'] = fecha;
     data['hora'] = hora;
     data['idEstacion'] = idEstacion;

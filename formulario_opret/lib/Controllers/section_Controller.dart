@@ -49,7 +49,7 @@ class SectionController {
     try{
       final response = await _apiServiceSesion2.getSpPreguntascompletaListada();
       if(response.isNotEmpty) {
-        await syncData(response);
+        // await syncData(response);
         print('Datos sincronizados con éxito desde la API y guardando preguntas en SQLite.');
         return response;
       } else { 

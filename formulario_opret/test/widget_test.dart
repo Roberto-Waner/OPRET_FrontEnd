@@ -16,7 +16,7 @@ void main() {
     final filtrarUsuarioController = TextEditingController();
     final filtrarEmailController = TextEditingController();
     final filtrarId = TextEditingController();
-    final filtrarCedula = TextEditingController();
+    // final filtrarCedula = TextEditingController();
     final noEncuestaFiltrar = TextEditingController();
 
     // Build our app and trigger a frame.
@@ -24,7 +24,7 @@ void main() {
       filtrarUsuarioController: filtrarUsuarioController,
       filtrarEmailController: filtrarEmailController,
       filtrarId: filtrarId,
-      filtrarCedula: filtrarCedula,
+      // // filtrarCedula: filtrarCedula,
       noEncuestaFiltrar: noEncuestaFiltrar,
     ));
 

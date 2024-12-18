@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:formulario_opret/models/usuarios.dart';
 import 'package:formulario_opret/services/http_interactor_services.dart';
 import 'package:http/http.dart' as http;
@@ -16,11 +17,18 @@ class ApiServiceUser {
         final response = await service.postData('RegistroUsuarios', user.toJson()).timeout(const Duration(seconds: 30));
         if (response.statusCode == 201) {
           print('Usuario creado con éxito');
+          return response;
+        } else if (response.statusCode == 400) {
+          // Error del backend (cédula, usuario o correo duplicado)
+          final responseBody = jsonDecode(response.body);
+          print('Error del backend: ${responseBody['message']}');
+          return response; // Devuelve el mensaje de error
         } else {
           print('Error al crear el usuario: ${response.statusCode}');
-          print('Cuerpo de la respuesta: ${response.body}');
+          return response;
+          // print('Cuerpo de la respuesta: ${response.body}');
         }
-        return response;
+        // return response;
       } catch (e) {
         print('Error al crear Usuario: $e');
         rethrow;
@@ -102,9 +110,14 @@ class ApiServiceUser {
         final response = await service.deleteData('RegistroUsuarios', id).timeout(const Duration(seconds: 30));
         if (response.statusCode == 204) {
           print('Usuario eliminado con éxito');
+          return response;
+        } else if (response.statusCode == 400) {
+          final responseBody = jsonDecode(response.body);
+          print('Error del backend: ${responseBody['message']}');
+          return response;
         } else {
           print('Error al eliminar usuario: ${response.statusCode}');
-          print('Cuerpo de la respuesta: ${response.body}');
+          // print('Cuerpo de la respuesta: ${response.body}');
         }
         return response;
       } catch (e) {

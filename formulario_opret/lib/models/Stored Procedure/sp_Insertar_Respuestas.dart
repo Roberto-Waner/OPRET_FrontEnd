@@ -38,41 +38,4 @@ class SpInsertarRespuestas {
     data['finalizarSesion'] = finalizarSesion /*? true : false*/; // Convierte true a 1 y false a 0
     return data;
   }
-  /*
-  // Conversión a JSON (cuando se envía datos al backend)
-  Map<String, dynamic> toJson() {
-    return {
-      'idUsuarios': idUsuarios,
-      'idSesion': idSesion,
-      'respuesta': respuesta,
-      'comentarios': comentarios,
-      'justificacion': justificacion,
-      'finalizarSesion': finalizarSesion, // Enviamos como bool directamente
-    };
-  }
-
-  // Conversión desde SQLite (int -> bool)
-  factory SpInsertarRespuestas.fromSQLite(Map<String, dynamic> row) {
-    return SpInsertarRespuestas(
-      idUsuarios: row['idUsuarios'],
-      idSesion: row['idSesion'],
-      respuesta: row['respuesta'],
-      comentarios: row['comentarios'],
-      justificacion: row['justificacion'],
-      finalizarSesion: row['finalizarSesion'] == true, // Convierte 1 a true
-    );
-  }
-
-  // Conversión a SQLite (bool -> int)
-  Map<String, dynamic> toSQLite() {
-    return {
-      'idUsuarios': idUsuarios,
-      'idSesion': idSesion,
-      'respuesta': respuesta,
-      'comentarios': comentarios,
-      'justificacion': justificacion,
-      'finalizarSesion': finalizarSesion ? true : false, // Convierte true a 1
-    };
-  }
-   */
 }

@@ -1,6 +1,6 @@
 class SpFiltrarRespuestas {
   String? sp_IdUsuarios;
-  String? sp_Cedula;
+  // String? sp_Cedula;
   String? sp_NombreApellido;
   String? sp_Usuarios;
   String? sp_NoEncuesta;
@@ -15,7 +15,7 @@ class SpFiltrarRespuestas {
 
   SpFiltrarRespuestas({
     this.sp_IdUsuarios,
-    this.sp_Cedula,
+    // this.sp_Cedula,
     this.sp_NombreApellido,
     this.sp_Usuarios,
     this.sp_NoEncuesta,
@@ -32,7 +32,7 @@ class SpFiltrarRespuestas {
   factory SpFiltrarRespuestas.fromJson(Map<String, dynamic> json) {
     return SpFiltrarRespuestas(
       sp_IdUsuarios: json['idUsuarios'],
-      sp_Cedula: json['cedula'],
+      // sp_Cedula: json['cedula'],
       sp_NombreApellido: json['nombreApellido'],
       sp_Usuarios: json['usuarios'],
       sp_NoEncuesta: json['noEncuesta'],

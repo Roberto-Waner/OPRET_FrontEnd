@@ -12,14 +12,14 @@ class Navbar extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
   final TextEditingController filtrarEmailController;
   final TextEditingController filtrarId;
-  final TextEditingController filtrarCedula;
+  // final TextEditingController filtrarCedula;
 
   const Navbar({
     super.key,
     required this.filtrarUsuarioController,
     required this.filtrarEmailController,
     required this.filtrarId,
-    required this.filtrarCedula,
+    // required this.filtrarCedula,
   });
 
   @override
@@ -71,7 +71,7 @@ class _NavbarState extends State<Navbar> {
           ListTile(
             leading: const Icon(Icons.poll_outlined, size: 30.0),
             title: const Text(
-              'Encuesta',
+              'Sección de Pregunta Encuesta',
               style: TextStyle(fontSize: 20.0),
             ),
             onTap: () {
@@ -81,7 +81,7 @@ class _NavbarState extends State<Navbar> {
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
-                  filtrarCedula: widget.filtrarCedula,
+                  // // filtrarCedula: widget.filtrarCedula,
                 )),
               );
               // Navigator.of(context).pop();
@@ -90,7 +90,7 @@ class _NavbarState extends State<Navbar> {
           ListTile(
             leading: const Icon(Icons.app_registration, size: 30.0),
             title: const Text(
-              'Registro de Empleados',
+              'Registro de Usuarios',
               style: TextStyle(fontSize: 20.0),
             ),
             onTap: () {
@@ -100,7 +100,7 @@ class _NavbarState extends State<Navbar> {
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
-                  filtrarCedula: widget.filtrarCedula,
+                  // // filtrarCedula: widget.filtrarCedula,
                 ))
               );
             }
@@ -119,7 +119,7 @@ class _NavbarState extends State<Navbar> {
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
-                  filtrarCedula: widget.filtrarCedula,
+                  // // filtrarCedula: widget.filtrarCedula,
                 ))
               );
             }
@@ -138,7 +138,7 @@ class _NavbarState extends State<Navbar> {
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
-                  filtrarCedula: widget.filtrarCedula,
+                  // // filtrarCedula: widget.filtrarCedula,
                 ))
               );
             }
@@ -158,7 +158,7 @@ class _NavbarState extends State<Navbar> {
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
-                  filtrarCedula: widget.filtrarCedula,
+                  // // filtrarCedula: widget.filtrarCedula,
                 ))
               );
             },

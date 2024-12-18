@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/modifyTable_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/perfilUser_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
   final TextEditingController filtrarEmailController;
   final TextEditingController filtrarId;
-  final TextEditingController filtrarCedula;
+  // final TextEditingController filtrarCedula;
 
   const SettingsScreen({
     super.key,
     required this.filtrarId,
-    required this.filtrarCedula,
+    // required this.filtrarCedula,
     required this.filtrarUsuarioController,
     required this.filtrarEmailController,
   });
@@ -30,10 +31,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         filtrarUsuarioController: widget.filtrarUsuarioController,
         filtrarEmailController: widget.filtrarEmailController,
         filtrarId: widget.filtrarId,
-        filtrarCedula: widget.filtrarCedula,
+        // // filtrarCedula: widget.filtrarCedula,
       ),
 
-      appBar: AppBar(title: const Text('Pantalla de Ajustes')),
+      appBar: AppBar(title: const Text('Ajustes')),
 
       body: ListView(
         padding: EdgeInsets.zero,
@@ -48,7 +49,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,
-                  filtrarCedula: widget.filtrarCedula,
+                  // // filtrarCedula: widget.filtrarCedula,
+                ))
+              );
+            }
+          ),
+          ListTile(
+            title: const Text('Perfil del Usuario', style: TextStyle(fontSize: 20.0)),
+            leading: const Icon(Icons.edit_square, size: 30.0),
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>   PerfiluserScreen(
+                  filtrarUsuarioController: widget.filtrarUsuarioController,
+                  filtrarEmailController: widget.filtrarEmailController,
+                  filtrarId: widget.filtrarId,
+                  // // filtrarCedula: widget.filtrarCedula,
                 ))
               );
             }

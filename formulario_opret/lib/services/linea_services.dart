@@ -82,10 +82,16 @@ class ApiServiceLineas {
 
       if(response.statusCode == 204) {
         print('Linea eliminada con éxito');
-      }else{
+        return response;
+      } else if (response.statusCode == 400) {
+        final responseBody = jsonDecode(response.body);
+        print('Error del backend: ${responseBody['message']}');
+        return response;
+      }/* else {
         print('Error al eliminar la Linea: ${response.statusCode}');
-        print('Cuerpo de la respuesta: ${response.body}');
-      }
+        return response;
+        // print('Cuerpo de la respuesta: ${response.body}');
+      }*/
 
       return response;
     }catch (e) {
