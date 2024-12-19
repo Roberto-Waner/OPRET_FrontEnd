@@ -8,7 +8,6 @@ import 'package:formulario_opret/data/respuesta_crud.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_Insertar_Respuestas.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_preguntasCompleta.dart';
 import 'package:formulario_opret/screens/interfaz_User/navbarUser/navbar_Empl.dart';
-// import 'package:formulario_opret/services/respuestas_services.dart';
 import 'package:formulario_opret/services/sesion_services.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
 
@@ -39,7 +38,6 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
   late List<SpPreguntascompleta> dataQuestion = []; //para la llamada de los datos
   late List<SpInsertarRespuestas> dataRespuesta = []; //para para ingresar
   final _formKey = GlobalKey<FormBuilderState>();
-  // final List<GlobalKey<FormBuilderState>> formKeys = [];
   List<bool> _isExpandedList = [];
   final RespuestaCrud _respuestaCrud = RespuestaCrud();
 
@@ -315,14 +313,8 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
             final currentIndex = dataQuestion.indexOf(question);
             final isLastQuestion = currentIndex == dataQuestion.length - 1;
 
-            // Crear un nuevo GlobalKey para cada pregunta
-            // GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-            // formKeys.add(_formKey); // Guarda la clave en la lista
-
-            // Reiniciar el formulario antes de mostrar la nueva pregunta
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _formKey.currentState?.reset();
-            });
+            // Controlador para el campo 'respuesta_selected'
+            String? selectedAnswer = '';
 
             return AlertDialog(
               title: Text('Pregunta No: ${question.sp_CodPregunta}. ${question.sp_Pregunta}', style: const TextStyle(fontSize: 30.0)),
@@ -337,45 +329,36 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if(question.sp_Rango == 'En caso de responder (Si) finaliza la encuesta' ||
-                          question.sp_Rango == 'No se requiere otra cosa mas.' ||
-                          question.sp_Rango == 'Requiere Justificación (Opcional)' ||
-                          question.sp_Rango == 'Requiere Comentarios (Opcional)')
-                        FormBuilderTextField(
-                          name: 'requerimientos',
-                          enabled: false,
-                          maxLines: null, // Esto permite que el campo se expanda a medida que se ingresa texto
-                          style: const TextStyle(fontSize: 26/*, color: Color.fromARGB(255, 1, 1, 1)*/),
-                          decoration: InputDecorations.inputDecoration(
-                            labeltext: 'Requerimientos',
-                            labelFrontSize: 27.0,
-                            // hintFrontSize: 27.0,
-                            icono: const Icon(Icons.notes, size: 30.0),
-                          ),
-                        ),
 
                       // Determina el tipo de respuesta y muestra el widget adecuado segun el tipo Respuesta de la tabla sesion
                       if (question.sp_TipoRespuesta == 'Respuesta Abierta')
-                        FormBuilderTextField(
-                          name: 'respuesta_selected',
-                          maxLines: null,
-                          style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
-                          decoration: InputDecorations.inputDecoration(
-                            labeltext: 'Escribe tu respuesta',
-                            labelFrontSize: 27.0,
-                            hintFrontSize: 20.0,
-                            icono: const Icon(Icons.notes, size: 30.0),
-                            errorSize: 20
+                        Container(
+                          constraints: const BoxConstraints( 
+                            maxHeight: 100.0, // Ajusta la altura máxima del contenedor 
                           ),
-                          validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                          child: SingleChildScrollView(
+                            child: FormBuilderTextField(
+                              name: 'respuesta_selected',
+                              maxLines: null,
+                              style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
+                              decoration: InputDecorations.inputDecoration(
+                                labeltext: 'Escribe tu respuesta',
+                                labelFrontSize: 27.0,
+                                hintFrontSize: 20.0,
+                                icono: const Icon(Icons.notes, size: 30.0),
+                                errorSize: 20
+                              ),
+                              validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                            ),
+                          ),
                         ),
                       
-                      if(question.sp_TipoRespuesta == 'Selecionar: Si, No, N/A')
+                      if(question.sp_TipoRespuesta == 'Seleccionar: Si, No, N/A')
                         FormBuilderDropdown(
                           name: 'respuesta_selected',
                           style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
                           decoration: InputDecorations.inputDecoration(
-                            labeltext: 'Selecionar: Si, No, N/A',
+                            labeltext: 'Seleccionar: Si, No, N/A',
                             labelFrontSize: 27.0,
                             hintFrontSize: 20.0,
                             icono: const Icon(Icons.check_circle, size: 30.0),
@@ -432,6 +415,11 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                             DropdownMenuItem(value: 'No', child: Text('No')),
                           ],
                           validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                          onSaved: (value) {
+                            setState(() {
+                              selectedAnswer = value ?? '';
+                            });
+                          },
                         ),
                 
                       if(question.sp_TipoRespuesta == 'Edad')
@@ -580,16 +568,23 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                         ),
                 
                       if(question.sp_TipoRespuesta == 'Conclusión')
-                        FormBuilderTextField(
-                          name: 'respuesta_Conclusion',
-                          style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
-                          decoration: InputDecorations.inputDecoration(
-                            labeltext: 'Escribe la Conclusión (Opcional)',
-                            labelFrontSize: 27.0,
-                            hintFrontSize: 20.0,
-                            icono: const Icon(Icons.notes, size: 30.0)
+                        Container(
+                          constraints: const BoxConstraints( 
+                            maxHeight: 100.0, // Ajusta la altura máxima del contenedor 
                           ),
-                          maxLines: null,
+                          child: SingleChildScrollView(
+                            child: FormBuilderTextField(
+                              name: 'respuesta_Conclusion',
+                              style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
+                              decoration: InputDecorations.inputDecoration(
+                                labeltext: 'Escribe la Conclusión (Opcional)',
+                                labelFrontSize: 27.0,
+                                hintFrontSize: 20.0,
+                                icono: const Icon(Icons.notes, size: 30.0)
+                              ),
+                              maxLines: null,
+                            ),
+                          ),
                         ),
 
                       if(question.sp_TipoRespuesta == 'Motivo del viaje')
@@ -615,31 +610,28 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                           validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                         ),
 
-                      FormBuilderTextField(
-                        name: 'comentarios',
-                        style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
-                        decoration: InputDecorations.inputDecoration(
-                          labeltext: 'Agregar comentarios (Opcional)',
-                          labelFrontSize: 27.0,
-                          hintext: ' ',
-                          hintFrontSize: 20.0,
-                          icono: const Icon(Icons.notes, size: 30.0)
-                        ),
-                        maxLines: null,
-                      ),
+                      if (question.sp_Rango == 'Comentarios y Justificación (Opcional)') ...comentarios() + justificacion() 
+                      else if (question.sp_Rango == 'Requiere Comentarios (Opcional)') ...comentarios() 
+                      else if (question.sp_Rango == 'Requiere Justificación (Opcional)') ...justificacion(),
+                        
 
-                      FormBuilderTextField(
-                        name: 'justificacion',
-                        style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
-                        decoration: InputDecorations.inputDecoration(
-                          labeltext: 'Justifique su respuesta (Opcional)',
-                          labelFrontSize: 27.0,
-                          hintext: ' ',
-                          hintFrontSize: 20.0,
-                          icono: const Icon(Icons.notes, size: 30.0)
+                      if(question.sp_Rango == 'En caso de responder (Si) finaliza la encuesta' ||
+                          question.sp_Rango == 'No se requiere otra cosa mas.' ||
+                          question.sp_Rango == 'Requiere Justificación (Opcional)' ||
+                          question.sp_Rango == 'Requiere Comentarios (Opcional)' ||
+                          question.sp_Rango == 'Comentarios y Justificación (Opcional)')
+                        FormBuilderTextField(
+                          name: 'requerimientos',
+                          enabled: false,
+                          maxLines: null, // Esto permite que el campo se expanda a medida que se ingresa texto
+                          style: const TextStyle(fontSize: 26/*, color: Color.fromARGB(255, 1, 1, 1)*/),
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Requerimientos',
+                            labelFrontSize: 27.0,
+                            // hintFrontSize: 27.0,
+                            icono: const Icon(Icons.notes, size: 30.0),
+                          ),
                         ),
-                        maxLines: null,
-                      ),
                     ],
                   )
                 ),
@@ -656,25 +648,31 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                   onPressed: isLastQuestion ? null : () {
                     if (_formKey.currentState?.saveAndValidate() ?? false) {
                       final responseForm = _formKey.currentState!.value;
-                      _saveRespuesta(question, responseForm, finalizarSesion: 0);
 
-                      // Avanza a la próxima pregunta y actualiza el estado
-                      if (!isLastQuestion){
-                        Navigator.of(context).pop(); // Cierra el diálogo actual
+                      if(selectedAnswer == 'Si' && question.sp_Rango == 'En caso de responder (Si) finaliza la encuesta') {
+                        _saveRespuesta(question, responseForm, formKey: _formKey, finalizarSesion: 1);
 
-                        final nextQuestion = dataQuestion[currentIndex + 1];
-                        // Aquí forzamos una recarga del estado global
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          _showPreguntaDialog(nextQuestion); // Abre el diálogo con la próxima pregunta
-                        });
-
+                        Navigator.of(context).pop();
                       } else {
-                        // Manejo del caso cuando ya no hay más preguntas
-                        Future.delayed(const Duration(seconds: 2), () {
-                          Navigator.of(context).pop(); // Cerrar el diálogo si no hay más preguntas
-                        });
+                        _saveRespuesta(question, responseForm, formKey: _formKey, finalizarSesion: 0);
 
-                        _showSuccessDialog(context, 'Has respondido todas las preguntas.');
+                        // Avanza a la próxima pregunta y actualiza el estado
+                        if (!isLastQuestion){
+                          Navigator.of(context).pop(); // Cierra el diálogo actual
+
+                          final nextQuestion = dataQuestion[currentIndex + 1];
+                          // Aquí forzamos una recarga del estado global
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _showPreguntaDialog(nextQuestion); // Abre el diálogo con la próxima pregunta
+                          });
+                        } else {
+                          // Manejo del caso cuando ya no hay más preguntas
+                          Future.delayed(const Duration(seconds: 2), () {
+                            Navigator.of(context).pop(); // Cerrar el diálogo si no hay más preguntas
+                          });
+
+                          _showSuccessDialog(context, 'Has respondido todas las preguntas.');
+                        }
                       }
                     }
                   }, 
@@ -685,12 +683,12 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                   onPressed: () {
                     if (_formKey.currentState?.saveAndValidate() ?? false) {
                       final responseForm = _formKey.currentState!.value;
-                      _saveRespuesta(question, responseForm, finalizarSesion: 1);
+                      _saveRespuesta(question, responseForm, formKey: _formKey, finalizarSesion: 1);
                       _respuestaController.syncDataResp();
                       Navigator.of(context).pop();
                     }
                   }, 
-                  child: const Text('Finalizar Pregunta', style: TextStyle(fontSize: 25.0))
+                  child: const Text('Finalizar Encuesta', style: TextStyle(fontSize: 25.0))
                 )
               ]
             );
@@ -700,15 +698,26 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
     );
   }
 
+  /*
+    Cuando vuelva aparecer el error de abuso del formkey
+    (Duplicate GlobalKey detected in widget tree), se debe de integra un GlobalKey independiente
+    para cada metodo o sino usar un GlobalKey global y utilizarlo como algumento para los metodo
+    en lo que se usan para enviar datos odviamente se le debe de aplicar como parametro en el metodo
+    por ejemplo (_saveRespuesta)
+  */
+
   // Guardar respuesta en la cache y API
-  void _saveRespuesta(SpPreguntascompleta question, Map<String, dynamic> responseForm, {int finalizarSesion = 0}) async {
-    // Crear un nuevo GlobalKey para cada pregunta
-    // GlobalKey<FormBuilderState> _formKey = GlobalKey<FormBuilderState>();
-    // formKeys.add(_formKey); // Guarda la clave en la lista
+  void _saveRespuesta(
+      SpPreguntascompleta question,
+      Map<String, dynamic> responseForm,
+      {
+        required GlobalKey<FormBuilderState> formKey, // Recibe un GlobalKey único como parámetro
+        int finalizarSesion = 0
+      }) async {
 
     // Verificamos si el formulario es válido antes de guardar
-    if (_formKey.currentState!.saveAndValidate()){
-      final dataAnswer = _formKey.currentState!.value;
+    if (formKey.currentState!.saveAndValidate()){
+      final dataAnswer = formKey.currentState!.value;
 
       // Determinamos el tipo de respuesta ingresada por el usuario
       final String? respuestaFinal = dataAnswer['respuesta_selected'];
@@ -745,7 +754,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
               const SnackBar(content: Text('Respuesta guardada con éxito'))
           );
         } else {
-          _showSuccessDialog(context, 'Respuesta guardada con éxito y Fin de la sesión de pregunta.');
+          _showSuccessDialog(context, 'Respuesta guardada con éxito y Fin de la Encuesta.');
         }
         
       } catch (e) { 
@@ -760,35 +769,6 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
       );
     }
   }
-
-  /*
-  void _updateRespuestas(SpInsertarRespuestas answer, SpPreguntascompleta question, {int finalizarSesion = 1}) async {
-    if (_formKey.currentState!.saveAndValidate()) {
-      final dataAnswer = _formKey.currentState!.value;
-
-      // Creamos el objeto `Respuesta` con los datos recopilados
-      SpInsertarRespuestas actualizarRespuesta = SpInsertarRespuestas(
-          idUsuarios: widget.filtrarId.text, // ID del usuario extraido del token
-          idSesion: question.sp_CodPregunta!, //  sp_CodPregunta estraido del modelo SpPreguntascompleta que hace referencia a un stored procedure
-          respuesta: answer.respuesta, // para recibir diferentes tipos de respuestas
-          comentarios: null,
-          justificacion: null,
-          finalizarSesion: finalizarSesion // recibir la respuesta atravez de un boton con 1 = true y 0 = false
-      );
-
-      // Imprimir los datos a enviar para depuración
-      print('Datos de la respuesta: ${actualizarRespuesta.toJson()}');
-
-      try{
-        await _respuestaCrud.actualizarCrud([actualizarRespuesta], widget.filtrarId.text);
-        print('finalizarSesion actualizado con éxito');
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e, actualización local fallida')),
-        );
-      }
-    }
-  }*/
 
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
@@ -867,27 +847,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                               ),
                               child: const Text('Continuar', style: TextStyle(fontSize: 25.0, color: Colors.blue)),
                             ),
-                            // const SizedBox(height: 20.0),
-                            // ElevatedButton(
-                            //   onPressed: () {
-                            //     // Navigator.of(context).pop();
-                            //     Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(builder: (context) => FormEncuestaScreen(
-                            //         filtrarUsuarioController: widget.filtrarUsuarioController,
-                            //         filtrarEmailController: widget.filtrarEmailController,
-                            //         filtrarId: widget.filtrarId,
-                            //       )),
-                            //     );
-                            //   },
-                            //   style: ElevatedButton.styleFrom(
-                            //     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                            //     shape: RoundedRectangleBorder(
-                            //       borderRadius: BorderRadius.circular(50),
-                            //     ),
-                            //   ),
-                            //   child: const Text('No continuar', style: TextStyle(fontSize: 25.0, color: Colors.red)),
-                            // )
+
                           ],
                         )
                       ]
@@ -897,66 +857,52 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
         }
     );
   }
-  
-  /*void _showAdvertenciaDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row( 
-            children: [ 
-              Icon( 
-                Icons.warning, 
-                color: Colors.yellow[700], 
-                size: 50, // Tamaño grande para el ícono de exclamación 
-              ), 
-              const SizedBox(width: 10), 
-              const Expanded( 
-                child: Text( "Advertencia", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)), 
-              ), 
-            ], 
-          ),
-          contentPadding: EdgeInsets.zero,
-          content: Container(
-            margin: const EdgeInsets.fromLTRB(70, 20, 70, 50), 
-            child: Text(message, style: const TextStyle(fontSize: 28)),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();  // Cierra el diálogo sin realizar acciones
-              },
-              child: const Text("Cancelar", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red)),
+
+  List<Widget> comentarios() {
+    return [
+      Container(
+        constraints: const BoxConstraints( 
+          maxHeight: 100.0, // Ajusta la altura máxima del contenedor 
+        ),
+        child: SingleChildScrollView(
+          child: FormBuilderTextField(
+            name: 'comentarios',
+            style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
+            decoration: InputDecorations.inputDecoration(
+              labeltext: 'Agregar comentarios (Opcional)',
+              labelFrontSize: 27.0,
+              hintext: ' ',
+              hintFrontSize: 20.0,
+              icono: const Icon(Icons.notes, size: 30.0)
             ),
-            TextButton(
-              onPressed: () async  {
-                Navigator.of(context).pop();  // Cierra el diálogo
-                final responseForm = _formKey.currentState!.value;
-                bool allSuccess = true;
-                SpPreguntascompleta? question;
+            maxLines: null,
+          ),
+        ),
+      )
+    ];
+  }
 
-                _saveRespuesta(question!, responseForm, finalizarSesion: 1);
-
-                List<SpInsertarRespuestas> respuestasPendientes = await _respuestaCrud.getAnswerCrud();
-
-                if (respuestasPendientes.isNotEmpty) {
-                  await _respuestaController.syncDataResp();
-                  allSuccess = true;
-                } else {
-                  allSuccess = false;
-                }
-
-                if(allSuccess) {
-                  _showSuccessDialog(context, "Respuestas fue enviado");
-                } else {
-                  _showErrorDialog(context, "Error al sincronizar respuestas");
-                }
-              },
-              child: const Text("Confirmar", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)),
+  List<Widget> justificacion() {
+    return [
+      Container(
+        constraints: const BoxConstraints( 
+          maxHeight: 100.0, // Ajusta la altura máxima del contenedor 
+        ),
+        child: SingleChildScrollView(
+          child: FormBuilderTextField(
+            name: 'justificacion',
+            style: const TextStyle(fontSize: 26, color: Color.fromARGB(255, 1, 1, 1)),
+            decoration: InputDecorations.inputDecoration(
+              labeltext: 'Justifique su respuesta (Opcional)',
+              labelFrontSize: 27.0,
+              hintext: ' ',
+              hintFrontSize: 20.0,
+              icono: const Icon(Icons.notes, size: 30.0)
             ),
-          ],
-        );
-      },
-    );
-  }*/
+            maxLines: null,
+          ),
+        ),
+      )
+    ];
+  }
 }

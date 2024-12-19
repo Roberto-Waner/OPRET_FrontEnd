@@ -241,39 +241,6 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
               
                     const SizedBox(height: 16),
                 
-                    // FormBuilderTextField(
-                    //   name: 'cedula',
-                    //   initialValue: widget.filtrarCedula.text,
-                    //   enabled: false,
-                    //   decoration: InputDecorations.inputDecoration(
-                    //     labeltext: 'Cedula',
-                    //     labelFrontSize: 25.5,
-                    //     hintext: '000-0000000-0',
-                    //     hintFrontSize: 20.0, 
-                    //     icono: const Icon(Icons.person_pin_circle_outlined, size: 30.0),
-                    //   ),
-                    //   style: const TextStyle(fontSize: 30.0),
-                    //   // validator: FormBuilderValidators.required(),
-                    //   validator: FormBuilderValidators.compose([ //Combina varios validadores. En este caso, se utiliza el validador requerido y una función personalizada para la expresión regular.
-                    //     FormBuilderValidators.required(errorText: 'Debe de ingresar la cedula'), //Valida que el campo no esté vacío y muestra el mensaje 'El correo es obligatorio' si no se ingresa ningún valor.
-                    //     (value) {
-                    //       // Expresión regular para validar la cedula
-                    //       String pattern = r'^\d{3}-\d{7}-\d{1}$';
-                    //       RegExp regExp = RegExp(pattern);
-                
-                    //       if(!regExp.hasMatch(value ?? '')){
-                    //         return 'Formato de cédula incorrecto';
-                    //       }
-                    //       return null;
-                    //     },
-                    //   ]),
-                    //   onChanged: (val) {
-                    //     print('Cedula seleccionada: $val');
-                    //   },                 
-                    // ),
-              
-                    const SizedBox(height: 16),
-                
                     FormBuilderTextField(
                       name: 'hora',
                       controller: horaController,

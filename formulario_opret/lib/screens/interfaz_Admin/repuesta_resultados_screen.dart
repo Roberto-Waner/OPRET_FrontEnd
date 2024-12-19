@@ -35,7 +35,7 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
   void initState() {
     super.initState();
     // _respuestaData = Future.value([]);
-    // _respuestaData = _apiServiceRespuesta.getRespuestas();
+    _respuestaData = _apiServiceRespuesta.getRespuestas();
     _loadRespuestas();
   }
 

@@ -1272,7 +1272,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
 
                   FormBuilderDropdown<String>(
                     name: 'tipoRespuesta',
-                    menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
+                    menuMaxHeight: 250.0, // Altura máxima del cuadro desplegable
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Elige Tipo de Respuesta',
                       labelFrontSize: 30.5,
@@ -1289,8 +1289,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                         child: Text('Respuesta Abierta')
                       ),
                       DropdownMenuItem(
-                        value: 'Selecionar: Si, No, N/A',
-                        child: Text('Selecionar: Si, No, N/A'),
+                        value: 'Seleccionar: Si, No, N/A',
+                        child: Text('Seleccionar: Si, No, N/A'),
                       ),
                       DropdownMenuItem(
                         value: 'Calificar del 1 a 10',
@@ -1330,7 +1330,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       ),
                       DropdownMenuItem(
                         value: 'Conclusión',
-                        child: Text('Conclusion'),
+                        child: Text('Conclusión'),
                       ),
                       DropdownMenuItem(
                         value: 'Motivo del viaje',
@@ -1368,6 +1368,10 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       DropdownMenuItem(
                           value: 'Requiere Comentarios (Opcional)',
                           child: Text('Requiere Comentarios (Opcional)')
+                      ),
+                      DropdownMenuItem(
+                          value: 'Comentarios y Justificación (Opcional)',
+                          child: Text('Requiere Comentarios y Justificación (Opcional)')
                       ),
                       DropdownMenuItem(
                           value: 'En caso de responder (Si) finaliza la encuesta',
@@ -1463,8 +1467,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                         child: Text('Respuesta Abierta')
                       ),
                       DropdownMenuItem(
-                        value: 'Selecionar: Si, No, N/A',
-                        child: Text('Selecionar: Si, No, N/A'),
+                        value: 'Seleccionar: Si, No, N/A',
+                        child: Text('Seleccionar: Si, No, N/A'),
                       ),
                       DropdownMenuItem(
                         value: 'Calificar del 1 a 10',
@@ -1602,6 +1606,10 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       DropdownMenuItem(
                           value: 'Requiere Comentarios (Opcional)',
                           child: Text('Requiere Comentarios (Opcional)')
+                      ),
+                      DropdownMenuItem(
+                          value: 'Requiere Comentarios y Justificación (Opcional)',
+                          child: Text('Requiere Comentarios y Justificación (Opcional)')
                       ),
                       DropdownMenuItem(
                           value: 'En caso de responder (Si) finaliza la encuesta',

@@ -23,16 +23,16 @@ class RespuestaCrud {
     print('Respuestas guardadas en la base de datos local SQLite con éxito');
   }
 
-  Future<void> actualizarCrud(String idUsuarios) async {
+  Future<void> actualizarCrud(int id, SpInsertarRespuestas answer) async {
     final db = await _databaseHelper.database;
 
     await db.update(
       'localRespuestas',
-      {'finalizarSesion': 1},
-      where: 'idUsuarios = ?',
-      whereArgs: [idUsuarios],
+      answer.toJson(),
+      where: 'idSesion = ?',
+      whereArgs: [id],
     );
-    print('Campo finalizarSesion actualizado a 1 para idUsuarios: $idUsuarios');
+    print('Campo finalizarSesion actualizado a 1 para idUsuarios: $id');
   }
 
   Future<List<SpInsertarRespuestas>> getAnswerCrud() async {
@@ -51,6 +51,16 @@ class RespuestaCrud {
     final db = await _databaseHelper.database;
     await db.delete('localRespuestas');
     print('Todos los registros eliminados de la tabla localRespuestas');
+  }
+
+  Future<void> deleteAnswerCrud(int id) async {
+    final db = await _databaseHelper.database;
+    await db.delete(
+        'RespuestasLocal',
+        where: 'idSesion = ?',
+        whereArgs: [id]
+    );
+    print("Respuesta borrada y agregada nuevamente por parte del usuario con ID: $id");
   }
 }
 
