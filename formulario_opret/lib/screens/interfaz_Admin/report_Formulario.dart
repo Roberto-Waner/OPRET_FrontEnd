@@ -239,15 +239,38 @@ class FormularioDataSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
+        /*
         DataCell(Text(form.sp_IdUsuarios!, style: const TextStyle(fontSize: 20.0))),
-        // DataCell(Text(form.sp_Cedula!, style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(form.sp_Usuarios!, style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(form.sp_NombreApellido!, style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(form.sp_FechaEncuesta!, style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(form.sp_HoraEncuesta!, style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(form.sp_NombreLinea!, style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(form.sp_NombrEstacion!, style: const TextStyle(fontSize: 20.0))),
+        */
+        buildCell(form.sp_IdUsuarios!),
+        buildCell(form.sp_Usuarios!),
+        buildCell(form.sp_NombreApellido!),
+        buildCell(form.sp_FechaEncuesta!),
+        buildCell(form.sp_HoraEncuesta!),
+        buildCell(form.sp_NombreLinea!),
+        buildCell(form.sp_NombrEstacion!),
       ]
+    );
+  }
+
+  DataCell buildCell(String? text) {
+    return DataCell(
+      text != null
+          ? Container(
+              constraints: const BoxConstraints(maxWidth: 420, minWidth: 170),
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 20.0),
+                softWrap: true,
+              ),
+            )
+          : const Text('')
     );
   }
 

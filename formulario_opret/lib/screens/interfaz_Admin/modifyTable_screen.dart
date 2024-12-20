@@ -1250,6 +1250,7 @@ class _EstacionDataSource extends DataTableSource {
               : Colors.white;
       }),
       cells: [
+        /*
         DataCell(Text(estacion.idEstacion.toString(), style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(estacion.idLinea, style: const TextStyle(fontSize: 20.0))),
         DataCell(
@@ -1279,7 +1280,52 @@ class _EstacionDataSource extends DataTableSource {
             ],
           )
         )
+        */
+        buildTextCell(estacion.idEstacion.toString()),
+        buildTextCell(estacion.idLinea),
+        buildTextCell(estacion.nombreEstacion),
+        buildActionCell(
+          onEdit: onEdit, 
+          onDelete: onDelete, 
+          estacion: estacion
+        )
       ]
+    );
+  }
+
+  DataCell buildTextCell(String? text) {
+    return DataCell(
+      text != null
+          ? Container(
+              constraints: const BoxConstraints(maxWidth: 420, minWidth: 170),
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 20.0),
+                softWrap: true,
+              )
+            )
+          : const Text('')
+    );
+  }
+
+  DataCell buildActionCell({
+    required Function(Estacion) onEdit,
+    required Function(Estacion) onDelete,
+    required Estacion estacion, // Objeto que será pasado a las funciones
+  }) {
+    return DataCell(
+      Row(
+        children: [
+          IconButton(
+            onPressed: () => onEdit(estacion), // Pasa el objeto `estacion` a la función de edición
+            icon: const Icon(Icons.edit, color: Colors.blue),
+          ),
+          IconButton(
+            onPressed: () => onDelete(estacion), // Pasa el objeto `estacion` a la función de eliminación
+            icon: const Icon(Icons.delete, color: Colors.red),
+          ),
+        ]
+      )
     );
   }
 

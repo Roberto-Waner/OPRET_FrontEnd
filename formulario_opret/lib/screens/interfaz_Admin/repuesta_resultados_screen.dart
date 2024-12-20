@@ -42,9 +42,9 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
   Future<void> _loadRespuestas() async {
     final respuestas = await _apiServiceRespuesta.getRespuestas();
     setState(() {
+      _respuestaData = Future.value(respuestas); // Actualiza el Future con los datos cargados
       todasLasRespuestas = respuestas; 
       respuestasFiltrados = respuestas;
-      _respuestaData = Future.value(respuestas); // Actualiza el Future con los datos cargados
     });
   }
 
@@ -282,8 +282,8 @@ class RespuestasDataSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
+        /*
         DataCell(answer.sp_IdUsuarios != null ? Text(answer.sp_IdUsuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        // DataCell(answer.sp_Cedula != null ? Text(answer.sp_Cedula!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_NombreApellido != null ? Text(answer.sp_NombreApellido!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_Usuarios != null ? Text(answer.sp_Usuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_NoEncuesta != null ? Text(answer.sp_NoEncuesta!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
@@ -295,7 +295,35 @@ class RespuestasDataSource extends DataTableSource {
         DataCell(answer.sp_Respuestas != null ? Text(answer.sp_Respuestas!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_Comentarios != null ? Text(answer.sp_Comentarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(answer.sp_Justificacion != null ? Text(answer.sp_Justificacion!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
+        */
+        buildCell(answer.sp_IdUsuarios),
+        buildCell(answer.sp_NombreApellido),
+        buildCell(answer.sp_Usuarios),
+        buildCell(answer.sp_NoEncuesta),
+        buildCell(answer.sp_IdSesion.toString()),
+        buildCell(answer.sp_CodPreguntas.toString()),
+        buildCell(answer.sp_Preguntas),
+        buildCell(answer.sp_CodSupPreguntas),
+        buildCell(answer.sp_SupPreguntas),
+        buildCell(answer.sp_Respuestas),
+        buildCell(answer.sp_Comentarios),
+        buildCell(answer.sp_Justificacion),
       ]
+    );
+  }
+
+  DataCell buildCell(String? text) {
+    return DataCell(
+      text != null
+          ? Container(
+              constraints: const BoxConstraints(maxWidth: 420, minWidth: 170),
+              child: Text(
+                text,
+                style: const TextStyle(fontSize: 20.0),
+                softWrap: true,
+              ),
+            )
+          : const Text('')
     );
   }
 

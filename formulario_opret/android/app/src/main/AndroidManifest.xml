@@ -1,8 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="formulario_opret"
+        android:label="Encuesta (OPRET)"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- ENCUESTA PERCEPCION DEL SERVICIO -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -183,7 +183,7 @@ class _PresentationScreenState extends State<PresentationScreen> {
                           ),
                           const SizedBox(height: 30), 
                           const Text( 
-                            'Bienvenido', 
+                            'Encuesta Percepción del Servicio', 
                             style: TextStyle( 
                               fontSize: 35, 
                               color: Colors.white, 
