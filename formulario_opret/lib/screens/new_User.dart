@@ -35,7 +35,7 @@ class _NewUserState extends State<NewUser> {
   // final UpperCaseTextEditingController _controller = UpperCaseTextEditingController();
   final TextEditingController datePicker = TextEditingController();
   DateTime? _selectedDate;
-  final ApiServiceUser _apiServiceUser = ApiServiceUser('https://10.0.2.2:7190');
+  final ApiServiceUser _apiServiceUser = ApiServiceUser('http://wepapi.somee.com');
   bool _obscureText = true;
   bool isLoading = false; // Variable de control para el cuadro de carga
   // bool hasError = true; // Variable de control para el cuadro de Error de carga
@@ -299,34 +299,6 @@ class _NewUserState extends State<NewUser> {
                                 )
                               ],
                             ),
-                                    
-                            // const SizedBox(height: 30),
-                            // FormBuilderTextField( //Cedula
-                            //   name: 'cedula',
-                            //   keyboardType: TextInputType.number,
-                            //   autocorrect: true,
-                            //   decoration: InputDecorations.inputDecoration(
-                            //     hintext: '000-0000000-0',
-                            //     hintFrontSize: 22.0,
-                            //     labeltext: 'Cedula de identidad',
-                            //     labelFrontSize: 35.0,
-                            //     icono: const Icon(Icons.perm_identity_rounded, size: 30.0),
-                            //     errorSize: 20
-                            //   ),
-                            //   style: const TextStyle(fontSize: 30.0),
-                            //   validator: (value) {
-                            //     String pattern = r'^\d{3}-\d{7}-\d{1}$';
-                            //     RegExp regExp = RegExp(pattern);
-                            //     if(value == null || value.isEmpty){
-                            //       return 'Por favor ingrese su cédula';
-                            //     }
-                                    
-                            //     if(!regExp.hasMatch(value)){
-                            //       return 'Formato de cédula incorrecto';
-                            //     }
-                            //     return null;
-                            //   },
-                            // ),
                             
                             const SizedBox(height: 30),
                             FormBuilderTextField( //Correo
@@ -444,12 +416,7 @@ class _NewUserState extends State<NewUser> {
                                     value: 'Administrador',
                                     child: Text('Administrador', style: TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1)))),
                               ],
-                              style: const TextStyle(fontSize: 30.0),
-                              // onChanged: (value) {
-                              //   setState(() {
-                              //     _selectedRole = value!;
-                              //   });
-                              // },
+                              style: const TextStyle(fontSize: 30.0)
                             ),
                                     
                             const SizedBox(height: 50),

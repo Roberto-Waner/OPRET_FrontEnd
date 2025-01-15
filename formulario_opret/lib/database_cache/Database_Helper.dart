@@ -65,8 +65,10 @@ class DatabaseHelper {
       CREATE TABLE SeccionPreguntas (
         codPregunta integer null,
         tipoRespuesta text null,
+        noIdentifEncuesta text null,
         pregunta text null,
         subPregunta text null,
+        estado INTEGER NULL,
         rango text null,
         isUpdated INTEGER DEFAULT 0,
         isDeleted INTEGER DEFAULT 0

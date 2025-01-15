@@ -1,9 +1,10 @@
 class Sesion {
   int? idSesion;
   String tipoRespuesta;
-  // String? grupoTema;
+  String? identifEncuesta;
   int codPregunta;
   String? codSubPregunta;
+  bool estado;
   String? rango;
   Preguntas? preguntas_;
   SubPregunta? subPregunta_;
@@ -11,10 +12,11 @@ class Sesion {
   Sesion({
     this.idSesion,
     required this.tipoRespuesta,
-    // this.grupoTema,
+    this.identifEncuesta,
     required this.codPregunta,
     this.codSubPregunta,
     this.rango,
+    required this.estado,
     this.preguntas_,
     this.subPregunta_
   });
@@ -23,10 +25,11 @@ class Sesion {
     return Sesion(
       idSesion: json['idSesion'],
       tipoRespuesta: json['tipoRespuesta'],
-      // grupoTema: json['grupoTema'],
+        identifEncuesta: json['grupoTema'],
       codPregunta: json['codPregunta'],
       codSubPregunta: json['codSubPregunta'],
       rango: json['rango'],
+      estado: json['estado'],
       preguntas_: json['preguntas_'] != null
           ? Preguntas.fromJson(json['preguntas_']) : null,
       subPregunta_: json['subPregunta_']  != null
@@ -38,10 +41,11 @@ class Sesion {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (idSesion != null) { data['idSesion'] = idSesion; }
     data['tipoRespuesta'] = tipoRespuesta;
-    // data['grupoTema'] = grupoTema;
+    data['grupoTema'] = identifEncuesta;
     data['codPregunta'] = codPregunta;
     data['codSubPregunta'] = codSubPregunta;
     data['rango'] = rango;
+    data['estado'] = estado;
     if(preguntas_ != null) {data['preguntas_'] = preguntas_!.toJson();}
     if(subPregunta_ != null) {data['subPregunta_'] = subPregunta_!.toJson();}
     print(data);

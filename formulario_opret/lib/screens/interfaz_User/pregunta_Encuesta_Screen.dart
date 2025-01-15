@@ -7,6 +7,7 @@ import 'package:formulario_opret/Controllers/section_Controller.dart';
 import 'package:formulario_opret/data/respuesta_crud.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_Insertar_Respuestas.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_preguntasCompleta.dart';
+import 'package:formulario_opret/screens/interfaz_User/form_Encuesta_Screen.dart';
 import 'package:formulario_opret/screens/interfaz_User/navbarUser/navbar_Empl.dart';
 import 'package:formulario_opret/services/sesion_services.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
@@ -32,7 +33,7 @@ class PreguntaEncuestaScreen extends StatefulWidget {
 }
 
 class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
-  final ApiServiceSesion2 _apiSesion = ApiServiceSesion2('https://10.0.2.2:7190');
+  final ApiServiceSesion2 _apiSesion = ApiServiceSesion2('http://wepapi.somee.com');
   final SectionController _sectionController = SectionController();
   final RespuestaController _respuestaController = RespuestaController();
   late List<SpPreguntascompleta> dataQuestion = []; //para la llamada de los datos
@@ -50,6 +51,10 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
   void _refreshPreguntas() async {
     try {
       List<SpPreguntascompleta> preguntas = await _sectionController.loadFromApi();
+
+      // Filtrar solo las preguntas con estado verdadero
+      preguntas = preguntas.where((pregunta) => pregunta.sp_Estado == true).toList();
+
       _respuestaController.syncDataResp();
       setState(() {
         dataQuestion = preguntas;
@@ -62,108 +67,121 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: NavbarEmpl(
-        filtrarUsuarioController: widget.filtrarUsuarioController,  
-        filtrarEmailController: widget.filtrarEmailController,
-        filtrarId: widget.filtrarId,
-        // // filtrarCedula: widget.filtrarCedula,
-      ),
-
-      appBar: AppBar(
-        title: const Text('Preguntas de Encuesta'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 30.0),
-            tooltip: 'Recargar',
-            onPressed: () {
-              setState(() {
-                _refreshPreguntas();
-              });
-            },
-          )
-        ],
-      ),
-
-      body:Column(
-        children: [
-          Expanded(
-            child: FutureBuilder(
-              future: _apiSesion.getSpPreguntascompletaListada().catchError((e) async {
-                print('Error al cargar desde la API, cargando desde SQLite: $e');
-                return await _sectionController.loadFromSQLite().timeout(const Duration(seconds: 5));
-              }),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    // child: CircularProgressIndicator()
-                    child: Dialog(
-                      backgroundColor: Colors.transparent,
-                      child: Container(
-                        width: 200,
-                        height: 220,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(100),
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        drawer: NavbarEmpl(
+          filtrarUsuarioController: widget.filtrarUsuarioController,  
+          filtrarEmailController: widget.filtrarEmailController,
+          filtrarId: widget.filtrarId,
+          // // filtrarCedula: widget.filtrarCedula,
+        ),
+      
+        appBar: AppBar(
+          title: const Text('Preguntas de Encuesta'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 30.0),
+              tooltip: 'Recargar',
+              onPressed: () {
+                setState(() {
+                  _refreshPreguntas();
+                });
+              },
+            )
+          ],
+        ),
+      
+        body:Column(
+          children: [
+            Expanded(
+              child: FutureBuilder(
+                future: _apiSesion.getSpPreguntascompletaListada().catchError((e) async {
+                  print('Error al cargar desde la API, cargando desde SQLite: $e');
+                  return await _sectionController.loadFromSQLite().timeout(const Duration(seconds: 5));
+                }),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      // child: CircularProgressIndicator()
+                      child: Dialog(
+                        backgroundColor: Colors.transparent,
+                        child: Container(
+                          width: 200,
+                          height: 220,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                              ),
+                              
+                              SizedBox(height: 20),
+                              Text(
+                                'Cargando...',
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                            ),
-                            
-                            SizedBox(height: 20),
-                            Text(
-                              'Cargando...',
-                              style: TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  );
-                } else if (snapshot.hasError) {
-                  return const Center(child: Text("Error al cargar las preguntas", style: TextStyle(fontSize: 30.0)));
-                } else if (dataQuestion.isEmpty) {
-                  return const Center(child: Text("No hay preguntas disponibles", style: TextStyle(fontSize: 30.0)));
-                } else {
-                  // dataQuestion = snapshot.data!;
-                  return _buildPreguntaList(); // Construye la lista de preguntas si hay datos
-                }
-              }
-            ),
-          ),
-          /*
-          Padding(
-            padding: const EdgeInsets.all(28.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.saveAndValidate()) {
-
+                      )
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text("Error al cargar las preguntas", style: TextStyle(fontSize: 30.0)));
+                  } else if (dataQuestion.isEmpty) {
+                    // WidgetsBinding.instance.addPostFrameCallback((_) {
+                    //   _showErrorDialog(context, "Los sentimos en estos momentos no hay Preguntas de Encuestas disponibles por ahora.");
+                    // });
+                    return const Center(child: Text("No hay preguntas disponibles", style: TextStyle(fontSize: 30.0)));
+                  } else {
+                    // dataQuestion = snapshot.data!;
+                    return _buildPreguntaList(); // Construye la lista de preguntas si hay datos
                   }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(1, 135, 76, 1),
-                  foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                ),
-                child: const Text('Enviar Todas las Respuestas', style: TextStyle(fontSize: 26.0)),
+                }
               ),
             ),
-          )
-          */
-        ],
-      )
+            Padding(
+              padding: const EdgeInsets.all(28.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => FormEncuestaScreen(
+                        filtrarUsuarioController: widget.filtrarUsuarioController,
+                        filtrarEmailController: widget.filtrarEmailController,
+                        filtrarId: widget.filtrarId,
+                        // // filtrarCedula: widget.filtrarCedula,
+                      )),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(1, 135, 76, 1),
+                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
+                  child: const Text('Regresar al formulario.', style: TextStyle(fontSize: 26.0)),
+                ),
+              ),
+            )
+          ],
+        )
+      ),
     );
   }
 
   Widget _buildPreguntaList() {
+    //filtrar las preguntas segun el estado sea igual a true
+    final filteredQuestions = dataQuestion.where((question) => question.sp_Estado == true).toList();
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(28.0),
@@ -172,7 +190,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
           children: [
             ListView.builder(
               shrinkWrap: true,
-              itemCount: dataQuestion.length,
+              itemCount: filteredQuestions.length,
               physics: const NeverScrollableScrollPhysics(), // Evita conflictos de desplazamiento
               itemBuilder: (BuildContext context, int index) {
                 return GestureDetector(
@@ -204,7 +222,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                                 style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                               ),
                               TextSpan(
-                                text: '${dataQuestion[index].sp_CodPregunta}',
+                                text: '${filteredQuestions[index].sp_noIdentifEncuesta}',
                                 style: const TextStyle(fontSize: 35.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                               )
                             ]
@@ -226,7 +244,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                                     style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                                   ),
                                   TextSpan(
-                                    text: ('  ${dataQuestion[index].sp_TipoRespuesta}'),
+                                    text: ('  ${filteredQuestions[index].sp_TipoRespuesta}'),
                                     style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                   )
                                 ]
@@ -241,14 +259,14 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                                     style: TextStyle(fontSize: 28.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                                   ),
                                   TextSpan(
-                                    text: ('    ${dataQuestion[index].sp_Pregunta}'),
+                                    text: ('    ${filteredQuestions[index].sp_Pregunta}'),
                                     style: const TextStyle(fontSize: 28.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                   )
                                 ]
                               )
                             ),
                             const SizedBox(height: 15),
-                            if (dataQuestion[index].sp_SubPregunta != null)
+                            if (filteredQuestions[index].sp_SubPregunta != null)
                               RichText(
                                 text: TextSpan(
                                   children: [
@@ -257,14 +275,14 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                                       style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                                     ),
                                     TextSpan(
-                                      text: ('    ${dataQuestion[index].sp_SubPregunta}'),
+                                      text: ('    ${filteredQuestions[index].sp_SubPregunta}'),
                                       style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                     )
                                   ]
                                 )
                               ),
                             const SizedBox(height: 5),
-                            if (dataQuestion[index].sp_Rango != null)
+                            if (filteredQuestions[index].sp_Rango != null)
                               RichText(
                                   text: TextSpan(
                                       children: [
@@ -273,7 +291,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                                           style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)), // Estilo en negrita
                                         ),
                                         TextSpan(
-                                          text: ('    ${dataQuestion[index].sp_Rango}'),
+                                          text: ('    ${filteredQuestions[index].sp_Rango}'),
                                           style: const TextStyle(fontSize: 26.0, color: Color.fromARGB(255, 1, 1, 1)), // Estilo normal
                                         )
                                       ]
@@ -283,7 +301,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                               alignment: Alignment.centerRight,
                               child: TextButton(
                                 onPressed: () {
-                                  _showPreguntaDialog(dataQuestion[index]); // Muestra el diálogo al hacer clic
+                                  _showPreguntaDialog(filteredQuestions[index]); // Muestra el diálogo al hacer clic
                                 },
                                 child: const Text('Responder.', style: TextStyle(fontSize: 26.0)),
                               ),
@@ -310,14 +328,17 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
       builder: (BuildContext context, ) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            final currentIndex = dataQuestion.indexOf(question);
-            final isLastQuestion = currentIndex == dataQuestion.length - 1;
+            // Filtrar preguntas que tienen estado en true
+            final filteredQuestions = dataQuestion.where((q) => q.sp_Estado == true).toList();
 
-            // Controlador para el campo 'respuesta_selected'
+            final currentIndex = filteredQuestions.indexOf(question);
+            final isLastQuestion = currentIndex == filteredQuestions.length - 1;
+            
+            // Reinicializa 'selectedAnswer' para cada nueva pregunta
             String? selectedAnswer = '';
 
             return AlertDialog(
-              title: Text('Pregunta No: ${question.sp_CodPregunta}. ${question.sp_Pregunta}', style: const TextStyle(fontSize: 30.0)),
+              title: Text('Pregunta No: ${question.sp_noIdentifEncuesta}. ${question.sp_Pregunta}', style: const TextStyle(fontSize: 30.0)),
               content: Container(
                 margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),  // Aplica margen
                 width: 1500,
@@ -613,10 +634,9 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                       if (question.sp_Rango == 'Comentarios y Justificación (Opcional)') ...comentarios() + justificacion() 
                       else if (question.sp_Rango == 'Requiere Comentarios (Opcional)') ...comentarios() 
                       else if (question.sp_Rango == 'Requiere Justificación (Opcional)') ...justificacion(),
-                        
 
+                      /*
                       if(question.sp_Rango == 'En caso de responder (Si) finaliza la encuesta' ||
-                          question.sp_Rango == 'No se requiere otra cosa mas.' ||
                           question.sp_Rango == 'Requiere Justificación (Opcional)' ||
                           question.sp_Rango == 'Requiere Comentarios (Opcional)' ||
                           question.sp_Rango == 'Comentarios y Justificación (Opcional)')
@@ -626,12 +646,12 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                           maxLines: null, // Esto permite que el campo se expanda a medida que se ingresa texto
                           style: const TextStyle(fontSize: 26/*, color: Color.fromARGB(255, 1, 1, 1)*/),
                           decoration: InputDecorations.inputDecoration(
-                            labeltext: 'Requerimientos',
+                            labeltext: '${question.sp_Rango}',
                             labelFrontSize: 27.0,
-                            // hintFrontSize: 27.0,
                             icono: const Icon(Icons.notes, size: 30.0),
                           ),
                         ),
+                      */
                     ],
                   )
                 ),
@@ -658,6 +678,9 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
 
                         // Avanza a la próxima pregunta y actualiza el estado
                         if (!isLastQuestion){
+                          // Reinicia el estado del formulario antes de cargar la siguiente pregunta
+                          _formKey.currentState?.reset();
+
                           Navigator.of(context).pop(); // Cierra el diálogo actual
 
                           final nextQuestion = dataQuestion[currentIndex + 1];

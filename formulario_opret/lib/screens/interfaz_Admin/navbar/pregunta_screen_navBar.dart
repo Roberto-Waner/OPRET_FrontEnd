@@ -9,6 +9,7 @@ import 'package:formulario_opret/services/pregunta_services.dart';
 import 'package:formulario_opret/services/sesion_services.dart';
 import 'package:formulario_opret/services/subPreguntas_services.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 
 class PreguntaScreenNavbar extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
@@ -28,11 +29,11 @@ class PreguntaScreenNavbar extends StatefulWidget {
 
 class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final ApiServicePreguntas _apiServicePreguntas = ApiServicePreguntas('https://10.0.2.2:7190');
+  final ApiServicePreguntas _apiServicePreguntas = ApiServicePreguntas('http://wepapi.somee.com');
   late Future<List<Preguntas>> _preguntasData;
-  final ApiServiceSubPreguntas  _apiServiceSubPreguntas = ApiServiceSubPreguntas('https://10.0.2.2:7190');
+  final ApiServiceSubPreguntas  _apiServiceSubPreguntas = ApiServiceSubPreguntas('http://wepapi.somee.com');
   late Future<List<SubPregunta>> _subPreguntasData;
-  final ApiServiceSesion _apiServiceSesion = ApiServiceSesion('https://10.0.2.2:7190');
+  final ApiServiceSesion _apiServiceSesion = ApiServiceSesion('http://wepapi.somee.com');
   late Future<List<Sesion>> _sesionData;
   String selectedTipRespuestas = 'Respuesta Abierta';
   final tipoRespuestaController = TextEditingController();
@@ -197,466 +198,493 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Navbar(
-        filtrarUsuarioController: widget.filtrarUsuarioController,
-        filtrarEmailController: widget.filtrarEmailController,
-        filtrarId: widget.filtrarId,
-        // // filtrarCedula: widget.filtrarCedula,
-      ),
-      appBar: AppBar(
-        title: const Text('Sección de Preguntas'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 30.0),
-            tooltip: 'Recargar',
-            onPressed: () {
-              setState(() {
-                _fetchData();
-                _fetchDataSubPregu();
-                _refreshSesion();
-                
-              });
-            },
-          )
-        ],
-      ),
-
-      body: Stack(
-        children: [
-          // Cuerpo principal con las tablas
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Tablas de Preguntas',
-                    style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FormBuilderDropdown<String>(
-                          name: 'filtrarPregunta',
-                          menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
-                          initialValue: selectedFilterPregunta,
-                          style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
-                          decoration: const InputDecoration(
-                            labelText: 'Filtrar por',
-                            labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                            border: OutlineInputBorder(),
-                          ),
-                          items: [
-                            'No de pregunta',
-                            'Pregunta'
-                          ].map((filter) => DropdownMenuItem(
-                                value: filter,
-                                child: Text(filter),
-                              )).toList(),
-                          onChanged: (value) => setState(() {
-                            selectedFilterPregunta = value!;
-                          }),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-
-                      Expanded(
-                        flex: 2,
-                        child: FormBuilderTextField(
-                          name: 'searchPregunta',
-                          controller: searchPreguntaController,
-                          style: const TextStyle(fontSize: 20.0),
-                          decoration: InputDecoration( 
-                            labelText: 'Buscar', 
-                            labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: searchPreguntaController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: _limpiarBusqueda,
-                                )
-                              : null 
-                          ),
-                          onChanged: (value) {
-                            if (value!.isNotEmpty) {
-                              _filtrarPreguntas(value);
-                            } else {
-                              setState(() { 
-                                _preguntaFiltrada = []; 
-                              }); 
-                            }
-                          },
-                        )
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(),
-                        
-                  FutureBuilder<List<Preguntas>>(
-                    future: _preguntasData,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }else if(snapshot.hasError) {
-                        return const Center(child: Text('Error al cargar la Sesion de Preguntas.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
-                      }else {
-                        final questionTable = _preguntaFiltrada.isNotEmpty 
-                              ? _preguntaFiltrada
-                              : snapshot.data ?? [];
-                  
-                        return Container(
-                          margin: const EdgeInsets.all(10.0),
-                          padding: const EdgeInsets.all(7.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                            borderRadius: BorderRadius.circular(10.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 7,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          ),
-                          child: Theme(
-                            data: Theme.of(context).copyWith(
-                              textTheme: Theme.of(context).textTheme.copyWith(
-                                bodySmall: const TextStyle(
-                                  fontSize: 20,           // Ajusta el tamaño del número
-                                  color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                                  fontWeight: FontWeight.bold, // Hace el texto más visible
-                                ),
-                              ),
-                            ),
-                            child: PaginatedDataTable(
-                              columns: const [
-                                DataColumn(label: Text('No', style: TextStyle(fontSize: 27.0, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Preguntas', style: TextStyle(fontSize: 27.0, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Accion', style: TextStyle(fontSize: 27.0, color: Colors.white, fontWeight: FontWeight.bold)))
-                              ],
-                              source: _PreguntasDataSource(questionTable, _showEditDialog, _showDeleteDialog),
-                              headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                              rowsPerPage: 10, //numeros de filas
-                              columnSpacing: 50, //espacios entre columnas
-                              horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                              showCheckboxColumn: false, //oculta la columna de checkboxes
-                              dataRowMinHeight: 60.0,  // Altura mínima de fila
-                              dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                              showFirstLastButtons: true,
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  ),
-                  const Divider(),
-                  
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Tablas de Sub Preguntas',
-                    style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FormBuilderDropdown<String>(
-                          name: 'filtrarSubPregunta',
-                          menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
-                          initialValue: selectedFilterSubPregunta,
-                          style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
-                          decoration: const InputDecoration(
-                            labelText: 'Filtrar por',
-                            labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                            border: OutlineInputBorder(),
-                          ),
-                          items: [
-                            'Id de Sub pregunta',
-                            'Sup Pregunta',
-                          ].map((filter) => DropdownMenuItem(
-                                value: filter,
-                                child: Text(filter),
-                              )).toList(),
-                          onChanged: (value) => setState(() {
-                            selectedFilterSubPregunta = value!;
-                          }),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-
-                      Expanded(
-                        flex: 2,
-                        child: FormBuilderTextField(
-                          name: 'searchSubPregunta',
-                          controller: searchSubPreguntaController,
-                          style: const TextStyle(fontSize: 20.0),
-                          decoration: InputDecoration( 
-                            labelText: 'Buscar', 
-                            labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: searchSubPreguntaController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: _limpiarBusqueda,
-                                )
-                              : null 
-                          ),
-                          onChanged: (value) {
-                            if (value!.isNotEmpty) {
-                              _filtrarSubPreguntas(value);
-                            } else {
-                              setState(() { 
-                                _subPreguntaFiltrada = []; 
-                              }); 
-                            }
-                          },
-                        )
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(),
-                        
-                  FutureBuilder<List<SubPregunta>>(
-                    future: _subPreguntasData,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }else if (snapshot.hasError) {
-                        return const Center(child: Text('Error al cargar la Sub - Preguntas.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
-                      } else {
-                        final subPregTabla = _subPreguntaFiltrada.isNotEmpty 
-                              ? _subPreguntaFiltrada
-                              : snapshot.data ?? [];
-                        
-                        return Container(
-                          margin: const EdgeInsets.all(16.0),
-                          padding: const EdgeInsets.all(7.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                            borderRadius: BorderRadius.circular(10.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 7,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          ),
-                          child: Theme(
-                            data: Theme.of(context).copyWith(
-                              textTheme: Theme.of(context).textTheme.copyWith(
-                                bodySmall: const TextStyle(
-                                  fontSize: 20,           // Ajusta el tamaño del número
-                                  color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                                  fontWeight: FontWeight.bold, // Hace el texto más visible
-                                ),
-                              ),
-                            ),
-                            child: PaginatedDataTable(
-                              columns: const [
-                                DataColumn(label: Text('NO', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Sub Preguntas', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Acción', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
-                              ], 
-                              source: _SubPreguntasDataSource(subPregTabla, _showEditDialogSubPregunta, _showDeleteDialogSubPregunta),
-                              headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                              rowsPerPage: 7, //numeros de filas
-                              columnSpacing: 50, //espacios entre columnas
-                              horizontalMargin: 30, //para aplicarle un margin horizontal a los campo de la tabla
-                              showCheckboxColumn: false, //oculta la columna de checkboxes
-                              dataRowMinHeight: 60.0,  // Altura mínima de fila
-                              dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                              showFirstLastButtons: true,
-                            ),
-                          ),
-                        );
-                      }
-                    }
-                  ),
-                  const Divider(),
-                        
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Tablas administrativa para gestionar las preguntas',
-                    style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: FormBuilderDropdown<String>(
-                          name: 'filtrarSesion',
-                          menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
-                          initialValue: selectedFilterSesion,
-                          style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
-                          decoration: const InputDecoration(
-                            labelText: 'Filtrar por',
-                            labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                            border: OutlineInputBorder(),
-                          ),
-                          items: [
-                            'Numero de Seccion',
-                            'Tipo de Respuesta',
-                            'Numero de Pregunta',
-                            'No. de Sup Pregunta'
-                          ].map((filter) => DropdownMenuItem(
-                                value: filter,
-                                child: Text(filter),
-                              )).toList(),
-                          onChanged: (value) => setState(() {
-                            selectedFilterSesion = value!;
-                          }),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-
-                      Expanded(
-                        flex: 2,
-                        child: FormBuilderTextField(
-                          name: 'searchSesion',
-                          controller: searchSesionController,
-                          style: const TextStyle(fontSize: 20.0),
-                          decoration: InputDecoration( 
-                            labelText: 'Buscar', 
-                            labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: searchSesionController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: _limpiarBusqueda,
-                                )
-                              : null 
-                          ),
-                          onChanged: (value) {
-                            if (value!.isNotEmpty) {
-                              _filtrarSesion(value);
-                            } else {
-                              setState(() { 
-                                _sesionFiltrada = []; 
-                              }); 
-                            }
-                          },
-                        )
-                      )
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(),
-                        
-                  FutureBuilder<List<Sesion>>(
-                    future: _sesionData,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }else if (snapshot.hasError) {
-                        return const Center(child: Text('Error al cargar la Sección.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
-                      } else {
-                        final sesionTable = _sesionFiltrada.isNotEmpty 
-                              ? _sesionFiltrada
-                              : snapshot.data ?? [];
-                        
-                        return Container(
-                          margin: const EdgeInsets.all(10.0),
-                          padding: const EdgeInsets.all(7.0),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                            borderRadius: BorderRadius.circular(10.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 7,
-                                offset: const Offset(0, 3),
-                              )
-                            ]
-                          ),
-                          child: Theme(
-                            data: Theme.of(context).copyWith(
-                              textTheme: Theme.of(context).textTheme.copyWith(
-                                bodySmall: const TextStyle(
-                                  fontSize: 20,           // Ajusta el tamaño del número
-                                  color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                                  fontWeight: FontWeight.bold, // Hace el texto más visible
-                                ),
-                              ),
-                            ),
-                            child: PaginatedDataTable(
-                              columns: const [
-                                DataColumn(label: Text('No. de Sección', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Tipo de Respuesta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('No. Pregunta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('No. Sub Pregunta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Requerimiento (Opcional).', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Acción', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
-                              ],
-                              source: _SesionDataSource(sesionTable, _showEditDialogSesion, _showDeleteDialogSesion),
-                              headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                              rowsPerPage: 10, //numeros de filas
-                              columnSpacing: 50, //espacios entre columnas
-                              horizontalMargin: 30, //para aplicarle un margin horizontal a los campo de la tabla
-                              showCheckboxColumn: false, //oculta la columna de checkboxes
-                              dataRowMinHeight: 60.0,  // Altura mínima de fila
-                              dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                              showFirstLastButtons: true,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  )
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: Stack(
-        children: [
-          Positioned(
-            left: position.dx,
-            top: position.dy,
-            child: Draggable(
-              feedback: _bottonSaveSpeedDial(),
-              childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
-              onDragEnd: (details) {
+    return PopScope( //Widget utilizado para evitar que el usuario pueda retroceder por medio del boton o gesto para ir atras
+      canPop: false, // Retorna `false` para evitar que la pantalla retroceda
+      child: Scaffold(
+        drawer: Navbar(
+          filtrarUsuarioController: widget.filtrarUsuarioController,
+          filtrarEmailController: widget.filtrarEmailController,
+          filtrarId: widget.filtrarId,
+          // // filtrarCedula: widget.filtrarCedula,
+        ),
+        appBar: AppBar(
+          title: const Text('Sección de Preguntas'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 30.0),
+              tooltip: 'Recargar',
+              onPressed: () {
                 setState(() {
-                  // Limitar la posición del botón a los límites de la pantalla
-                  double dx = details.offset.dx;
-                  double dy = details.offset.dy;
-
-                  if (dx < 0) dx = 0;
-                  if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
-                      dx = MediaQuery.of(context).size.width - 56;
-                  }
-
-                  if (dy < 0) dy = 0;
-                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 60) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
-                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 60;
-                  }
-
-                  position = Offset(dx, dy);
+                  _fetchData();
+                  _fetchDataSubPregu();
+                  _refreshSesion();
+                  
                 });
               },
-              child: _bottonSaveSpeedDial(),
             )
-          )
-        ]
+          ],
+        ),
+      
+        body: Stack(
+          children: [
+            // Cuerpo principal con las tablas
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Tablas de Preguntas',
+                      style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+      
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderDropdown<String>(
+                            name: 'filtrarPregunta',
+                            menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
+                            initialValue: selectedFilterPregunta,
+                            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
+                            decoration: const InputDecoration(
+                              labelText: 'Filtrar por',
+                              labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                              border: OutlineInputBorder(),
+                            ),
+                            items: [
+                              'No de pregunta',
+                              'Pregunta'
+                            ].map((filter) => DropdownMenuItem(
+                                  value: filter,
+                                  child: Text(filter),
+                                )).toList(),
+                            onChanged: (value) => setState(() {
+                              selectedFilterPregunta = value!;
+                            }),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+      
+                        Expanded(
+                          flex: 2,
+                          child: FormBuilderTextField(
+                            name: 'searchPregunta',
+                            controller: searchPreguntaController,
+                            style: const TextStyle(fontSize: 20.0),
+                            decoration: InputDecoration( 
+                              labelText: 'Buscar', 
+                              labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: searchPreguntaController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: _limpiarBusqueda,
+                                  )
+                                : null 
+                            ),
+                            onChanged: (value) {
+                              if (value!.isNotEmpty) {
+                                _filtrarPreguntas(value);
+                              } else {
+                                setState(() { 
+                                  _preguntaFiltrada = []; 
+                                }); 
+                              }
+                            },
+                          )
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(),
+                          
+                    FutureBuilder<List<Preguntas>>(
+                      future: _preguntasData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }else if(snapshot.hasError) {
+                          return const Center(child: Text('Error al cargar la Sesion de Preguntas.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                        }else {
+                          final questionTable = _preguntaFiltrada.isNotEmpty 
+                                ? _preguntaFiltrada
+                                : snapshot.data ?? [];
+                    
+                          return Container(
+                            margin: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(7.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                              borderRadius: BorderRadius.circular(10.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 7,
+                                  offset: const Offset(0, 3),
+                                )
+                              ]
+                            ),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                textTheme: Theme.of(context).textTheme.copyWith(
+                                  bodySmall: const TextStyle(
+                                    fontSize: 20,           // Ajusta el tamaño del número
+                                    color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                    fontWeight: FontWeight.bold, // Hace el texto más visible
+                                  ),
+                                ),
+                              ),
+                              child: PaginatedDataTable(
+                                columns: const [
+                                  DataColumn(label: Text('No', style: TextStyle(fontSize: 27.0, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Preguntas', style: TextStyle(fontSize: 27.0, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Accion', style: TextStyle(fontSize: 27.0, color: Colors.white, fontWeight: FontWeight.bold)))
+                                ],
+                                source: _PreguntasDataSource(questionTable, _showEditDialog, _showDeleteDialog),
+                                headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                                rowsPerPage: 10, //numeros de filas
+                                columnSpacing: 50, //espacios entre columnas
+                                horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                                showCheckboxColumn: false, //oculta la columna de checkboxes
+                                dataRowMinHeight: 60.0,  // Altura mínima de fila
+                                dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                                showFirstLastButtons: true,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    ),
+                    const Divider(),
+                    
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Tablas de Sub Preguntas',
+                      style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+      
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderDropdown<String>(
+                            name: 'filtrarSubPregunta',
+                            menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
+                            initialValue: selectedFilterSubPregunta,
+                            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
+                            decoration: const InputDecoration(
+                              labelText: 'Filtrar por',
+                              labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                              border: OutlineInputBorder(),
+                            ),
+                            items: [
+                              'Id de Sub pregunta',
+                              'Sup Pregunta',
+                            ].map((filter) => DropdownMenuItem(
+                                  value: filter,
+                                  child: Text(filter),
+                                )).toList(),
+                            onChanged: (value) => setState(() {
+                              selectedFilterSubPregunta = value!;
+                            }),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+      
+                        Expanded(
+                          flex: 2,
+                          child: FormBuilderTextField(
+                            name: 'searchSubPregunta',
+                            controller: searchSubPreguntaController,
+                            style: const TextStyle(fontSize: 20.0),
+                            decoration: InputDecoration( 
+                              labelText: 'Buscar', 
+                              labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: searchSubPreguntaController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: _limpiarBusqueda,
+                                  )
+                                : null 
+                            ),
+                            onChanged: (value) {
+                              if (value!.isNotEmpty) {
+                                _filtrarSubPreguntas(value);
+                              } else {
+                                setState(() { 
+                                  _subPreguntaFiltrada = []; 
+                                }); 
+                              }
+                            },
+                          )
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(),
+                          
+                    FutureBuilder<List<SubPregunta>>(
+                      future: _subPreguntasData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }else if (snapshot.hasError) {
+                          return const Center(child: Text('Error al cargar la Sub - Preguntas.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                        } else {
+                          final subPregTabla = _subPreguntaFiltrada.isNotEmpty 
+                                ? _subPreguntaFiltrada
+                                : snapshot.data ?? [];
+                          
+                          return Container(
+                            margin: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(7.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                              borderRadius: BorderRadius.circular(10.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 7,
+                                  offset: const Offset(0, 3),
+                                )
+                              ]
+                            ),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                textTheme: Theme.of(context).textTheme.copyWith(
+                                  bodySmall: const TextStyle(
+                                    fontSize: 20,           // Ajusta el tamaño del número
+                                    color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                    fontWeight: FontWeight.bold, // Hace el texto más visible
+                                  ),
+                                ),
+                              ),
+                              child: PaginatedDataTable(
+                                columns: const [
+                                  DataColumn(label: Text('NO', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Sub Preguntas', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Acción', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
+                                ], 
+                                source: _SubPreguntasDataSource(subPregTabla, _showEditDialogSubPregunta, _showDeleteDialogSubPregunta),
+                                headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                                rowsPerPage: 7, //numeros de filas
+                                columnSpacing: 50, //espacios entre columnas
+                                horizontalMargin: 30, //para aplicarle un margin horizontal a los campo de la tabla
+                                showCheckboxColumn: false, //oculta la columna de checkboxes
+                                dataRowMinHeight: 60.0,  // Altura mínima de fila
+                                dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                                showFirstLastButtons: true,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    ),
+                    const Divider(),
+                          
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Tablas administrativa para gestionar las preguntas',
+                      style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+      
+                    Row(
+                      children: [
+                        Expanded(
+                          child: FormBuilderDropdown<String>(
+                            name: 'filtrarSesion',
+                            menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
+                            initialValue: selectedFilterSesion,
+                            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
+                            decoration: const InputDecoration(
+                              labelText: 'Filtrar por',
+                              labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                              border: OutlineInputBorder(),
+                            ),
+                            items: [
+                              'Numero de Seccion',
+                              'Tipo de Respuesta',
+                              'Numero de Pregunta',
+                              'No. de Sup Pregunta'
+                            ].map((filter) => DropdownMenuItem(
+                                  value: filter,
+                                  child: Text(filter),
+                                )).toList(),
+                            onChanged: (value) => setState(() {
+                              selectedFilterSesion = value!;
+                            }),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+      
+                        Expanded(
+                          flex: 2,
+                          child: FormBuilderTextField(
+                            name: 'searchSesion',
+                            controller: searchSesionController,
+                            style: const TextStyle(fontSize: 20.0),
+                            decoration: InputDecoration( 
+                              labelText: 'Buscar', 
+                              labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: searchSesionController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: _limpiarBusqueda,
+                                  )
+                                : null 
+                            ),
+                            onChanged: (value) {
+                              if (value!.isNotEmpty) {
+                                _filtrarSesion(value);
+                              } else {
+                                setState(() { 
+                                  _sesionFiltrada = []; 
+                                }); 
+                              }
+                            },
+                          )
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(),
+                          
+                    FutureBuilder<List<Sesion>>(
+                      future: _sesionData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }else if (snapshot.hasError) {
+                          return const Center(child: Text('Error al cargar la Sección.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                        } else if (snapshot.hasData) {
+                          final sesionTable = _sesionFiltrada.isNotEmpty 
+                                ? _sesionFiltrada
+                                : snapshot.data ?? [];
+                          
+                          bool estadoActivo = sesionTable.every((sesion) => sesion.estado);
+                          
+                          return Container(
+                            margin: const EdgeInsets.all(10.0),
+                            padding: const EdgeInsets.all(7.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                              borderRadius: BorderRadius.circular(10.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 7,
+                                  offset: const Offset(0, 3),
+                                )
+                              ]
+                            ),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                textTheme: Theme.of(context).textTheme.copyWith(
+                                  bodySmall: const TextStyle(
+                                    fontSize: 20,           // Ajusta el tamaño del número
+                                    color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                    fontWeight: FontWeight.bold, // Hace el texto más visible
+                                  ),
+                                ),
+                              ),
+                              child: PaginatedDataTable(
+                                header: const Text('Tabla de Recopilación para Encuesta', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                columns: const [
+                                  DataColumn(label: Text('No. de Sección', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Tipo de Respuesta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Número de \nPregunta en la \nEncuesta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('No. Pregunta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('No. Sub Pregunta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Requerimiento (Opcional).', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Enviar esta \npregunta a la \nencuesta.', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                                  DataColumn(label: Text('Acción', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
+                                ],
+                                source: _SesionDataSource(sesionTable, _showEditDialogSesion, _showDeleteDialogSesion, _actualizarEstado),
+                                headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                                rowsPerPage: 10, //numeros de filas
+                                columnSpacing: 50, //espacios entre columnas
+                                horizontalMargin: 40, //para aplicarle un margin horizontal a los campo de la tabla
+                                showCheckboxColumn: false, //oculta la columna de checkboxes
+                                dataRowMinHeight: 60.0,  // Altura mínima de fila
+                                dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                                showFirstLastButtons: true,
+                                headingRowHeight: 135.0, // Altura del encabezado
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _actualizarEstadoTodasSesiones(!estadoActivo);
+                                      setState(() {
+                                        for (var sesion in sesionTable) {
+                                          sesion.estado = !estadoActivo;
+                                        }
+                                      });                                    
+                                    }, 
+                                    child: Text(
+                                      estadoActivo ? 'Deshabilitar Encuestas' : 'Habilitar Encuestas',
+                                      style: const TextStyle(fontSize: 25, color: Color.fromARGB(255, 1, 133, 14), fontWeight: FontWeight.bold),
+                                    )
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          return const Center(child: Text('No hay datos disponibles.'));
+                        }
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        floatingActionButton: Stack(
+          children: [
+            Positioned(
+              left: position.dx,
+              top: position.dy,
+              child: Draggable(
+                feedback: _bottonSaveSpeedDial(),
+                childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
+                onDragEnd: (details) {
+                  setState(() {
+                    // Limitar la posición del botón a los límites de la pantalla
+                    double dx = details.offset.dx;
+                    double dy = details.offset.dy;
+      
+                    if (dx < 0) dx = 0;
+                    if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
+                        dx = MediaQuery.of(context).size.width - 56;
+                    }
+      
+                    if (dy < 0) dy = 0;
+                    if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 60) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
+                        dy = MediaQuery.of(context).size.height - kToolbarHeight - 60;
+                    }
+      
+                    position = Offset(dx, dy);
+                  });
+                },
+                child: _bottonSaveSpeedDial(),
+              )
+            )
+          ]
+        ),
       ),
     );
   }
@@ -765,7 +793,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   final dataPreg = _formKey.currentState!.value;
                   final newQuestion = int.parse(dataPreg['noPregunta']);
 
-                  Preguntas? existingQuestion = await ApiServicePreguntas('https://10.0.2.2:7190').getOnePregunta(newQuestion);
+                  Preguntas? existingQuestion = await ApiServicePreguntas('http://wepapi.somee.com').getOnePregunta(newQuestion);
 
                   if (existingQuestion != null) {
                     showDialog(
@@ -798,7 +826,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   ); // Para verificar el valor antes de la asignación
 
                   try{
-                    final response = await ApiServicePreguntas('https://10.0.2.2:7190').postPreguntas(nuevaPregunta);
+                    final response = await ApiServicePreguntas('http://wepapi.somee.com').postPreguntas(nuevaPregunta);
 
                     if(response.statusCode == 201) {
                       print('La pregunta fue creado con éxito');
@@ -870,7 +898,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   );
 
                   try{
-                    final response = await ApiServicePreguntas('https://10.0.2.2:7190')
+                    final response = await ApiServicePreguntas('http://wepapi.somee.com')
                       .putPreguntas(questionUpLoad.codPregunta, askUpLoad);
 
                     if(response.statusCode == 204) {
@@ -916,7 +944,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               onPressed: () async {
                 // Llamar al servicio de eliminación
                 try {
-                  final response = await ApiServicePreguntas('https://10.0.2.2:7190')
+                  final response = await ApiServicePreguntas('http://wepapi.somee.com')
                       .deletePreguntas(questionDelete.codPregunta);
                   if (response.statusCode == 204) {
                     print('Pregunta eliminado con éxito');
@@ -997,7 +1025,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   final dataSebPreg = _formKey.currentState!.value;
                   final newSubPregunta = dataSebPreg['codigo'];
 
-                  SubPregunta? existingSubPregunta = await ApiServiceSubPreguntas('https://10.0.2.2:7190').getOneSubPreg(newSubPregunta);
+                  SubPregunta? existingSubPregunta = await ApiServiceSubPreguntas('http://wepapi.somee.com').getOneSubPreg(newSubPregunta);
 
                   if (existingSubPregunta != null) {
                     showDialog(
@@ -1030,7 +1058,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   );
 
                   try{
-                    final response = await ApiServiceSubPreguntas('https://10.0.2.2:7190').postSubPreg(nuevaSubPregunta);
+                    final response = await ApiServiceSubPreguntas('http://wepapi.somee.com').postSubPreg(nuevaSubPregunta);
 
                     if(response.statusCode == 201) {
                       print('Las sub-Preguntas fue creado con éxito');
@@ -1110,7 +1138,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   );
 
                   try{
-                    final response = await ApiServiceSubPreguntas('https://10.0.2.2:7190')
+                    final response = await ApiServiceSubPreguntas('http://wepapi.somee.com')
                       .putSubPreg(subQuestionUpLoad.codSubPregunta, nuevaSubPregunta);
 
                     if(response.statusCode == 204) {
@@ -1156,7 +1184,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               onPressed: () async {
                 // Llamar al servicio de eliminación
                 try {
-                  final response = await ApiServiceSubPreguntas('https://10.0.2.2:7190')
+                  final response = await ApiServiceSubPreguntas('http://wepapi.somee.com')
                       .deleteSubPreg(subQuestionDelete.codSubPregunta);
                   if (response.statusCode == 204) {
                     print('Sub pregunta eliminado con éxito');
@@ -1184,6 +1212,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
   }
 
   void _showCreateDialogSesion() {
+    bool estado = false;
+
     showDialog(
       context: context,
       barrierDismissible: false, // Evita cerrar al tocar fuera del diálogo
@@ -1199,6 +1229,21 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  FormBuilderTextField(
+                    name: 'identifEncuesta',
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
+                    decoration: InputDecorations.inputDecoration(
+                      labeltext: 'No. Pregunta en la Encuesta',
+                      labelFrontSize: 30.5,
+                      hintext: 'Ingresar el No. Identificación de la pregunta',
+                      hintFrontSize: 25.0,
+                      icono: const Icon(Icons.question_answer, size: 30.0),
+                      errorSize: 20.0,
+                    ),
+                    validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                  ),
+
                   FormBuilderDropdown<int>(
                     name: 'codPregunta',
                     style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
@@ -1252,19 +1297,28 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       icono: const Icon(Icons.subdirectory_arrow_right, size: 30.0),
                     ),
                     style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
-                    items: _subQuestions.map((subPreg) {
-                      return DropdownMenuItem(
-                        value: subPreg.codSubPregunta,
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                subPreg.subPreguntas!, overflow: TextOverflow.clip)
-                            ),
-                          ],
-                        )
-                      );
-                    }).toList(),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null, // Valor para la opción "No elegir sub-preguntas"
+                          child: Text(
+                            'Elegir o dejarlo vacío',
+                            style: TextStyle(fontSize: 20.0)
+                          )
+                      ),
+                      ..._subQuestions.map((subPreg) {
+                        return DropdownMenuItem(
+                            value: subPreg.codSubPregunta,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                    child: Text(
+                                        subPreg.subPreguntas!, overflow: TextOverflow.clip)
+                                ),
+                              ],
+                            )
+                        );
+                      }).toList(),
+                    ],
                     isExpanded: true, // Permite que los ítems se expandan al ancho disponible
                     menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
                   ),
@@ -1358,7 +1412,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     style: const TextStyle(fontSize: 25.0, color: Color.fromARGB(255, 1, 1, 1)),
                     items: const  [
                       DropdownMenuItem(
-                          value: 'No se requiere otra cosa mas.',
+                          value: null,
                           child: Text('No se requiere nada en la pregunta')
                       ),
                       DropdownMenuItem(
@@ -1379,6 +1433,38 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       )
                     ],
                     isExpanded: true,
+                  ),
+                  const SizedBox(height: 20),
+
+                  FormBuilderField(
+                    name: 'estado',
+                    builder: (FormFieldState<dynamic> field) {
+                      return FlutterSwitch(
+                        value: estado,
+                        activeText: 'Agregando a Encuesta',
+                        inactiveText: 'Descartado de la Encuesta',
+                        activeColor: Colors.green,
+                        inactiveColor: Colors.red,
+                        activeToggleColor: Colors.white,
+                        inactiveToggleColor: Colors.white,
+                        activeTextColor: Colors.white,
+                        inactiveTextColor: Colors.white,
+                        activeIcon: const Icon(Icons.check_circle, color: Colors.green),
+                        inactiveIcon: const Icon(Icons.close, color: Colors.red),
+                        showOnOff: true, // Esta propiedad muestra el texto
+                        onToggle: (value) => setState(() {
+                          estado = value;
+                          field.didChange(value);
+                        }),
+                        width: 520.0, 
+                        height: 50.5, 
+                        valueFontSize: 27.0, //agrandar los textos
+                        toggleSize: 48.0, //size del icomo
+                        borderRadius: 50.0, 
+                        padding: 8.0,
+                        duration: const Duration(milliseconds: 550), // Duración de la animación para un movimiento suave
+                      );
+                    },
                   )
                 ] 
               )
@@ -1393,16 +1479,17 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
 
                   Sesion nuevaSesion = Sesion(
                     tipoRespuesta: dataSesion['tipoRespuesta'],
-                    // grupoTema: dataSesion['grupoTema'],
+                    identifEncuesta: dataSesion['identifEncuesta'],
                     codPregunta: _savedQuestion!,
                     codSubPregunta: dataSesion['codSubPregunta'],
-                    rango: dataSesion['nota']
+                    rango: dataSesion['nota'],
+                    estado: dataSesion['estado']
                   );
 
                   print('Resultados ${nuevaSesion}');
 
                   try{
-                    final response = await ApiServiceSesion('https://10.0.2.2:7190').postSesion(nuevaSesion);
+                    final response = await ApiServiceSesion('http://wepapi.somee.com').postSesion(nuevaSesion);
 
                     if(response.statusCode == 201) {
                       print('La Sesion fue creado con éxito');
@@ -1441,7 +1528,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               key: _formKey,
               initialValue: {
                 'tipoRespuesta': sectionUpload.tipoRespuesta,
-                // 'grupoTema': sectionUpload.grupoTema,
+                'identifEncuesta': sectionUpload.identifEncuesta,
                 'codPregunta': sectionUpload.codPregunta,
                 'codSubPregunta': sectionUpload.codSubPregunta,
                 'nota': sectionUpload.rango
@@ -1449,6 +1536,21 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  FormBuilderTextField(
+                    name: 'identifEncuesta',
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
+                    decoration: InputDecorations.inputDecoration(
+                      labeltext: 'No. Pregunta en la Encuesta',
+                      labelFrontSize: 30.5,
+                      hintext: 'Ingresar el No. Identificación de la pregunta',
+                      hintFrontSize: 25.0,
+                      icono: const Icon(Icons.question_answer, size: 30.0),
+                      errorSize: 20.0,
+                    ),
+                    validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
+                  ),
+
                   FormBuilderDropdown<String>(
                     name: 'tipoRespuesta',
                     menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
@@ -1557,6 +1659,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     isExpanded: true,
                   ),
 
+                  /*
                   FormBuilderDropdown<String>(
                     name: 'codSubPregunta',
                     menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
@@ -1582,6 +1685,42 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                       );
                     }).toList(),
                     isExpanded: true, // Permite que los ítems se expandan al ancho disponible
+                  ),*/
+
+                  FormBuilderDropdown(
+                    name: 'codSubPregunta',
+                    decoration: InputDecorations.inputDecoration(
+                      labeltext: 'Sub Pregunta',
+                      labelFrontSize: 30.5,
+                      hintext: 'Elegir la Sub-Pregunta (si lo requiere)',
+                      hintFrontSize: 25.0,
+                      icono: const Icon(Icons.subdirectory_arrow_right, size: 30.0),
+                    ),
+                    style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
+                    items: [
+                      const DropdownMenuItem(
+                          value: null, // Valor para la opción "No elegir sub-preguntas"
+                          child: Text(
+                              'Elegir o dejarlo vacío',
+                              style: TextStyle(fontSize: 20.0)
+                          )
+                      ),
+                      ..._subQuestions.map((subPreg) {
+                        return DropdownMenuItem(
+                            value: subPreg.codSubPregunta,
+                            child: Row(
+                              children: [
+                                Flexible(
+                                    child: Text(
+                                        subPreg.subPreguntas!, overflow: TextOverflow.clip)
+                                ),
+                              ],
+                            )
+                        );
+                      }).toList(),
+                    ],
+                    isExpanded: true, // Permite que los ítems se expandan al ancho disponible
+                    menuMaxHeight: 400.0, // Altura máxima del cuadro desplegable
                   ),
 
                   FormBuilderDropdown(
@@ -1596,7 +1735,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                     style: const TextStyle(fontSize: 20.0, color: Color.fromARGB(255, 1, 1, 1)),
                     items: const  [
                       DropdownMenuItem(
-                          value: 'No se requiere otra cosa mas.',
+                          value: null,
                           child: Text('No se requiere nada en la pregunta')
                       ),
                       DropdownMenuItem(
@@ -1608,7 +1747,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           child: Text('Requiere Comentarios (Opcional)')
                       ),
                       DropdownMenuItem(
-                          value: 'Requiere Comentarios y Justificación (Opcional)',
+                          value: 'Comentarios y Justificación (Opcional)',
                           child: Text('Requiere Comentarios y Justificación (Opcional)')
                       ),
                       DropdownMenuItem(
@@ -1632,16 +1771,17 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                   Sesion sesionUpLoad = Sesion(
                     idSesion: sectionUpload.idSesion,
                     tipoRespuesta: selectedTipRespuestas,
-                    // grupoTema: dataSesion['grupoTema'],
+                    identifEncuesta: dataSesion['identifEncuesta'],
                     codPregunta: int.parse(dataSesion['codPregunta'].toString()),
                     codSubPregunta: dataSesion['codSubPregunta'],
+                    estado: sectionUpload.estado,
                     rango: dataSesion['nota']
                   );
 
                   print('Resultados de sesionUpLoad: $sesionUpLoad');
 
                   try{
-                    final response = await ApiServiceSesion('https://10.0.2.2:7190')
+                    final response = await ApiServiceSesion('http://wepapi.somee.com')
                       .putSesion(sectionUpload.idSesion!, sesionUpLoad);
 
                     if(response.statusCode == 204) {
@@ -1685,7 +1825,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
               child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
-                  final response = await ApiServiceSesion('https://10.0.2.2:7190').deleteSesion(sectionDelete.idSesion!);
+                  final response = await ApiServiceSesion('http://wepapi.somee.com').deleteSesion(sectionDelete.idSesion!);
 
                   if (response.statusCode == 204) {
                     print('Sesion eliminado con éxito');
@@ -1707,6 +1847,96 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
       }
     );
   }
+
+  void _actualizarEstado(Sesion actualizarEstado_Sesion) async { //este metodo solo esta para habilitar y deshabilitar las preguntas en la cuesta
+    try{
+
+      Sesion estadoActualizador = Sesion(
+        idSesion: actualizarEstado_Sesion.idSesion,
+        tipoRespuesta: actualizarEstado_Sesion.tipoRespuesta,
+        identifEncuesta: actualizarEstado_Sesion.identifEncuesta,
+        codPregunta: actualizarEstado_Sesion.codPregunta,
+        codSubPregunta: actualizarEstado_Sesion.codSubPregunta,
+        estado: actualizarEstado_Sesion.estado == true ? true : false, //para modificar el campo estado
+        rango: actualizarEstado_Sesion.rango
+      );
+
+      print('Estado actualizado a: ${estadoActualizador.estado}');
+
+      try{
+        final response = await ApiServiceSesion('http://wepapi.somee.com')
+          .putSesion(actualizarEstado_Sesion.idSesion!, estadoActualizador);
+
+        if (estadoActualizador.estado) { // dependiento del valor del campo estado aparecera un cuadro de dialoga que notifica que se ha habilitado o deshabilitado de la encuesta
+          if(response.statusCode == 204) {
+            print('La Sesion fue modificada con éxito');
+            _showSuccessDialog(context, 'La Sección fue enviado a la Encuesta');
+            _refreshSesion();
+          } else {
+            print('Error al modificar la Sesion: ${response.body}');
+            _showErrorDialog(context, 'Error al enviar la Sección a la Encuesta');
+          }
+        } else {
+          if(response.statusCode == 204) {
+            print('La Sesion fue modificada con éxito');
+            _showSuccessDialog(context, 'La Sección fue deshabilitado de la Encuesta');
+            _refreshSesion();
+          } else {
+            print('Error al modificar la Sesion: ${response.body}');
+            _showErrorDialog(context, 'Error al deshabilitar la Sección en la Encuesta');
+          }
+        }
+        
+      } catch (e) {
+        print('Excepción al modificar la Sesion: $e');
+      }
+    } catch (e) {
+      // Manejar error si la actualización falla
+      print('Error al actualizar el estado: $e');
+    }
+  }
+
+  void _actualizarEstadoTodasSesiones(bool nuevoEstado) async {
+    try {
+      for (var sesion in _sesionFiltrada) {
+        Sesion estadoActualizador = Sesion(
+          idSesion: sesion.idSesion,
+          tipoRespuesta: sesion.tipoRespuesta,
+          identifEncuesta: sesion.identifEncuesta,
+          codPregunta: sesion.codPregunta,
+          codSubPregunta: sesion.codSubPregunta,
+          estado: nuevoEstado,
+          rango: sesion.rango,
+        );
+
+        final response = await ApiServiceSesion('http://wepapi.somee.com').putSesion(sesion.idSesion!, estadoActualizador);
+
+        if (estadoActualizador.estado) {
+          if (response.statusCode == 204) {
+            sesion.estado = nuevoEstado;
+            print('todas las secciones fue modificada con éxito');
+          } else {
+            print('Error al modificar la Sesión ${sesion.idSesion}: ${response.body}');
+            _showErrorDialog(context, 'Error al modificar todo el estado de la Sección');
+          }
+        } else {
+          if (response.statusCode == 204) {
+            sesion.estado = nuevoEstado;
+            print('todas las secciones fue modificada con éxito');
+          } else {
+            print('Error al modificar la Sesión ${sesion.idSesion}: ${response.body}');
+            _showErrorDialog(context, 'Error al deshabilitar todos los estados de la Sección');
+          }
+        }
+      }
+      _refreshSesion();
+      _showSuccessDialog(context, 'Todas las secciones han sido ${nuevoEstado ? 'enviadas a la Encuesta' : 'deshabilitadas de la Encuesta'}');
+    } catch (e) {
+      print('Error al actualizar todas las sesiones: $e');
+      _showErrorDialog(context, 'Error al actualizar todas las sesiones');
+    }
+  }
+
 
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
@@ -1912,8 +2142,9 @@ class _SesionDataSource extends DataTableSource {
   final List<Sesion> _sesionData;
   final Function(Sesion) onEdit;
   final Function(Sesion) onDelete;
+  final Function(Sesion) _estado;
 
-  _SesionDataSource(this._sesionData, this.onEdit, this.onDelete);
+  _SesionDataSource(this._sesionData, this.onEdit, this.onDelete, this._estado);
 
   @override
   DataRow getRow(int index) {
@@ -1931,9 +2162,45 @@ class _SesionDataSource extends DataTableSource {
       cells: [
         DataCell(Text(section.idSesion.toString(), style: const TextStyle(fontSize: 20.0))),
         DataCell(Text(section.tipoRespuesta, style: const TextStyle(fontSize: 20.0))),
+        DataCell(section.identifEncuesta != null ? Text(section.identifEncuesta!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(Text(section.codPregunta.toString(), style: const TextStyle(fontSize: 20.0))),
         DataCell(section.codSubPregunta != null ? Text(section.codSubPregunta!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
         DataCell(section.rango != null ? Text(section.rango!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
+        DataCell(
+          /*
+          Switch(
+            value: section.estado,
+            onChanged: (value) {
+              print('Cambiando el estado a: $value');
+              section.estado = value;
+              _estado(section);
+              notifyListeners(); // Notifica los cambios en la tabla
+            },
+          )
+           */
+          FlutterSwitch(
+            value: section.estado,
+            activeColor: Colors.green,
+            inactiveColor: Colors.red,
+            activeToggleColor: Colors.white,
+            inactiveToggleColor: Colors.white,
+            activeTextColor: Colors.white,
+            inactiveTextColor: Colors.white,
+            activeIcon: const Icon(Icons.check_circle, color: Colors.green),
+            inactiveIcon: const Icon(Icons.close, color: Colors.red),
+            onToggle: (value) {
+              print('Cambiando el estado a: $value');
+              section.estado = value;
+              _estado(section);
+              notifyListeners(); // Notifica los cambios en la tabla
+            },
+            width: 120.0,
+            height: 42.0,
+            toggleSize: 36.0,
+            borderRadius: 60.0,
+            duration: const Duration(milliseconds: 550), // Duración de la animación
+          )
+        ),
         DataCell(
           Row(
             children: [

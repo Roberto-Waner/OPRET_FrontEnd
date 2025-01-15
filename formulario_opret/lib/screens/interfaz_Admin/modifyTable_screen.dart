@@ -29,9 +29,9 @@ class ModifyTable extends StatefulWidget {
 
 class _ModifyTableState extends State<ModifyTable> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('https://10.0.2.2:7190');
+  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('http://wepapi.somee.com');
   late Future<List<Linea>> _lineaData;
-  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('https://10.0.2.2:7190');
+  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('http://wepapi.somee.com');
   late Future<List<Estacion>> _estacionData;
   String _selectedLinea = 'Linea Metro';
   String? _savedLinea;
@@ -647,7 +647,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   );
 
                   try{
-                    final response = await ApiServiceLineas('https://10.0.2.2:7190').postLinea(newLinea);
+                    final response = await ApiServiceLineas('http://wepapi.somee.com').postLinea(newLinea);
 
                     if(response.statusCode == 201) {
                       print('La linea fue creado con éxito');
@@ -741,7 +741,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   );
 
                   try{
-                    final response = await ApiServiceLineas('https://10.0.2.2:7190').putLinea(lineaUpload.idLinea, upLoadLinea);
+                    final response = await ApiServiceLineas('http://wepapi.somee.com').putLinea(lineaUpload.idLinea, upLoadLinea);
 
                     if(response.statusCode == 204) {
                       print('La linea fue modificada con éxito');
@@ -779,7 +779,7 @@ class _ModifyTableState extends State<ModifyTable> {
               child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
-                  final response = await ApiServiceLineas('https://10.0.2.2:7190').deleteLineas(lineaDelete.idLinea);
+                  final response = await ApiServiceLineas('http://wepapi.somee.com').deleteLineas(lineaDelete.idLinea);
 
                   if (response.statusCode == 204) {
                     print('Linea eliminado con éxito');
@@ -872,7 +872,7 @@ class _ModifyTableState extends State<ModifyTable> {
                     final newIdEstacion = int.parse(dataStation['No']);
 
                     // Verificamos si la estación ya existe
-                    Estacion? existingStation = await ApiServiceEstacion('https://10.0.2.2:7190').getOneEstacion(newIdEstacion);
+                    Estacion? existingStation = await ApiServiceEstacion('http://wepapi.somee.com').getOneEstacion(newIdEstacion);
 
                     if (existingStation != null) {
 
@@ -912,7 +912,7 @@ class _ModifyTableState extends State<ModifyTable> {
                     print('Resultados de newStation: $newStation');
 
                     try{
-                      final response = await ApiServiceEstacion('https://10.0.2.2:7190').postEstacion(newStation);
+                      final response = await ApiServiceEstacion('http://wepapi.somee.com').postEstacion(newStation);
 
                       if(response.statusCode == 201) {
                         print('La estacion fue creado con éxito');
@@ -1023,7 +1023,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   );
 
                   try{
-                    final response = await ApiServiceEstacion('https://10.0.2.2:7190').putEstacion(estacionUpload.idEstacion, stationUpload);
+                    final response = await ApiServiceEstacion('http://wepapi.somee.com').putEstacion(estacionUpload.idEstacion, stationUpload);
 
                     if(response.statusCode == 204) {
                       print('La Estación fue modificada con éxito');
@@ -1061,7 +1061,7 @@ class _ModifyTableState extends State<ModifyTable> {
               child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
-                  final response = await ApiServiceEstacion('https://10.0.2.2:7190').deleteEstacion(estacionDelete.idEstacion);
+                  final response = await ApiServiceEstacion('http://wepapi.somee.com').deleteEstacion(estacionDelete.idEstacion);
 
                   if (response.statusCode == 204) {
                     print('Estación eliminado con éxito');

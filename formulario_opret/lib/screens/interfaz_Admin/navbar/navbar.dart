@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 // import 'package:formulario_opret/screens/navbar/editar_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/registro_Empldo.dart';
-import 'package:formulario_opret/screens/interfaz_Admin/report_Formulario.dart';
-import 'package:formulario_opret/screens/interfaz_Admin/repuesta_resultados_screen.dart';
+import 'package:formulario_opret/screens/interfaz_Admin/report_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/settings_screen.dart';
 import 'package:formulario_opret/services/login_services_token.dart';
 // import 'package:formulario_opret/services/admin_services.dart';
@@ -30,7 +29,7 @@ class _NavbarState extends State<Navbar> {
 
   @override
   Widget build(BuildContext context) {
-    final ApiServiceToken _apiServiceToken = ApiServiceToken('https://10.0.2.2:7190',false);
+    final ApiServiceToken _apiServiceToken = ApiServiceToken('http://wepapi.somee.com',false);
 
     return Drawer(
       // Creación del menú desplegable
@@ -107,34 +106,15 @@ class _NavbarState extends State<Navbar> {
           ),
           
           ListTile(
-            leading: const Icon(Icons.home_work_outlined, size: 30.0),
+            leading: const Icon(Icons.analytics, size: 30.0),
             title: const Text(
-              'Reporte de Respuestas',
+              'Reportes',
               style: TextStyle(fontSize: 20.0), // Aquí se cambia el tamaño del texto
             ),
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => RepuestaResultadosScreen(
-                  filtrarUsuarioController: widget.filtrarUsuarioController,
-                  filtrarEmailController: widget.filtrarEmailController,
-                  filtrarId: widget.filtrarId,
-                  // // filtrarCedula: widget.filtrarCedula,
-                ))
-              );
-            }
-          ),
-          
-          ListTile(
-            leading: const Icon(Icons.admin_panel_settings_outlined, size: 30.0),
-            title: const Text(
-              'Reportes de Formularios',
-              style: TextStyle(fontSize: 20.0),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReportFormulario(
+                MaterialPageRoute(builder: (context) => ReportScreen(
                   filtrarUsuarioController: widget.filtrarUsuarioController,
                   filtrarEmailController: widget.filtrarEmailController,
                   filtrarId: widget.filtrarId,

@@ -27,7 +27,7 @@ class RegistroEmpl extends StatefulWidget {
 }
 
 class _RegistroEmplState extends State<RegistroEmpl> {
-  final ApiServiceUser _apiServiceUser = ApiServiceUser('https://10.0.2.2:7190'); // Cambia por tu URL
+  final ApiServiceUser _apiServiceUser = ApiServiceUser('http://wepapi.somee.com'); // Cambia por tu URL
   late Future<List<Usuarios>> _usuariosdata;
   final TextEditingController datePicker = TextEditingController();
   final TextEditingController searchController = TextEditingController();
@@ -168,334 +168,337 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Navbar(
-        filtrarUsuarioController: widget.filtrarUsuarioController,
-        filtrarEmailController: widget.filtrarEmailController,
-        filtrarId: widget.filtrarId,
-        // // filtrarCedula: widget.filtrarCedula,
-      ),
-      appBar: AppBar(
-        title: const Text('Registro de Usuarios'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 30.0),
-            tooltip: 'Recargar',
-            onPressed: () {
-              setState(() {
-                _refreshUsuarios();
-              });
-            },
-          )
-        ],
-      ),
-      body: Column(
-        children: [
-          // Campo de entrada para búsqueda
-          Padding( 
-            padding: const EdgeInsets.all(16.0), 
-            child: FormBuilder( 
-              child: FormBuilderTextField( 
-                name: 'search', 
-                controller: searchController,
-                style: const TextStyle(fontSize: 20.0),
-                decoration: InputDecoration( 
-                  labelText: 'Buscar Usuario aqui',
-                  labelStyle: const TextStyle(fontSize: 30),
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: _limpiarBusqueda,
-                      )
-                    : null                          
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        drawer: Navbar(
+          filtrarUsuarioController: widget.filtrarUsuarioController,
+          filtrarEmailController: widget.filtrarEmailController,
+          filtrarId: widget.filtrarId,
+          // // filtrarCedula: widget.filtrarCedula,
+        ),
+        appBar: AppBar(
+          title: const Text('Registro de Usuarios'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 30.0),
+              tooltip: 'Recargar',
+              onPressed: () {
+                setState(() {
+                  _refreshUsuarios();
+                });
+              },
+            )
+          ],
+        ),
+        body: Column(
+          children: [
+            // Campo de entrada para búsqueda
+            Padding( 
+              padding: const EdgeInsets.all(16.0), 
+              child: FormBuilder( 
+                child: FormBuilderTextField( 
+                  name: 'search', 
+                  controller: searchController,
+                  style: const TextStyle(fontSize: 20.0),
+                  decoration: InputDecoration( 
+                    labelText: 'Buscar Usuario aqui',
+                    labelStyle: const TextStyle(fontSize: 30),
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: _limpiarBusqueda,
+                        )
+                      : null                          
+                  ), 
+                  onChanged: (value) { 
+                    if (value != null && value.isNotEmpty) { 
+                      _filtrarUsuarioPorId(value); 
+                    } else { 
+                      setState(() { 
+                        usuariosFiltrados = null; 
+                      }); 
+                    } 
+                  }, 
                 ), 
-                onChanged: (value) { 
-                  if (value != null && value.isNotEmpty) { 
-                    _filtrarUsuarioPorId(value); 
-                  } else { 
-                    setState(() { 
-                      usuariosFiltrados = null; 
-                    }); 
-                  } 
-                }, 
               ), 
-            ), 
-          ),
-
-          // Mostrar detalles del usuario seleccionado
-          if (usuariosFiltrados != null) ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Card(
-                elevation: 10.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                color: const Color.fromARGB(255, 2, 37, 4), // Color de fondo de la tarjeta
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 30.0,
-                            backgroundColor: Colors.blue,
-                            child: Text(
-                              usuariosFiltrados!.nombreApellido[0],
-                              style: const TextStyle(
-                                fontSize: 30.0,
-                                color: Colors.white
+            ),
+      
+            // Mostrar detalles del usuario seleccionado
+            if (usuariosFiltrados != null) ...[
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Card(
+                  elevation: 10.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  color: const Color.fromARGB(255, 2, 37, 4), // Color de fondo de la tarjeta
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30.0,
+                              backgroundColor: Colors.blue,
+                              child: Text(
+                                usuariosFiltrados!.nombreApellido[0],
+                                style: const TextStyle(
+                                  fontSize: 30.0,
+                                  color: Colors.white
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 16.0),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                usuariosFiltrados!.nombreApellido,
-                                style: const TextStyle(
-                                  fontSize: 25.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 246, 244, 244)
+                            const SizedBox(width: 16.0),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  usuariosFiltrados!.nombreApellido,
+                                  style: const TextStyle(
+                                    fontSize: 25.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 246, 244, 244)
+                                  )
+                                ),
+                                Text(
+                                  usuariosFiltrados!.email,
+                                  style: const TextStyle(
+                                    fontSize: 22.0,
+                                    color: Color.fromARGB(255, 58, 204, 240)
+                                  )
                                 )
-                              ),
-                              Text(
-                                usuariosFiltrados!.email,
-                                style: const TextStyle(
-                                  fontSize: 22.0,
-                                  color: Color.fromARGB(255, 58, 204, 240)
-                                )
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 20.0),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.perm_identity, size: 30.0, color: Colors.blue),
-                        title: RichText(
-                          text: TextSpan(
-                            children: [
-                              const TextSpan(
-                                  text: 'ID: ', 
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                              ),
-                              TextSpan( 
-                                text: usuariosFiltrados!.idUsuarios, 
-                                style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                              ),
-                            ]
-                          )
-                        )
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.account_circle, size: 30.0, color: Colors.blue),
-                        title: RichText(
-                          text: TextSpan(
-                            children: [
-                              const TextSpan(
-                                  text: 'Usuario: ', 
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                              ),
-                              TextSpan( 
-                                text: usuariosFiltrados!.usuario1, 
-                                style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                              ),
-                            ]
-                          )
-                        )
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.calendar_month_outlined, size: 30.0, color: Colors.blue),
-                        title: RichText(
-                          text: TextSpan(
-                            children: [
-                              const TextSpan(
-                                  text: 'Fecha de Creación: ', 
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                              ),
-                              TextSpan( 
-                                text: usuariosFiltrados!.fechaCreacion, 
-                                style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                              ),
-                            ]
-                          )
-                        )
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.people_outline_rounded, size: 30.0, color: Colors.blue),
-                        title: RichText(
-                          text: TextSpan(
-                            children: [
-                              const TextSpan(
-                                  text: 'Rol: ', 
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                              ),
-                              TextSpan( 
-                                text: usuariosFiltrados!.rol, 
-                                style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                              ),
-                            ]
-                          )
-                        )
-                      ),
-                      const SizedBox(height: 20.0),
-                      TextButton(
-                        onPressed: () => _ubicarUsuarios(usuariosFiltrados?.idUsuarios, usuariosFiltrados?.nombreApellido, usuariosFiltrados?.usuario1),
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
+                              ],
+                            )
+                          ],
                         ),
-                        child: const Text(
-                          'Ubicar en tabla',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        const SizedBox(height: 20.0),
+                        const Divider(),
+                        ListTile(
+                          leading: const Icon(Icons.perm_identity, size: 30.0, color: Colors.blue),
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                    text: 'ID: ', 
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
+                                ),
+                                TextSpan( 
+                                  text: usuariosFiltrados!.idUsuarios, 
+                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
+                                ),
+                              ]
+                            )
+                          )
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.account_circle, size: 30.0, color: Colors.blue),
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                    text: 'Usuario: ', 
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
+                                ),
+                                TextSpan( 
+                                  text: usuariosFiltrados!.usuario1, 
+                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
+                                ),
+                              ]
+                            )
+                          )
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.calendar_month_outlined, size: 30.0, color: Colors.blue),
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                    text: 'Fecha de Creación: ', 
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
+                                ),
+                                TextSpan( 
+                                  text: usuariosFiltrados!.fechaCreacion, 
+                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
+                                ),
+                              ]
+                            )
+                          )
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.people_outline_rounded, size: 30.0, color: Colors.blue),
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                const TextSpan(
+                                    text: 'Rol: ', 
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
+                                ),
+                                TextSpan( 
+                                  text: usuariosFiltrados!.rol, 
+                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
+                                ),
+                              ]
+                            )
+                          )
+                        ),
+                        const SizedBox(height: 20.0),
+                        TextButton(
+                          onPressed: () => _ubicarUsuarios(usuariosFiltrados?.idUsuarios, usuariosFiltrados?.nombreApellido, usuariosFiltrados?.usuario1),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'Ubicar en tabla',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          )
                         )
-                      )
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20)
-          ],
-
-          Expanded(
-            child: FutureBuilder<List<Usuarios>>(
-              future: _usuariosdata,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting){
-                  return Center(
-                    // child: CircularProgressIndicator()
-                    child: Dialog(
-                      backgroundColor: Colors.transparent,
-                      child: Container(
-                        width: 200,
-                        height: 220,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(100),
-                        ),
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                                  ),
-                            SizedBox(height: 20),
-                            Text(
-                              /*hasError ? 'Error' : */'Cargando...',
-                              style: TextStyle(color: Colors.white, fontSize: 20),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  );
-                }else if (snapshot.hasError){
-                  return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
-                }else {
-                  final usuariostabla = snapshot.data ?? [];
-            
-                  return SingleChildScrollView(
-                    child: Container(
-                      margin: const EdgeInsets.all(16.0),
-                      padding: const EdgeInsets.all(2.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Theme(
-                        data: Theme.of(context).copyWith(
-                          textTheme: Theme.of(context).textTheme.copyWith(
-                            bodySmall: const TextStyle(
-                              fontSize: 20,           // Ajusta el tamaño del número
-                              color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                              fontWeight: FontWeight.bold, // Hace el texto más visible
-                            ),
+              const SizedBox(height: 20)
+            ],
+      
+            Expanded(
+              child: FutureBuilder<List<Usuarios>>(
+                future: _usuariosdata,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting){
+                    return Center(
+                      // child: CircularProgressIndicator()
+                      child: Dialog(
+                        backgroundColor: Colors.transparent,
+                        child: Container(
+                          width: 200,
+                          height: 220,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                    ),
+                              SizedBox(height: 20),
+                              Text(
+                                /*hasError ? 'Error' : */'Cargando...',
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                            ],
                           ),
                         ),
-                        child: PaginatedDataTable(
-                          columns: const [
-                            DataColumn(label: Text('ID', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Nombre Completo', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Usuario', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Correo Electronico', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Fecha de Creacion', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Rol', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                            DataColumn(label: Text('Accion', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
-                          ],
-                          source: _UsuariosDataSource(usuariostabla, _showEditDialog, _showDeleteDialog, _selectedRowIndex),
-                          rowsPerPage: _filasPorPagina, //numeros de filas
-                          columnSpacing: 30, //espacios entre columnas
-                          horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                          showCheckboxColumn: false, //oculta la columna de checkboxes
-                          headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                          dataRowMinHeight: 60.0,  // Altura mínima de fila
-                          dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                          showFirstLastButtons: true,
-                          onPageChanged: (index) {
-                            setState(() {
-                              _paginaActual = index ~/ _filasPorPagina;
-                            });
-                          },
-                          initialFirstRowIndex: _paginaActual * _filasPorPagina,
+                      )
+                    );
+                  }else if (snapshot.hasError){
+                    return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
+                  }else {
+                    final usuariostabla = snapshot.data ?? [];
+              
+                    return SingleChildScrollView(
+                      child: Container(
+                        margin: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(2.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            textTheme: Theme.of(context).textTheme.copyWith(
+                              bodySmall: const TextStyle(
+                                fontSize: 20,           // Ajusta el tamaño del número
+                                color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                fontWeight: FontWeight.bold, // Hace el texto más visible
+                              ),
+                            ),
+                          ),
+                          child: PaginatedDataTable(
+                            columns: const [
+                              DataColumn(label: Text('ID', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                              DataColumn(label: Text('Nombre Completo', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                              DataColumn(label: Text('Usuario', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                              DataColumn(label: Text('Correo Electronico', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                              DataColumn(label: Text('Fecha de Creacion', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                              DataColumn(label: Text('Rol', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
+                              DataColumn(label: Text('Accion', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
+                            ],
+                            source: _UsuariosDataSource(usuariostabla, _showEditDialog, _showDeleteDialog, _selectedRowIndex),
+                            rowsPerPage: _filasPorPagina, //numeros de filas
+                            columnSpacing: 30, //espacios entre columnas
+                            horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                            showCheckboxColumn: false, //oculta la columna de checkboxes
+                            headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                            dataRowMinHeight: 60.0,  // Altura mínima de fila
+                            dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                            showFirstLastButtons: true,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _paginaActual = index ~/ _filasPorPagina;
+                              });
+                            },
+                            initialFirstRowIndex: _paginaActual * _filasPorPagina,
+                          ),
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 }
-              }
-            ),
-          )
-        ]
-      ),
-      floatingActionButton: Stack(
-        children: [
-          Positioned(
-            left: position.dx,
-            top: position.dy,
-            child: Draggable(
-              feedback: FloatingActionButton(
-                onPressed: () => _showCreateDialog(context),
-                child: const Icon(Icons.add),
               ),
-              // childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
-              onDragEnd: (details) {
-                setState(() {
-                  // Limitar la posición del botón a los límites de la pantalla
-                  double dx = details.offset.dx;
-                  double dy = details.offset.dy;
-
-                  if (dx < 0) dx = 0;
-                  if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
-                      dx = MediaQuery.of(context).size.width - 56;
-                  }
-
-                  if (dy < 0) dy = 0;
-                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 50) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
-                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 50;
-                  }
-
-                  position = Offset(dx, dy);
-                });
-              },
-              child: FloatingActionButton(
-                onPressed: () => _showCreateDialog(context),
-                child: const Icon(Icons.add),
-              ), 
             )
-          )
-        ]
-      )
+          ]
+        ),
+        floatingActionButton: Stack(
+          children: [
+            Positioned(
+              left: position.dx,
+              top: position.dy,
+              child: Draggable(
+                feedback: FloatingActionButton(
+                  onPressed: () => _showCreateDialog(context),
+                  child: const Icon(Icons.add),
+                ),
+                // childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
+                onDragEnd: (details) {
+                  setState(() {
+                    // Limitar la posición del botón a los límites de la pantalla
+                    double dx = details.offset.dx;
+                    double dy = details.offset.dy;
+      
+                    if (dx < 0) dx = 0;
+                    if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
+                        dx = MediaQuery.of(context).size.width - 56;
+                    }
+      
+                    if (dy < 0) dy = 0;
+                    if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 50) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
+                        dy = MediaQuery.of(context).size.height - kToolbarHeight - 50;
+                    }
+      
+                    position = Offset(dx, dy);
+                  });
+                },
+                child: FloatingActionButton(
+                  onPressed: () => _showCreateDialog(context),
+                  child: const Icon(Icons.add),
+                ), 
+              )
+            )
+          ]
+        )
+      ),
     );
   }
 

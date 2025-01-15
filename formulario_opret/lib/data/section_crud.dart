@@ -16,7 +16,11 @@ class SectionCrud {
 
   Future<List<SpPreguntascompleta>> querySectionCrud() async {
     final db = await _databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query('SeccionPreguntas').timeout(const Duration(seconds: 5));
+    final List<Map<String, dynamic>> maps = await db.query(
+      'SeccionPreguntas',
+      where: 'estado = ?',
+      whereArgs: [1]
+    ).timeout(const Duration(seconds: 5));
     return List.generate(maps.length, (i) {
       return SpPreguntascompleta.fromJson(maps[i]);
     });

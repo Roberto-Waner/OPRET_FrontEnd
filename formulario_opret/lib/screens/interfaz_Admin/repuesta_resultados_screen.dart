@@ -24,7 +24,7 @@ class RepuestaResultadosScreen extends StatefulWidget {
 }
 
 class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
-  final ApiServiceRespuesta _apiServiceRespuesta =  ApiServiceRespuesta('https://10.0.2.2:7190');
+  final ApiServiceRespuesta _apiServiceRespuesta =  ApiServiceRespuesta('http://wepapi.somee.com');
   late Future<List<SpFiltrarRespuestas>> _respuestaData;
   final TextEditingController searchController = TextEditingController();
   List<SpFiltrarRespuestas> respuestasFiltrados = [];

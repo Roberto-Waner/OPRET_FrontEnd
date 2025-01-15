@@ -124,31 +124,3 @@ class ApiService {
     }
   }
 }
-
-  /*
-  // Método PUT
-  Future<http.Response> putData(/*String id, */String endpoint, Map<String, dynamic> data) async {
-    final isCheckOk = await check();
-    if (!isCheckOk) throw Exception('El endpoint check de putData falló');
-
-    final url = Uri.parse('$baseUrl/api/$endpoint/{id}');
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(data),
-    ).timeout(const Duration(seconds: 30));
-
-    return response; // Retorna el response completo
-  }
-
-  // Método DELETE
-  Future<http.Response> deleteData(String endpoint) async {
-    final isCheckOk = await check();
-    if (!isCheckOk) throw Exception('El endpoint check falló');
-
-    final url = Uri.parse('$baseUrl/api/$endpoint');
-    final response = await http.delete(url).timeout(const Duration(seconds: 30));
-
-    return response; // Retorna el response completo
-  }
-  */

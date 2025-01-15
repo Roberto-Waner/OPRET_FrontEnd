@@ -6,7 +6,7 @@ class InputDecorations {
     Widget? icono,
     double labelFrontSize = 16.0, // Tamaño de letra por defecto
     double hintFrontSize = 16.0, // Tamaño de letra por defecto
-    String? prefixText, // Añadir prefixText
+    String? prefixText, // Añadir prefijos
     double? errorSize = 16.0,
     Widget? suffIcon,
   }) {
