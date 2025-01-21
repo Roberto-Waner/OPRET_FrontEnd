@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:formulario_opret/models/formulario_Registro.dart';
@@ -35,7 +36,7 @@ class _ModifyTableState extends State<ModifyTable> {
   late Future<List<Estacion>> _estacionData;
   String _selectedLinea = 'Linea Metro';
   String? _savedLinea;
-  Offset position = const Offset(700, 1090); // Posición inicial del botón
+  Offset position = const Offset(500, 800); // Posición inicial del botón
   //---------------------------------------------------------Filtrar-Linea--------------------------------------------------------
   final TextEditingController searchLineaController = TextEditingController();
   List<Linea> _lineaFiltrada = [];
@@ -147,341 +148,354 @@ class _ModifyTableState extends State<ModifyTable> {
     });
   }
 
+  //En caso de ser un table
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTabletWidth = size.width > 600;
+    final isTabletHeight = size.height > 800;
+    return isTabletWidth && isTabletHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Navbar(
-        filtrarUsuarioController: widget.filtrarUsuarioController,
-        filtrarEmailController: widget.filtrarEmailController,
-        filtrarId: widget.filtrarId,
-        // // filtrarCedula: widget.filtrarCedula,
-      ),
+    final isTabletDevice = isTablet(context);
 
-      appBar: AppBar(
-        title: const Text('Modificar tabla'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 30.0),
-            tooltip: 'Recargar',
-            onPressed: () {
-              setState(() {
-                _refreshLinea();
-                _refreshEstacion();
-              });
-            },
-          )
-        ],
-      ),
-
-      body: Stack(
-        children: [
-          // Cuerpo principal con las tablas
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // Sección de filtros y tabla de Líneas de Metro
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      
-                      const Text(
-                        'Tablas de Lineas de Metro',
-                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-                  
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FormBuilderDropdown<String>(
-                              name: 'filtrarLineas',
-                              initialValue: selectedFilterLinea,
-                              style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
-                              decoration: const InputDecoration(
-                                labelText: 'Filtrar por',
-                                labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                                border: OutlineInputBorder(),
-                              ),
-                              items: [
-                                'Id Linea metro',
-                                'Tipo de Linea',
-                                'Nombre de la Linea',
-                              ].map((filter) => DropdownMenuItem(
-                                    value: filter,
-                                    child: Text(filter),
-                                  )).toList(),
-                              onChanged: (value) => setState(() {
-                                selectedFilterLinea = value!;
-                              }),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                
-                          Expanded(
-                            flex: 2,
-                            child: FormBuilderTextField(
-                              name: 'searchLinea',
-                              controller: searchLineaController,
-                              style: const TextStyle(fontSize: 20.0),
-                              decoration: InputDecoration( 
-                                labelText: 'Buscar', 
-                                labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.search),
-                                suffixIcon: searchLineaController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: _limpiarBusqueda,
-                                    )
-                                  : null 
-                              ),
-                              onChanged: (value) {
-                                if (value!.isNotEmpty) {
-                                  _filtrarLinea(value);
-                                } else {
-                                  setState(() { 
-                                    _lineaFiltrada = []; 
-                                  }); 
-                                }
-                              },
-                            )
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      const Divider(),
-                      FutureBuilder<List<Linea>>(
-                        future: _lineaData, 
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          }else if(snapshot.hasError) {
-                            return const Center(child: Text('Error al cargar la Línea de metro.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
-                          } else {
-                            final lineTable = _lineaFiltrada.isNotEmpty 
-                                ? _lineaFiltrada
-                                : snapshot.data ?? [];
-                            
-                            return Container(
-                              margin: const EdgeInsets.all(10.0),
-                              padding: const EdgeInsets.all(7.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                                borderRadius: BorderRadius.circular(10.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 7,
-                                    offset: const Offset(0, 3),
-                                  )
-                                ]
-                              ),
-                              child: Theme(
-                                data: Theme.of(context).copyWith(
-                                  textTheme: Theme.of(context).textTheme.copyWith(
-                                    bodySmall: const TextStyle(
-                                      fontSize: 20,           // Ajusta el tamaño del número
-                                      color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                                      fontWeight: FontWeight.bold, // Hace el texto más visible
-                                    ),
-                                  ),
-                                ),
-                                child: PaginatedDataTable(
-                                  headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                                  columns: const [
-                                    DataColumn(label: Text('Id Línea metro', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                    DataColumn(label: Text('Tipo de Línea', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                    DataColumn(label: Text('Nombre de \nla Línea', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                    DataColumn(label: Text('Acción', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
-                                  ],
-                                  source: _LineaDataSource(lineTable, _showEditDialogLinea, _showDeleteDialogLinea),
-                                  rowsPerPage: 5, //numeros de filas
-                                  columnSpacing: 50, //espacios entre columnas
-                                  horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                                  showCheckboxColumn: false, //oculta la columna de checkboxes
-                                  dataRowMinHeight: 60.0,  // Altura mínima de fila
-                                  dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                                  showFirstLastButtons: true,
-                                  headingRowHeight: 100.0, // Ajusta la altura del encabezado
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      ),
-                      // const SizedBox(height: 20),
-                      const Divider(),
-                            
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Tablas de Estaciones del Metro',
-                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 20),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FormBuilderDropdown<String>(
-                              name: 'filtrarEstaciones',
-                              initialValue: selectedFilterEstacion,
-                              style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
-                              decoration: const InputDecoration(
-                                labelText: 'Filtrar por',
-                                labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                                border: OutlineInputBorder(),
-                              ),
-                              items: [
-                                'No de Estacion',
-                                'Id Linea del metro',
-                                'Nombre de Estacion',
-                              ].map((filter) => DropdownMenuItem(
-                                    value: filter,
-                                    child: Text(filter),
-                                  )).toList(),
-                              onChanged: (value) => setState(() {
-                                selectedFilterEstacion = value!;
-                              }),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-
-                          Expanded(
-                            flex: 2,
-                            child: FormBuilderTextField(
-                              name: 'searchEstacion',
-                              controller: searchEstacionController,
-                              style: const TextStyle(fontSize: 20.0),
-                              decoration: InputDecoration( 
-                                labelText: 'Buscar', 
-                                labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
-                                border: const OutlineInputBorder(),
-                                prefixIcon: const Icon(Icons.search),
-                                suffixIcon: searchEstacionController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.clear),
-                                      onPressed: _limpiarBusqueda,
-                                    )
-                                  : null 
-                              ),
-                              onChanged: (value) {
-                                if (value!.isNotEmpty) {
-                                  _filtrarEstacion(value);
-                                } else {
-                                  setState(() { 
-                                    _estacionFiltrada = []; 
-                                  }); 
-                                }
-                              },
-                            )
-                          )                          
-                        ]
-                      ),
-                      const SizedBox(width: 16),
-                      const Divider(),
-                            
-                      FutureBuilder<List<Estacion>>(
-                        future: _estacionData, 
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Center(child: CircularProgressIndicator());
-                          }else if (snapshot.hasError) {
-                            return const Center(child: Text('Error al cargar la tabla de Estaciones del metro.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
-                          } else {
-                            final station = _estacionFiltrada.isNotEmpty 
-                                  ? _estacionFiltrada
-                                  : snapshot.data ?? [];
-                            
-                            return Container(
-                              margin: const EdgeInsets.all(16.0),
-                              padding: const EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                                borderRadius: BorderRadius.circular(10.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
-                                    spreadRadius: 5,
-                                    blurRadius: 7,
-                                    offset: const Offset(0, 3),
-                                  )
-                                ]
-                              ),
-                              child: Theme(
-                                data: Theme.of(context).copyWith(
-                                  textTheme: Theme.of(context).textTheme.copyWith(
-                                    bodySmall: const TextStyle(
-                                      fontSize: 20,           // Ajusta el tamaño del número
-                                      color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                                      fontWeight: FontWeight.bold, // Hace el texto más visible
-                                    ),
-                                  ),
-                                ),
-                                child: PaginatedDataTable(
-                                  headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                                  columns: const [
-                                    DataColumn(label: Text('NO', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                    DataColumn(label: Text('Id Línea de metro \na la que pertenece', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                    DataColumn(label: Text('Estación', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                                    DataColumn(label: Text('Acción', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
-                                  ],
-                                  source: _EstacionDataSource(station, _showEditDialogEstacion, _showDeleteDialogEstacion),
-                                  rowsPerPage: 10, //numeros de filas
-                                  columnSpacing: 50, //espacios entre columnas
-                                  horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                                  showCheckboxColumn: false, //oculta la columna de checkboxes
-                                  dataRowMinHeight: 60.0,  // Altura mínima de fila
-                                  dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                                  showFirstLastButtons: true,
-                                  headingRowHeight: 100.0, // Ajusta la altura del encabezado
-                                ),
-                              ),
-                            );
-                          }
-                        }
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            left: position.dx,
-            top: position.dy,
-            child: Draggable(
-              feedback: _bottonSaveSpeedDial(),
-              childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
-              onDragEnd: (details) {
+    return ScreenUtilInit(
+      designSize: const Size(360, 740),
+      builder: (context, child) => Scaffold(
+        drawer: Navbar(
+          filtrarUsuarioController: widget.filtrarUsuarioController,
+          filtrarEmailController: widget.filtrarEmailController,
+          filtrarId: widget.filtrarId,
+          // // filtrarCedula: widget.filtrarCedula,
+        ),
+      
+        appBar: AppBar(
+          title: const Text('Modificar tabla'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 30.0),
+              tooltip: 'Recargar',
+              onPressed: () {
                 setState(() {
-                  // Limitar la posición del botón a los límites de la pantalla
-                  double dx = details.offset.dx;
-                  double dy = details.offset.dy;
-
-                  if (dx < 0) dx = 0;
-                  if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
-                      dx = MediaQuery.of(context).size.width - 56;
-                  }
-
-                  if (dy < 0) dy = 0;
-                  if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 200) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
-                      dy = MediaQuery.of(context).size.height - kToolbarHeight - 200;
-                  }
-
-                  position = Offset(dx, dy);
+                  _refreshLinea();
+                  _refreshEstacion();
                 });
               },
-              child: _bottonSaveSpeedDial(),
             )
-          )
-        ],
+          ],
+        ),
+      
+        body: Stack(
+          children: [
+            // Cuerpo principal con las tablas
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Sección de filtros y tabla de Líneas de Metro
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        
+                        const Text(
+                          'Tablas de Lineas de Metro',
+                          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 20),
+                    
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FormBuilderDropdown<String>(
+                                name: 'filtrarLineas',
+                                initialValue: selectedFilterLinea,
+                                style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
+                                decoration: const InputDecoration(
+                                  labelText: 'Filtrar por',
+                                  labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: [
+                                  'Id Linea metro',
+                                  'Tipo de Linea',
+                                  'Nombre de la Linea',
+                                ].map((filter) => DropdownMenuItem(
+                                      value: filter,
+                                      child: Text(filter),
+                                    )).toList(),
+                                onChanged: (value) => setState(() {
+                                  selectedFilterLinea = value!;
+                                }),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                  
+                            Expanded(
+                              flex: 2,
+                              child: FormBuilderTextField(
+                                name: 'searchLinea',
+                                controller: searchLineaController,
+                                style: const TextStyle(fontSize: 20.0),
+                                decoration: InputDecoration( 
+                                  labelText: 'Buscar', 
+                                  labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                                  border: const OutlineInputBorder(),
+                                  prefixIcon: const Icon(Icons.search),
+                                  suffixIcon: searchLineaController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: _limpiarBusqueda,
+                                      )
+                                    : null 
+                                ),
+                                onChanged: (value) {
+                                  if (value!.isNotEmpty) {
+                                    _filtrarLinea(value);
+                                  } else {
+                                    setState(() { 
+                                      _lineaFiltrada = []; 
+                                    }); 
+                                  }
+                                },
+                              )
+                            )
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Divider(),
+                        FutureBuilder<List<Linea>>(
+                          future: _lineaData, 
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }else if(snapshot.hasError) {
+                              return const Center(child: Text('Error al cargar la Línea de metro.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                            } else {
+                              final lineTable = _lineaFiltrada.isNotEmpty 
+                                  ? _lineaFiltrada
+                                  : snapshot.data ?? [];
+                              
+                              return Container(
+                                margin: const EdgeInsets.all(2.0),
+                                padding: const EdgeInsets.all(2.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 7,
+                                      offset: const Offset(0, 3),
+                                    )
+                                  ]
+                                ),
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    textTheme: Theme.of(context).textTheme.copyWith(
+                                      bodySmall: TextStyle(
+                                        fontSize: isTabletDevice ? 9.sp : 9.sp,           // Ajusta el tamaño del número
+                                        color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                        fontWeight: FontWeight.bold, // Hace el texto más visible
+                                      ),
+                                    ),
+                                  ),
+                                  child: PaginatedDataTable(
+                                    headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                                    columns: [
+                                      DataColumn(label: Text('Id Línea metro', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                      DataColumn(label: Text('Tipo de Línea', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                      DataColumn(label: Text('Nombre de \nla Línea', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                      DataColumn(label: Text('Acción', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold)))
+                                    ],
+                                    source: _LineaDataSource(lineTable, _showEditDialogLinea, _showDeleteDialogLinea),
+                                    rowsPerPage: 5, //numeros de filas
+                                    columnSpacing: 50, //espacios entre columnas
+                                    horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                                    showCheckboxColumn: false, //oculta la columna de checkboxes
+                                    dataRowMinHeight: 60.0,  // Altura mínima de fila
+                                    dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                                    showFirstLastButtons: true,
+                                    headingRowHeight: 100.0, // Ajusta la altura del encabezado
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        ),
+                        // const SizedBox(height: 20),
+                        const Divider(),
+                              
+                        const SizedBox(height: 20),
+                        const Text(
+                          'Tablas de Estaciones del Metro',
+                          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 20),
+      
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FormBuilderDropdown<String>(
+                                name: 'filtrarEstaciones',
+                                initialValue: selectedFilterEstacion,
+                                style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
+                                decoration: const InputDecoration(
+                                  labelText: 'Filtrar por',
+                                  labelStyle: TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: [
+                                  'No de Estacion',
+                                  'Id Linea del metro',
+                                  'Nombre de Estacion',
+                                ].map((filter) => DropdownMenuItem(
+                                      value: filter,
+                                      child: Text(filter),
+                                    )).toList(),
+                                onChanged: (value) => setState(() {
+                                  selectedFilterEstacion = value!;
+                                }),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+      
+                            Expanded(
+                              flex: 2,
+                              child: FormBuilderTextField(
+                                name: 'searchEstacion',
+                                controller: searchEstacionController,
+                                style: const TextStyle(fontSize: 20.0),
+                                decoration: InputDecoration( 
+                                  labelText: 'Buscar', 
+                                  labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold), 
+                                  border: const OutlineInputBorder(),
+                                  prefixIcon: const Icon(Icons.search),
+                                  suffixIcon: searchEstacionController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: _limpiarBusqueda,
+                                      )
+                                    : null 
+                                ),
+                                onChanged: (value) {
+                                  if (value!.isNotEmpty) {
+                                    _filtrarEstacion(value);
+                                  } else {
+                                    setState(() { 
+                                      _estacionFiltrada = []; 
+                                    }); 
+                                  }
+                                },
+                              )
+                            )                          
+                          ]
+                        ),
+                        const SizedBox(width: 16),
+                        const Divider(),
+                              
+                        FutureBuilder<List<Estacion>>(
+                          future: _estacionData, 
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const Center(child: CircularProgressIndicator());
+                            }else if (snapshot.hasError) {
+                              return const Center(child: Text('Error al cargar la tabla de Estaciones del metro.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                            } else {
+                              final station = _estacionFiltrada.isNotEmpty 
+                                    ? _estacionFiltrada
+                                    : snapshot.data ?? [];
+                              
+                              return Container(
+                                margin: const EdgeInsets.all(2.0),
+                                padding: const EdgeInsets.all(2.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color.fromARGB(255, 9, 9, 9).withOpacity(0.5),
+                                      spreadRadius: 5,
+                                      blurRadius: 7,
+                                      offset: const Offset(0, 3),
+                                    )
+                                  ]
+                                ),
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    textTheme: Theme.of(context).textTheme.copyWith(
+                                      bodySmall: TextStyle(
+                                        fontSize: isTabletDevice ? 9.sp : 9.sp,           // Ajusta el tamaño del número
+                                        color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                        fontWeight: FontWeight.bold, // Hace el texto más visible
+                                      ),
+                                    ),
+                                  ),
+                                  child: PaginatedDataTable(
+                                    headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                                    columns: [
+                                      DataColumn(label: Text('NO', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                      DataColumn(label: Text('Id Línea de metro \na la que pertenece', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                      DataColumn(label: Text('Estación', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                      DataColumn(label: Text('Acción', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp, color: Colors.white, fontWeight: FontWeight.bold)))
+                                    ],
+                                    source: _EstacionDataSource(station, _showEditDialogEstacion, _showDeleteDialogEstacion),
+                                    rowsPerPage: 5, //numeros de filas
+                                    columnSpacing: 50, //espacios entre columnas
+                                    horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                                    showCheckboxColumn: false, //oculta la columna de checkboxes
+                                    dataRowMinHeight: 60.0,  // Altura mínima de fila
+                                    dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                                    showFirstLastButtons: true,
+                                    headingRowHeight: 100.0, // Ajusta la altura del encabezado
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              left: position.dx,
+              top: position.dy,
+              child: Draggable(
+                feedback: _bottonSaveSpeedDial(),
+                childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
+                onDragEnd: (details) {
+                  setState(() {
+                    // Limitar la posición del botón a los límites de la pantalla
+                    double dx = details.offset.dx;
+                    double dy = details.offset.dy;
+      
+                    if (dx < 0) dx = 0;
+                    if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
+                        dx = MediaQuery.of(context).size.width - 56;
+                    }
+      
+                    if (dy < 0) dy = 0;
+                    if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 200) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
+                        dy = MediaQuery.of(context).size.height - kToolbarHeight - 200;
+                    }
+      
+                    position = Offset(dx, dy);
+                  });
+                },
+                child: _bottonSaveSpeedDial(),
+              )
+            )
+          ],
+        ),
+        // floatingActionButton: _bottonSaveSpeedDial(),
       ),
-      // floatingActionButton: _bottonSaveSpeedDial(),
     );
   }
 
@@ -526,14 +540,16 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   void _showCreateDialogLinea() {
+    final isTabletDevice = isTablet(context);
+
     showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: const Text('Agregar una nueva Línea', style: TextStyle(fontSize: 33.0)),
+          title: Text('Agregar una nueva Línea', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
           contentPadding: EdgeInsets.zero,
           content: Container(
-            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+            margin: isTabletDevice ? const EdgeInsets.fromLTRB(90, 20, 90, 50) : const EdgeInsets.fromLTRB(30, 20, 30, 50),
             width: 600,
             child: FormBuilder(
               key: _formKey,
@@ -545,13 +561,13 @@ class _ModifyTableState extends State<ModifyTable> {
                     // keyboardType: TextInputType.number,
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Id de la Línea',
-                      labelFrontSize: 30.5,
+                      labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
                       hintext: 'ID Linea (ej. LM1 o LM001)',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.verified,size: 30.0),
-                      errorSize: 20.0,
+                      hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                      icono: Icon(Icons.verified, size: isTabletDevice ? 15.sp : 15.sp),
+                      errorSize: isTabletDevice ? 10.sp : 10.sp,
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Por favor ingrese el ID de la Linea';
@@ -569,15 +585,16 @@ class _ModifyTableState extends State<ModifyTable> {
                     name: 'tipo',
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Tipo de Línea',
-                      labelFrontSize: 30.0,
-                      icono: const Icon(Icons.list_rounded, size: 30.0)
+                      labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+                      icono: Icon(Icons.list_rounded, size: isTabletDevice ? 15.sp : 15.sp),
+                      hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
                     ),
                     initialValue: 'Linea Metro',
                     items: const [
-                      DropdownMenuItem(value: 'Linea Metro', child: Text('Linea Metro', style: TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1)))),
-                      DropdownMenuItem(value: 'Linea Teleferico', child: Text('Linea Teleferico', style: TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1)))),
+                      DropdownMenuItem(value: 'Linea Metro', child: Text('Linea Metro')),
+                      DropdownMenuItem(value: 'Linea Teleferico', child: Text('Linea Teleferico')),
                     ],
-                    style: const TextStyle(fontSize: 30.0),
+                    style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                     onChanged: (value) {
                       setState(() {
                         _selectedLinea = value!;
@@ -588,16 +605,16 @@ class _ModifyTableState extends State<ModifyTable> {
 
                   FormBuilderTextField(
                     name: 'nombre',
-                    // keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.name,
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Nombre de Línea',
-                      labelFrontSize: 30.5,
+                      labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
                       hintext: 'Ej: Linea 1, 2 ...',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.text_fields, size: 30.0),
-                      errorSize: 20.0,
+                      hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                      icono: Icon(Icons.text_fields, size: isTabletDevice ? 15.sp : 15.sp),
+                      errorSize: isTabletDevice ? 10.sp : 10.sp,
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                   ),
                 ]
@@ -619,18 +636,18 @@ class _ModifyTableState extends State<ModifyTable> {
                       context: context,
                       builder: (context) {
                         return AlertDialog(
-                          title: const Text('ID de Línea ya existente', style: TextStyle(fontSize: 33.0, fontWeight: FontWeight.bold)),
+                          title: Text('ID de Línea ya existente', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
                           contentPadding: EdgeInsets.zero,
                           content: Container(
-                            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
-                            child: Text('El ID: $newIdLinea de la línea ingresado ya está en uso. Por favor ingrese otro.', style: TextStyle(fontSize: 28.0))
+                            margin: isTabletDevice ? const EdgeInsets.fromLTRB(90, 20, 90, 50) : const EdgeInsets.fromLTRB(30, 20, 30, 50),
+                            child: Text('El ID: $newIdLinea de la línea ingresado ya está en uso. Por favor ingrese otro.', style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)))
                           ),
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
                               },
-                              child: const Text('Aceptar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                              child: Text('Aceptar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         );
@@ -664,7 +681,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   }
                 }
               },
-              child: const Text('Crear', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+              child: Text('Crear', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold))
             )
           ],
         );
@@ -673,14 +690,15 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   void _showEditDialogLinea(Linea lineaUpload) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: const Text('Modificar La Línea', style: TextStyle(fontSize: 33.0)),
+          title: Text('Modificar La Línea', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
           contentPadding: EdgeInsets.zero,
           content: Container(
-            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+            margin: isTabletDevice ? const EdgeInsets.fromLTRB(90, 20, 90, 50) : const EdgeInsets.fromLTRB(30, 20, 30, 50),
             child: FormBuilder(
               key: _formKey,
               initialValue: {
@@ -694,15 +712,15 @@ class _ModifyTableState extends State<ModifyTable> {
                     name: 'tipo',
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Tipo de Línea',
-                      labelFrontSize: 30.0,
-                      icono: const Icon(Icons.list_rounded, size: 30.0)
+                      labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+                      icono: Icon(Icons.list_rounded, size: isTabletDevice ? 15.sp : 15.sp)
                     ),
                     // initialValue: 'Linea Metro',
                     items: const [
-                      DropdownMenuItem(value: 'Linea Metro', child: Text('Linea Metro', style: TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1)))),
-                      DropdownMenuItem(value: 'Linea Teleferico', child: Text('Linea Teleferico', style: TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1)))),
+                      DropdownMenuItem(value: 'Linea Metro', child: Text('Linea Metro')),
+                      DropdownMenuItem(value: 'Linea Teleferico', child: Text('Linea Teleferico')),
                     ],
-                    style: const TextStyle(fontSize: 30.0),
+                    style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                     onChanged: (value) {
                       setState(() {
                         _selectedLinea = value!;
@@ -712,15 +730,15 @@ class _ModifyTableState extends State<ModifyTable> {
 
                   FormBuilderTextField(
                     name: 'nombre',
-                    // keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.name,
                     decoration: InputDecorations.inputDecoration(
                       labeltext: 'Nombre de Línea',
-                      labelFrontSize: 30.5,
+                      labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
                       hintext: 'Línea 1',
-                      hintFrontSize: 30.0,
-                      icono: const Icon(Icons.text_fields, size: 30.0),
+                      hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                      icono: Icon(Icons.text_fields, size: isTabletDevice ? 15.sp : 15.sp),
                     ),
-                    style: const TextStyle(fontSize: 30.0),
+                    style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                     validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                   ),
                 ]
@@ -758,7 +776,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   }
                 }
               }, 
-              child: const Text('Editar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+              child: Text('Editar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold))
             )
           ],
         );
@@ -767,16 +785,17 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   void _showDeleteDialogLinea(Linea lineaDelete) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: const Text('Eliminar Línea', style: TextStyle(fontSize: 33.0)),
-          content: Text('¿Estás seguro de que deseas eliminar la Línea: ${lineaDelete.idLinea} - ${lineaDelete.nombreLinea}?', style: const TextStyle(fontSize: 30)),
+          title: Text('Eliminar Línea', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
+          content: Text('¿Estás seguro de que deseas eliminar la Línea: ${lineaDelete.idLinea} - ${lineaDelete.nombreLinea}?', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
           actions: [
             buttonStop(context),
             TextButton(
-              child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Eliminar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
                   final response = await ApiServiceLineas('http://wepapi.somee.com').deleteLineas(lineaDelete.idLinea);
@@ -808,19 +827,20 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   void _showCreateDialogEstacion() {
+    final isTabletDevice = isTablet(context);
     if (_lineas.isEmpty) { // se verifica si la lista de la linea del metro esta vacia en caso de ser asi entonces este debe de dar un error
       showDialog(
         context: context, 
         builder: (context) {
           return AlertDialog(
-            title: const Text('No hay líneas disponibles', style: TextStyle(fontSize: 33.0)),
+            title: Text('No hay líneas disponibles', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
             content: const Text('Debe agregar una línea primero para poder agregar estaciones.'),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
                 },
-                child: const Text('Aceptar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                child: Text('Aceptar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
               )
             ],
           );
@@ -831,10 +851,10 @@ class _ModifyTableState extends State<ModifyTable> {
         context: context, 
         builder: (context) {
           return AlertDialog(
-            title: const Text('Agregar una nueva Estación', style: TextStyle(fontSize: 33.0)),
+            title: Text('Agregar una nueva Estación', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
             contentPadding: EdgeInsets.zero,
             content: Container(
-              margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+              margin: isTabletDevice ? const EdgeInsets.fromLTRB(90, 20, 90, 50) : const EdgeInsets.fromLTRB(30, 20, 30, 50),
               width: 600,
               child: FormBuilder(
                 key: _formKey,
@@ -846,13 +866,13 @@ class _ModifyTableState extends State<ModifyTable> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Numero de la Estación',
-                        labelFrontSize: 30.5,
+                        labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
                         hintext: '#',
-                        hintFrontSize: 30.0,
-                        icono: const Icon(Icons.numbers,size: 30.0),
-                        errorSize: 20.0,
+                        hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                        icono: Icon(Icons.numbers, size: isTabletDevice ? 15.sp : 15.sp),
+                        errorSize: isTabletDevice ? 10.sp : 10.sp,
                       ),
-                      style: const TextStyle(fontSize: 30.0),
+                      style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                       validator: FormBuilderValidators.numeric(errorText: 'Este campo es requerido')
                     ),
 
@@ -882,7 +902,7 @@ class _ModifyTableState extends State<ModifyTable> {
                           return AlertDialog(
                             title: Text(
                               'La estación con el no. $newIdEstacion ya existe.', 
-                              style: const TextStyle(fontSize: 33.0, fontWeight: FontWeight.bold)
+                              style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)
                             ),
                             contentPadding: EdgeInsets.zero,
                             content: Container(
@@ -894,7 +914,7 @@ class _ModifyTableState extends State<ModifyTable> {
                                 onPressed: () {
                                   Navigator.of(context).pop(); // Cerrar el cuadro de diálogo
                                 },
-                                child: const Text('Aceptar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+                                child: Text('Aceptar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
                               ),
                             ],
                           );
@@ -930,7 +950,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   }
                 },
                 
-                child: const Text('Crear', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+                child: Text('Crear', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold))
               )
             ],
           );
@@ -941,39 +961,43 @@ class _ModifyTableState extends State<ModifyTable> {
 
   //Widget controladores de interacion--------------------------------------------------------------------------
   FormBuilderTextField labelEstacion() {
+    final isTabletDevice = isTablet(context);
     return FormBuilderTextField(
                   name: 'Estacion',
                   // keyboardType: TextInputType.number,
                   decoration: InputDecorations.inputDecoration(
                     labeltext: 'Nombre de Estación',
-                    labelFrontSize: 30.5,
+                    labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
                     hintext: 'Ingrese la nueva Estación',
-                    hintFrontSize: 30.0,
-                    icono: const Icon(Icons.text_fields,size: 30.0),
-                    errorSize: 20.0,
+                    hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                    icono: Icon(Icons.text_fields, size: isTabletDevice ? 15.sp : 15.sp),
+                    errorSize: isTabletDevice ? 10.sp : 10.sp,
                   ),
-                  style: const TextStyle(fontSize: 30.0),
-                  // validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
+                  style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
+                  validator: FormBuilderValidators.required(errorText: 'Este campo es requerido')
                 );
   }
 
   FormBuilderDropdown<String> selectorLinea() {
+    final isTabletDevice = isTablet(context);
     return FormBuilderDropdown<String>(
                   name: 'idLinea',
                   menuMaxHeight: 200.0,
                   decoration: InputDecorations.inputDecoration(
                     labeltext: 'Elige Linea de metro',
-                    labelFrontSize: 30.0,
-                    icono: const Icon(Icons.list_rounded, size: 30.0)
+                    labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+                    icono: Icon(Icons.list_rounded, size: isTabletDevice ? 15.sp : 15.sp),
+                    errorSize: isTabletDevice ? 10.sp : 10.sp,
                   ),
+                  validator: FormBuilderValidators.required(errorText: 'Este campo es requerido'),
                   // initialValue: _savedLinea,
                   items: _lineas.map((linea) {
                     return DropdownMenuItem(
                       value: linea.idLinea,
-                      child: Text(linea.nombreLinea, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
+                      child: Text(linea.nombreLinea),
                     );
                   }).toList(),
-                  style: const TextStyle(fontSize: 30.0),
+                  style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
                   onChanged: (value) {
                     setState(() {
                       _savedLinea = value!;
@@ -985,14 +1009,15 @@ class _ModifyTableState extends State<ModifyTable> {
   //-----------------------------------------------------------------------------------------------------------------------------
 
   void _showEditDialogEstacion(Estacion estacionUpload) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: const Text('Modificar La Estación', style: TextStyle(fontSize: 33.0)),
+          title: Text('Modificar La Estación', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
           contentPadding: EdgeInsets.zero,
           content: Container(
-            margin: const EdgeInsets.fromLTRB(90, 20, 90, 50),
+            margin: isTabletDevice ? const EdgeInsets.fromLTRB(90, 20, 90, 50) : const EdgeInsets.fromLTRB(30, 20, 30, 50),
             width: 600,
             child: FormBuilder(
               key: _formKey,
@@ -1040,7 +1065,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   }
                 }
               }, 
-              child: const Text('Editar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold))
+              child: Text('Editar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold))
             )
           ]
         );
@@ -1049,16 +1074,17 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   void _showDeleteDialogEstacion(Estacion estacionDelete) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: const Text('Eliminar Estación', style: TextStyle(fontSize: 33.0)),
-          content: Text('¿Estás seguro de que deseas eliminar la Estación no. ${estacionDelete.idEstacion} - ${estacionDelete.nombreEstacion}?', style: const TextStyle(fontSize: 30)),
+          title: Text('Eliminar Estación', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, )),
+          content: Text('¿Estás seguro de que deseas eliminar la Estación no. ${estacionDelete.idEstacion} - ${estacionDelete.nombreEstacion}?', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
           actions: [
             buttonStop(context),
             TextButton(
-              child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Eliminar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
                   final response = await ApiServiceEstacion('http://wepapi.somee.com').deleteEstacion(estacionDelete.idEstacion);
@@ -1086,8 +1112,9 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   TextButton buttonStop(BuildContext context) {
+    final isTabletDevice = isTablet(context);
     return TextButton(
-            child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+            child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold)),
             onPressed: () {
               Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
             },
@@ -1095,19 +1122,20 @@ class _ModifyTableState extends State<ModifyTable> {
   }
 
   void _showErrorDialog(BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Error", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          title: Text("Error", style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold)),
           contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
           content: Container(
             margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
-            child: Text(message, style: const TextStyle(fontSize: 28))
+            child: Text(message, style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))
           ),
           actions: [ 
             TextButton( 
-              child: const Text("OK", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)), 
+              child: Text("OK", style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold, color: Colors.blue)), 
               onPressed: () { 
                 Navigator.of(context).pop(); 
               }, 
@@ -1120,6 +1148,7 @@ class _ModifyTableState extends State<ModifyTable> {
 
   // cuadro de acceso exito
   void _showSuccessDialog(BuildContext context, String message) {
+    // final isTabletDevice = isTablet(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {

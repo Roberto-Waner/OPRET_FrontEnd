@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_ObtenerEstacionPorLinea.dart';
 import 'package:formulario_opret/models/formulario_Registro.dart';
 import 'package:formulario_opret/screens/interfaz_User/navbarUser/navbar_Empl.dart';
@@ -153,225 +154,242 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
     }
   }
 
+  //En caso de ser un table
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTabletWidth = size.width > 600;
+    final isTabletHeight = size.height > 800;
+    return isTabletWidth && isTabletHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      child: Scaffold(
-        drawer: NavbarEmpl(
-          filtrarUsuarioController: widget.filtrarUsuarioController,  
-          filtrarEmailController: widget.filtrarEmailController,
-          filtrarId: widget.filtrarId,
-          // // filtrarCedula: widget.filtrarCedula,
-        ),
-      
-        appBar: AppBar(title: const Text('Formulario')),
-      
-        body: isLoading // Si está cargando, mostrar el cuadro de carga
-          ? Center(
-              child: Dialog(
-                backgroundColor: Colors.transparent,
-                child: Container(
-                  width: 200,
-                  height: 220,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.7),
-                    borderRadius: BorderRadius.circular(100),
+    final isTabletDevice = isTablet(context);
+    return ScreenUtilInit(
+      designSize: const Size(360, 740),
+      builder: (context, child) => PopScope(
+        canPop: false,
+        child: Scaffold(
+          drawer: NavbarEmpl(
+            filtrarUsuarioController: widget.filtrarUsuarioController,  
+            filtrarEmailController: widget.filtrarEmailController,
+            filtrarId: widget.filtrarId,
+            // // filtrarCedula: widget.filtrarCedula,
+          ),
+        
+          appBar: AppBar(title: const Text('Formulario')),
+        
+          body: isLoading // Si está cargando, mostrar el cuadro de carga
+            ? Center(
+                child: Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    width: 200,
+                    height: 220,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        hasError 
+                            ? const Icon(
+                                Icons.close,
+                                size: 80,
+                                color: Colors.red,
+                              )
+                            : const CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                              ),
+                        const SizedBox(height: 20),
+                        Text(
+                          hasError ? 'Error' : 'Cargando...',
+                          style: const TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      hasError 
-                          ? const Icon(
-                              Icons.close,
-                              size: 80,
-                              color: Colors.red,
-                            )
-                          : const CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                            ),
-                      const SizedBox(height: 20),
-                      Text(
-                        hasError ? 'Error' : 'Cargando...',
-                        style: const TextStyle(color: Colors.white, fontSize: 20),
-                      ),
-                    ],
-                  ),
-                ),
+                )
               )
-            )
-          : SingleChildScrollView(
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(35, 105, 35, 0),
-            child: FormBuilder(
-              key: _formKey,
-              autovalidateMode: AutovalidateMode.disabled,
-              child: Container(
-                // margin: const EdgeInsets.symmetric(horizontal: 50),
-                decoration: BoxDecoration( 
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(35), 
-                  boxShadow: [ 
-                    BoxShadow( 
-                      color: Colors.black.withOpacity(0.1), 
-                      blurRadius: 10, 
-                      offset: const Offset(0, 5), 
-                    ), 
-                  ], 
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(60.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FormBuilderTextField(
-                        name: 'idUsuarios',
-                        initialValue: widget.filtrarId.text,
-                        enabled: false,
-                        decoration: InputDecorations.inputDecoration(
-                          labeltext: 'Asignar ID',
-                          labelFrontSize: 25.5, // Tamaño de letra personalizado
-                          hintext: 'USER-000000000',
-                          hintFrontSize: 20.0,
-                          icono: const Icon(Icons.perm_identity_outlined,size: 30.0),
+            : SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(35, 100, 35, 0),
+              child: FormBuilder(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.disabled,
+                child: Container(
+                  // margin: const EdgeInsets.symmetric(horizontal: 50),
+                  decoration: BoxDecoration( 
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(35), 
+                    boxShadow: [ 
+                      BoxShadow( 
+                        color: Colors.black.withOpacity(0.1), 
+                        blurRadius: 10, 
+                        offset: const Offset(0, 5), 
+                      ), 
+                    ], 
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(60.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FormBuilderTextField(
+                          name: 'idUsuarios',
+                          initialValue: widget.filtrarId.text,
+                          enabled: false,
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Asignar ID',
+                            labelFrontSize: isTabletDevice ? 15.sp : 15.sp, // Tamaño de letra personalizado
+                            hintext: 'USER-000000000',
+                            hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                            icono: Icon(Icons.perm_identity_outlined, size: isTabletDevice ? 15.sp : 15.sp),
+                          ),
+                          style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
+                          onChanged: (val) {
+                            print('Id seleccionada: $val');
+                          },
                         ),
-                        style: const TextStyle(fontSize: 30.0),
-                        onChanged: (val) {
-                          print('Id seleccionada: $val');
-                        },
-                      ),
-                
-                      const SizedBox(height: 16),
                   
-                      FormBuilderTextField(
-                        name: 'hora',
-                        controller: horaController,
-                        decoration: const InputDecoration(
-                          labelText: 'Hora de Encuesta',
-                          labelStyle: TextStyle(fontSize: 25.0),
-                          prefixIcon: Icon(Icons.access_time, size: 30.0)
+                        const SizedBox(height: 16),
+                    
+                        FormBuilderTextField(
+                          name: 'hora',
+                          controller: horaController,
+                          decoration: InputDecoration(
+                            labelText: 'Hora de Encuesta',
+                            labelStyle: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp),
+                            prefixIcon: Icon(Icons.access_time, size: isTabletDevice ? 15.sp : 15.sp),
+                            hintStyle: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp)
+                          ),
+                          style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
+                          enabled: false,
                         ),
-                        style: const TextStyle(fontSize: 30.0),
-                        enabled: false,
-                      ),
-                
-                      const SizedBox(height: 16),
                   
-                      FormBuilderTextField(
-                        name: 'fechaEncuesta',
-                        controller: fechaController,
-                        decoration: const InputDecoration(
-                          // hintext: 'Hora actual',
-                          // hintFrontSize: 20.0,
-                          labelText: 'Fecha de Encuesta',
-                          labelStyle: TextStyle(fontSize: 25.0),
-                          prefixIcon: Icon(Icons.calendar_month_outlined, size: 30.0)
+                        const SizedBox(height: 16),
+                    
+                        FormBuilderTextField(
+                          name: 'fechaEncuesta',
+                          controller: fechaController,
+                          decoration: InputDecoration(
+                            // hintext: 'Hora actual',
+                            // hintFrontSize: 20.0,
+                            labelText: 'Fecha de Encuesta',
+                            labelStyle: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp),
+                            prefixIcon: Icon(Icons.calendar_month_outlined, size: isTabletDevice ? 15.sp : 15.sp),
+                            hintStyle: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp)
+                          ),
+                          style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
+                          enabled: false
                         ),
-                        style: const TextStyle(fontSize: 30.0),
-                        enabled: false
-                      ),
-                
-                      const SizedBox(height: 16),
-                      
-                      FormBuilderDropdown<String>(
-                        name: 'linea_metro',
-                        validator: (value) {
-                          if (value == null) {
-                            _showErrorDialog(context, 'Es obligatorio elegir una Linea del metro');
-                            return 'Este campo es requerido';
-                          }
-                          return null;
-                        },
-                        decoration: InputDecorations.inputDecoration(
-                          labeltext: 'Linea del metro',
-                          labelFrontSize: 30.0,
-                          hintext: 'Linea 1, 2 ... o Teleferico',
-                          hintFrontSize: 30.0,
-                          icono: const Icon(Icons.people_outline_rounded, size: 30.0),
-                          errorSize: 20
-                        ),
-                        initialValue: _selectLineMetro,
-                        items: _lineas.map((linea) {
-                          return DropdownMenuItem(
-                            value: linea.idLinea,
-                            child: Text(linea.nombreLinea, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
-                          );
-                        }).toList(),
-                        style: const TextStyle(fontSize: 30.0),
-                        menuMaxHeight: 250.0, // Altura máxima del cuadro desplegable
-                        onChanged: (value) async {
-                          setState(() {
-                            _selectLineMetro = value;
-                            _selectedStation = null; // Reiniciar estación seleccionada al cambiar de línea
-                            print('Línea seleccionada: $_selectLineMetro'); // Depuración
-                          });
                   
-                          if (value != null) {
-                            await _fetchEstaciones(value);
-                          }
-                        },
-                      ),
-                
-                      const SizedBox(height: 16),
-                
-                      FormBuilderDropdown<int>(
-                        name: 'estacion_metro',
-                        style: const TextStyle(fontSize: 30.0),
-                        initialValue: _selectedStation,
-                        menuMaxHeight: 250.0, // Altura máxima del cuadro desplegable
-                        validator: (value) {
-                          if(value == null) {
-                            _showErrorDialog(context, 'Es obligatorio elegir una Estación del metro');
-                            return 'Este campo es requerido';
-                          }
-      
-                          return null;
-                        },
-                        decoration: InputDecorations.inputDecoration(
-                          labeltext: 'Estación del metro',
-                          labelFrontSize: 30.0,
-                          hintext: (_selectedStation).toString(),
-                          hintFrontSize: 30.0,
-                          icono: const Icon(Icons.train_outlined, size: 30.0),
-                          errorSize: 20
-                        ),
-                        items: _estaciones.map((estacion) {
-                          return DropdownMenuItem(
-                            value: estacion.idEstacion,
-                            child: Text(estacion.nombreEstacion, style: const TextStyle(fontSize: 30, color: Color.fromARGB(255, 1, 1, 1))),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedStation = value;
-                            print('Estación seleccionada: $_selectedStation'); // Depuración
-                          });
-                        },
-                      ),
-                
-                      const SizedBox(height: 42),
-                  
-                      ElevatedButton(
-                        onPressed: _registrarFormEncuesta, 
+                        const SizedBox(height: 16),
                         
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromRGBO(1, 135, 76, 1), //  se usa para definir el color de fondo del botón.
-                          foregroundColor: const Color.fromARGB(255, 255, 255, 255), // se usa para definir el color del texto y los iconos dentro del botón.
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50),
+                        FormBuilderDropdown<String>(
+                          name: 'linea_metro',
+                          validator: (value) {
+                            if (value == null) {
+                              _showErrorDialog(context, 'Es obligatorio elegir una Linea del metro');
+                              return 'Este campo es requerido';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Linea del metro',
+                            labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+                            hintext: 'Linea 1, 2 ... o Teleferico',
+                            hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                            icono: Icon(Icons.people_outline_rounded, size: isTabletDevice ? 15.sp : 15.sp),
+                            errorSize: isTabletDevice ? 10.sp : 10.sp,
+                          ),
+                          initialValue: _selectLineMetro,
+                          items: _lineas.map((linea) {
+                            return DropdownMenuItem(
+                              value: linea.idLinea,
+                              child: Text(linea.nombreLinea),
+                            );
+                          }).toList(),
+                          style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
+                          menuMaxHeight: 250.0, // Altura máxima del cuadro desplegable
+                          onChanged: (value) async {
+                            setState(() {
+                              _selectLineMetro = value;
+                              _selectedStation = null; // Reiniciar estación seleccionada al cambiar de línea
+                              print('Línea seleccionada: $_selectLineMetro'); // Depuración
+                            });
+                    
+                            if (value != null) {
+                              await _fetchEstaciones(value);
+                            }
+                          },
+                        ),
+                  
+                        const SizedBox(height: 16),
+                  
+                        FormBuilderDropdown<int>(
+                          name: 'estacion_metro',
+                          style: TextStyle(fontSize: isTabletDevice ? 11.5.sp : 11.5.sp, color: const Color.fromARGB(255, 1, 1, 1)),
+                          initialValue: _selectedStation,
+                          menuMaxHeight: 250.0, // Altura máxima del cuadro desplegable
+                          validator: (value) {
+                            if(value == null) {
+                              _showErrorDialog(context, 'Es obligatorio elegir una Estación del metro');
+                              return 'Este campo es requerido';
+                            }
+        
+                            return null;
+                          },
+                          decoration: InputDecorations.inputDecoration(
+                            labeltext: 'Estación del metro',
+                            labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+                            hintext: (_selectedStation).toString(),
+                            hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
+                            icono: Icon(Icons.train_outlined, size: isTabletDevice ? 15.sp : 15.sp),
+                            errorSize: isTabletDevice ? 10.sp : 10.sp,
+                          ),
+                          items: _estaciones.map((estacion) {
+                            return DropdownMenuItem(
+                              value: estacion.idEstacion,
+                              child: Text(estacion.nombreEstacion),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedStation = value;
+                              print('Estación seleccionada: $_selectedStation'); // Depuración
+                            });
+                          },
+                        ),
+                  
+                        const SizedBox(height: 42),
+                    
+                        ElevatedButton(
+                          onPressed: _registrarFormEncuesta, 
+                          
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromRGBO(1, 135, 76, 1), //  se usa para definir el color de fondo del botón.
+                            foregroundColor: const Color.fromARGB(255, 255, 255, 255), // se usa para definir el color del texto y los iconos dentro del botón.
+                            padding: EdgeInsets.symmetric(
+                              horizontal: isTabletDevice ? 0.1.sw : 0.1.sw,
+                              vertical: isTabletDevice ? 10.h : 10.h,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                            ),
+                          ),
+                    
+                          child: Text(
+                            'Iniciar Encuesta',
+                            style: TextStyle(
+                              fontSize: isTabletDevice ? 15.sp : 15.sp, 
+                              fontWeight: FontWeight.bold
+                            )
                           ),
                         ),
-                  
-                        child: const Text(
-                          'Iniciar Encuesta',
-                          style: TextStyle(
-                            fontSize: 30, 
-                            fontWeight: FontWeight.bold
-                          )
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

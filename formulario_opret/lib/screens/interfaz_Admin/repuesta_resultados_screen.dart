@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_Filtrar_Respuestas.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/graphic/graphic_Respuestas_Screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
@@ -84,197 +85,210 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
     setState(() { 
       respuestasFiltrados = todasLasRespuestas; 
     }); 
-  } 
+  }
+
+  //En caso de ser un table
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTabletWidth = size.width > 600;
+    final isTabletHeight = size.height > 800;
+    return isTabletWidth && isTabletHeight;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: Navbar(
-        filtrarUsuarioController: widget.filtrarUsuarioController,
-        filtrarEmailController: widget.filtrarEmailController,
-        filtrarId: widget.filtrarId,
-        // // filtrarCedula: widget.filtrarCedula,
-      ),
+    final isTabletDevice = isTablet(context);
 
-      appBar: AppBar(
-        title: const Text('Tablas de Respuestas'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, size: 30.0),
-            tooltip: 'Recargar',
-            onPressed: () {
-              setState(() {
-                _loadRespuestas();
-              });
-            },
-          )
-        ],
-      ),
-
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FormBuilderDropdown<String>(
-                    name: 'filtrar', 
-                    initialValue: selectedFilter,
-                    style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
-                    decoration: const InputDecoration(
-                      labelText: 'Filtrar por',
-                      labelStyle: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold), 
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      'ID del Usuario', 
-                      // 'Cedula de Identidad',
-                      'Usuarios', 
-                      'Nombre y Apellido', 
-                      'Numero de Encuesta',
-                      'Numero de Seccion',
-                      'Numero de Pregunta',
-                      'Numero de Sub-Pregunta'
-                    ].map((filter) => DropdownMenuItem(
-                        value: filter,
-                        child: Text(filter)
-                    )).toList(),
-                    onChanged: (value) => setState(() {
-                      selectedFilter = value!;
-                    })
-                  ),
-                ),
-                const SizedBox(width: 16.0),
-                Expanded(
-                  flex: 2,
-                  child: FormBuilderTextField(
-                    name: 'search',
-                    controller: searchController,
-                    style: const TextStyle(fontSize: 20.0),
-                    decoration: InputDecoration( 
-                      labelText: 'Buscar', 
-                      labelStyle: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold), 
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear),
-                            onPressed: _limpiarBusqueda,
-                          )
-                        : null 
-                    ),
-                    onChanged: (value) { 
-                      if (value!.isNotEmpty) { 
-                        _filtrarRespuestas(value); 
-                      } else { 
-                        setState(() { 
-                          respuestasFiltrados = []; 
-                        }); 
-                      } 
-                    },
-                  ),
-                ),
-              ],
+    return ScreenUtilInit(
+      designSize: const Size(360, 740),
+      builder: (context, child) => Scaffold(
+        drawer: Navbar(
+          filtrarUsuarioController: widget.filtrarUsuarioController,
+          filtrarEmailController: widget.filtrarEmailController,
+          filtrarId: widget.filtrarId,
+          // // filtrarCedula: widget.filtrarCedula,
+        ),
+      
+        appBar: AppBar(
+          title: const Text('Tablas de Respuestas'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, size: 30.0),
+              tooltip: 'Recargar',
+              onPressed: () {
+                setState(() {
+                  _loadRespuestas();
+                });
+              },
             )
-          ),
-          Expanded(
-            child: FutureBuilder<List<SpFiltrarRespuestas>>(
-              future: _respuestaData, 
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting){
-                  return const Center(child: CircularProgressIndicator());
-                }else if (snapshot.hasError){
-                  return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
-                } else {
-                  final answerData = respuestasFiltrados.isNotEmpty
-                      ? respuestasFiltrados
-                      : snapshot.data ?? [];
-
-                  return SingleChildScrollView(
-                    child: Theme(
-                      data: Theme.of(context).copyWith(
-                        textTheme: Theme.of(context).textTheme.copyWith(
-                          bodySmall: const TextStyle(
-                            fontSize: 20,           // Ajusta el tamaño del número
-                            color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                            fontWeight: FontWeight.bold, // Hace el texto más visible
+          ],
+        ),
+      
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: FormBuilderDropdown<String>(
+                      name: 'filtrar', 
+                      initialValue: selectedFilter,
+                      style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 1, 1, 1)),
+                      decoration: const InputDecoration(
+                        labelText: 'Filtrar por',
+                        labelStyle: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold), 
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        'ID del Usuario', 
+                        // 'Cedula de Identidad',
+                        'Usuarios', 
+                        'Nombre y Apellido', 
+                        'Numero de Encuesta',
+                        'Numero de Seccion',
+                        'Numero de Pregunta',
+                        'Numero de Sub-Pregunta'
+                      ].map((filter) => DropdownMenuItem(
+                          value: filter,
+                          child: Text(filter)
+                      )).toList(),
+                      onChanged: (value) => setState(() {
+                        selectedFilter = value!;
+                      })
+                    ),
+                  ),
+                  const SizedBox(width: 16.0),
+                  Expanded(
+                    flex: 2,
+                    child: FormBuilderTextField(
+                      name: 'search',
+                      controller: searchController,
+                      style: const TextStyle(fontSize: 20.0),
+                      decoration: InputDecoration( 
+                        labelText: 'Buscar', 
+                        labelStyle: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold), 
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: _limpiarBusqueda,
+                            )
+                          : null 
+                      ),
+                      onChanged: (value) { 
+                        if (value!.isNotEmpty) { 
+                          _filtrarRespuestas(value); 
+                        } else { 
+                          setState(() { 
+                            respuestasFiltrados = []; 
+                          }); 
+                        } 
+                      },
+                    ),
+                  ),
+                ],
+              )
+            ),
+            Expanded(
+              child: FutureBuilder<List<SpFiltrarRespuestas>>(
+                future: _respuestaData, 
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting){
+                    return const Center(child: CircularProgressIndicator());
+                  }else if (snapshot.hasError){
+                    return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
+                  } else {
+                    final answerData = respuestasFiltrados.isNotEmpty
+                        ? respuestasFiltrados
+                        : snapshot.data ?? [];
+      
+                    return SingleChildScrollView(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          textTheme: Theme.of(context).textTheme.copyWith(
+                            bodySmall: TextStyle(
+                              fontSize: isTabletDevice ? 9.sp : 9.sp,          // Ajusta el tamaño del número
+                              color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                              fontWeight: FontWeight.bold, // Hace el texto más visible
+                            ),
                           ),
                         ),
+                        child: PaginatedDataTable(
+                          header: const Text('Reporte de las Respuesta'),
+                          columns: [
+                            DataColumn(label: Text('ID del Usuario', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Nombre y Apellido', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Usuarios', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('No. Encuesta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Número de Sección', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Número de Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Número de Sub-Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Sub-Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Respuesta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Comentarios', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Justificacion', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                          ], 
+                          source: RespuestasDataSource(answerData, isTabletDevice),
+                          rowsPerPage: isTabletDevice ? 7 : 5, //numeros de filas
+                          columnSpacing: 30, //espacios entre columnas
+                          horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                          showCheckboxColumn: false, //oculta la columna de checkboxes
+                          headingRowColor: WidgetStateProperty.all(Colors.grey[400]), //color del encabezado
+                          dataRowMinHeight: 60.0,  // Altura mínima de fila
+                          dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                          showFirstLastButtons: true,     
+                        ),
                       ),
-                      child: PaginatedDataTable(
-                        header: const Text('Reporte de las Respuesta'),
-                        columns: const [
-                          DataColumn(label: Text('ID del Usuario', style: TextStyle(fontSize: 23.0))),
-                          // DataColumn(label: Text('Cedula de Identida', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Nombre y Apellido', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Usuarios', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('No. Encuesta', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Número de Sección', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Número de Pregunta', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Pregunta', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Número de Sub-Pregunta', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Sub-Pregunta', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Respuesta', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Comentarios', style: TextStyle(fontSize: 23.0))),
-                          DataColumn(label: Text('Justificacion', style: TextStyle(fontSize: 23.0))),
-                        ], 
-                        source: RespuestasDataSource(answerData),
-                        rowsPerPage: 10, //numeros de filas
-                        columnSpacing: 30, //espacios entre columnas
-                        horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                        showCheckboxColumn: false, //oculta la columna de checkboxes
-                        headingRowColor: WidgetStateProperty.all(Colors.grey[400]), //color del encabezado
-                        dataRowMinHeight: 60.0,  // Altura mínima de fila
-                        dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                        showFirstLastButtons: true,     
-                      ),
-                    ),
-                  );
+                    );
+                  }
                 }
-              }
+              ),
             ),
-          ),
-          //boton para mostrar los graficos
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => GraphicRespScreen(data: respuestasFiltrados.isNotEmpty ? respuestasFiltrados : todasLasRespuestas),
-                          )
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
-                      textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
-                      )
-                    ),
-                    child: const Text('Ver gráfica')
+            //boton para mostrar los graficos
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GraphicRespScreen(data: respuestasFiltrados.isNotEmpty ? respuestasFiltrados : todasLasRespuestas),
+                            )
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.blue,
+                        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        )
+                      ),
+                      child: const Text('Ver gráfica')
+                    )
                   )
-                )
-              ],
-            ),
-          )
-        ]
-      )
+                ],
+              ),
+            )
+          ]
+        )
+      ),
     );
   }
 }
 
 class RespuestasDataSource extends DataTableSource {
   final List<SpFiltrarRespuestas> data;
+  final bool isTabletDevice;
 
-  RespuestasDataSource(this.data);
+  RespuestasDataSource(this.data, this.isTabletDevice);
 
   @override
   DataRow? getRow(int index) {
@@ -319,7 +333,7 @@ class RespuestasDataSource extends DataTableSource {
               constraints: const BoxConstraints(maxWidth: 420, minWidth: 170),
               child: Text(
                 text,
-                style: const TextStyle(fontSize: 20.0),
+                style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 10.sp),
                 softWrap: true,
               ),
             )

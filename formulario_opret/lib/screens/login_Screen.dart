@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formulario_opret/models/login.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 // import 'package:formulario_opret/models/login_Admin.dart';
@@ -199,14 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     );
-
-    // Hacer que el cuadro de éxito se cierre automáticamente después de 2 segundos
-    // Future.delayed(const Duration(seconds: 5), () {
-    //   // Comprobamos si el widget aún está montado antes de intentar realizar cualquier acción
-    //   if (mounted) {
-    //     Navigator.of(context).pop(); // Cierra el cuadro de éxito solo si el widget está montado
-    //   }
-    // });
   }
 
   // cuadro de error
@@ -234,49 +227,59 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTabletWidth = size.width > 600;
+    final isTabletHeight = size.height > 800;
+    return isTabletWidth && isTabletHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final orientation = MediaQuery.of(context).orientation; // Obtener orientación
+    final isTabletDevice = isTablet(context);
 
-    return Scaffold(
-      body: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Stack(
-          children: [
-            cajaverde(size), 
-            // buttonBack(size),
-            ventanalogin(size, context, orientation),
-            if (_isLoading)
-              Center(
-                // child: CircularProgressIndicator(),
-                child: Dialog(
-                  backgroundColor: Colors.transparent,
-                  child: Container(
-                    width: 200,
-                    height: 220,
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(100),
+    return ScreenUtilInit(
+      designSize: const Size(360, 740),
+      builder: (context, child) => Scaffold(
+        body: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Stack(
+            children: [
+              cajaverde(size),
+              // buttonBack(size),
+              ventanalogin(isTabletDevice, context),
+              if (_isLoading)
+                Center(
+                  // child: CircularProgressIndicator(),
+                  child: Dialog(
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      width: 200,
+                      height: 220,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.7),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Cargando...',
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          'Cargando...',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
-                        ),
-                      ],
-                    ),
-                  ),
+                  )
                 )
-              )
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -296,16 +299,16 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget logoInsideLogin(Size size) {
+  Widget logoInsideLogin(bool isTabletDevice) {
     return Container(
-      width: size.width * 0.3, // Ajuste del ancho basado en el tamaño de la pantalla (30% del ancho)
-      height: size.height * 0.2, // Ajuste del alto basado en el tamaño de la pantalla (20% del alto)
+      width: isTabletDevice ? 0.3.sw : 0.3.sw, // Ajuste del ancho basado en el tamaño de la pantalla (30% del ancho)
+      height: isTabletDevice ? 0.2.sh : 0.2.sh, // Ajuste del alto basado en el tamaño de la pantalla (20% del alto)
       decoration: const BoxDecoration(
         shape: BoxShape.circle, // El logo estará dentro de un contenedor circular
         color: Color.fromRGBO(217, 217, 217, 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(50.0), // Margen dentro del logo
+        padding: isTabletDevice ? const EdgeInsets.all(50.0) : const EdgeInsets.all(30.0), // Margen dentro del logo
         child: Image.asset(
           'assets/Logo/Logo_Metro_transparente.png',
           fit: BoxFit.contain, // El logo se ajustará manteniendo su aspecto original
@@ -314,21 +317,23 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Container ventanalogin(Size size, BuildContext context, Orientation orientation) {
+  Container ventanalogin(bool isTabletDevice, BuildContext context) {
     if(_serviceToken.isLoggedFuncion()){
       return Container();
     }else{
       return Container(
-        padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
+        padding: const EdgeInsets.only(top: 50),
         child: SingleChildScrollView(
           child: Column(
             children: [
               // const SizedBox(height: 50),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: size.width * 0.18),
+                // padding: EdgeInsets.symmetric(horizontal: isTabletHeight ? 0.18 : 0.10),
+                padding: isTabletDevice ? EdgeInsets.symmetric(horizontal: 0.07.sh) : EdgeInsets.symmetric(horizontal: 0.04.sh),
                 margin: const EdgeInsets.symmetric(horizontal: 30),
                 width: double.infinity,
-                height: size.height * (orientation == Orientation.portrait ? 0.85 : 0.96), // Ajuste según la orientación
+                // height: size.height * (orientation == Orientation.portrait ? 0.85 : 0.96), // Ajuste según la orientación
+                height: isTabletDevice ? 0.92.sh : 0.92.sh,
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 252, 252, 252),
                   borderRadius: BorderRadius.circular(25),
@@ -343,14 +348,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(height: 100),
-                      logoInsideLogin(size),
-                      const SizedBox(height: 30),
-                      const Text('Inicio Sesión', style: TextStyle(fontSize: 54)),
-                      const SizedBox(height: 30),
-                      _loginForm(size),
-                      const SizedBox(height: 50),
-                      _loginButton(size)
+                      // const SizedBox(height: 100),
+                      SizedBox(height: isTabletDevice ? 80.h : 80.h),
+                      logoInsideLogin(isTabletDevice),
+                      SizedBox(height: isTabletDevice ? 30.h : 10.h),
+                      Text('Inicio Sesión', style: TextStyle(fontSize: isTabletDevice ? 20.sp : 20.sp)),
+                      SizedBox(height: isTabletDevice ? 30.h : 10.h),
+                      _loginForm(isTabletDevice),
+                      SizedBox(height: isTabletDevice ? 50.h : 50.h),
+                      _loginButton(isTabletDevice)
                     ],
                   ),
                 ),
@@ -364,7 +370,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Form _loginForm(Size size) {
+  Form _loginForm(bool isTabletDevice) {
     return Form(
       autovalidateMode: AutovalidateMode.disabled,
       child: Column(
@@ -374,18 +380,18 @@ class _LoginScreenState extends State<LoginScreen> {
             autocorrect: true,
             decoration: InputDecorations.inputDecoration(
               hintext: 'Ingrese el Usuario',
-              hintFrontSize: 30.0,
+                hintFrontSize: isTabletDevice ? 10.sp : 10.sp,
               labeltext: 'Nombre Usuario',
-              labelFrontSize: 30.5,
-              icono: const Icon(Icons.account_circle, size: 30.0),
+                labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+              icono: Icon(Icons.account_circle, size: isTabletDevice ? 15.sp : 15.sp),
               errorSize: 20
             ),
-            style: const TextStyle(fontSize: 30.0),
+            style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return const Text(
+                return Text(
                   'Por favor ingrese su nombre de usuario',
-                  style: TextStyle(fontSize: 20.0), // Ajusta el tamaño del texto
+                  style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp), // Ajusta el tamaño del texto
                 ).data;
               }
 
@@ -400,25 +406,25 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: _passwordController,
             decoration: InputDecorations.inputDecoration(
               hintext: '******',
-              hintFrontSize: 30.0,
+                hintFrontSize: isTabletDevice? 10.sp : 10.sp,
               labeltext: 'Contraseña',
-              labelFrontSize: 30.5,
-              icono: const Icon(Icons.lock_clock_outlined, size: 30.0),
+                labelFrontSize: isTabletDevice ? 15.sp : 15.sp,
+              icono: Icon(Icons.lock_clock_outlined, size: isTabletDevice ? 15.sp : 15.sp,),
               suffIcon: IconButton(
                 onPressed: _togglePasswordVisibility, 
                 icon: Icon(
                   _obscureText ? Icons.visibility_off : Icons.visibility,
-                  size: 30.0,
+                    size: isTabletDevice ? 15.sp : 15.sp,
                 )
               ),
               errorSize: 20
             ),
-            style: const TextStyle(fontSize: 30.0),
+            style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return const Text(
+                return Text(
                   'La contraseña debe ser mayor o igual a los 6 caracteres',
-                  style: TextStyle(fontSize: 20.0), // Ajusta el tamaño del texto
+                  style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp), // Ajusta el tamaño del texto
                 ).data;
               }
               return null;
@@ -429,7 +435,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Center _loginButton(Size size) {
+  Center _loginButton(bool isTabletDevice) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center, // Centra los botones horizontalmente
@@ -439,15 +445,18 @@ class _LoginScreenState extends State<LoginScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromRGBO(1, 135, 76, 1), // Color de fondo del primer botón
               foregroundColor: const Color.fromARGB(255, 254, 255, 255), // Color del texto
-              padding: const EdgeInsets.symmetric(horizontal: 138, vertical: 15),
+              padding: EdgeInsets.symmetric(
+                horizontal: isTabletDevice ? 0.235.sw : 0.235.sw,
+                vertical: isTabletDevice ? 10.h : 11.h,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(100)
               ),
             ),
-            child: const Text(
+            child: Text(
               'Ingresar',
               style: TextStyle(
-                fontSize: 40, 
+                  fontSize: isTabletDevice ? 17.sp : 17.sp,
                 fontWeight: FontWeight.bold
               ),
             ),
@@ -470,7 +479,10 @@ class _LoginScreenState extends State<LoginScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromRGBO(1, 135, 76, 1), // Color de fondo del primer botón
               foregroundColor: const Color.fromARGB(255, 254, 255, 255), // Color del texto
-              padding: const EdgeInsets.symmetric(horizontal: 65, vertical: 15),
+              padding: EdgeInsets.symmetric(
+                horizontal: isTabletDevice ? 0.15.sw : 0.138.sw,
+                vertical: isTabletDevice ? 10.h : 11.h,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(100)
               ),
@@ -480,14 +492,14 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  size: size.height * 0.03,
+                  size: isTabletDevice ? 14.sp : 17.sp,
                 ),
                 const SizedBox(width: 5), // Espacio entre el ícono y el texto
-                const Text(
+                Text(
                   'Volver a inicio',
                   style: TextStyle(
-                    fontSize: 40, 
-                    fontWeight: FontWeight.bold
+                      fontSize: isTabletDevice ? 17.sp : 17.sp,
+                      fontWeight: FontWeight.bold
                   ),
                 ),
               ],

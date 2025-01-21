@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:formulario_opret/models/usuarios.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
@@ -33,10 +34,10 @@ class _RegistroEmplState extends State<RegistroEmpl> {
   final TextEditingController searchController = TextEditingController();
   Usuarios? usuariosFiltrados;
   DateTime? _selectedDate;
-  Offset position = const Offset(700, 1150); // Posición inicial del botón
+  Offset position = const Offset(500, 900); // Posición inicial del botón
   String selectedRole = 'Empleado';
   int _paginaActual = 0; // Página actual del PaginatedDataTable
-  final int _filasPorPagina = 10; // Filas mostradas por página
+  final int _filasPorPagina = 8; // Filas mostradas por página
   int? _selectedRowIndex; // Índice de la fila seleccionada
 
   @override
@@ -165,345 +166,384 @@ class _RegistroEmplState extends State<RegistroEmpl> {
     }
   }
 
+  //En caso de ser un table
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTabletWidth = size.width > 600;
+    final isTabletHeight = size.height > 800;
+    return isTabletWidth && isTabletHeight;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isTabletDevice = isTablet(context);
+
+    // Si no es tablet, ajusta la posición predeterminada
+    if (!(isTabletDevice)) {
+      position = const Offset(330, 760);
+    }
+
     return PopScope(
       canPop: false,
-      child: Scaffold(
-        drawer: Navbar(
-          filtrarUsuarioController: widget.filtrarUsuarioController,
-          filtrarEmailController: widget.filtrarEmailController,
-          filtrarId: widget.filtrarId,
-          // // filtrarCedula: widget.filtrarCedula,
-        ),
-        appBar: AppBar(
-          title: const Text('Registro de Usuarios'),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh, size: 30.0),
-              tooltip: 'Recargar',
-              onPressed: () {
-                setState(() {
-                  _refreshUsuarios();
-                });
-              },
-            )
-          ],
-        ),
-        body: Column(
-          children: [
-            // Campo de entrada para búsqueda
-            Padding( 
-              padding: const EdgeInsets.all(16.0), 
-              child: FormBuilder( 
-                child: FormBuilderTextField( 
-                  name: 'search', 
-                  controller: searchController,
-                  style: const TextStyle(fontSize: 20.0),
-                  decoration: InputDecoration( 
-                    labelText: 'Buscar Usuario aqui',
-                    labelStyle: const TextStyle(fontSize: 30),
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: _limpiarBusqueda,
-                        )
-                      : null                          
-                  ), 
-                  onChanged: (value) { 
-                    if (value != null && value.isNotEmpty) { 
-                      _filtrarUsuarioPorId(value); 
-                    } else { 
-                      setState(() { 
-                        usuariosFiltrados = null; 
-                      }); 
-                    } 
-                  }, 
-                ), 
-              ), 
-            ),
-      
-            // Mostrar detalles del usuario seleccionado
-            if (usuariosFiltrados != null) ...[
+      child: ScreenUtilInit(
+        designSize: const Size(360, 740),
+        builder: (context, child) => Scaffold(
+          drawer: Navbar(
+            filtrarUsuarioController: widget.filtrarUsuarioController,
+            filtrarEmailController: widget.filtrarEmailController,
+            filtrarId: widget.filtrarId,
+            // // filtrarCedula: widget.filtrarCedula,
+          ),
+          appBar: AppBar(
+            title: const Text('Registro de Usuarios'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh, size: 30.0),
+                tooltip: 'Recargar',
+                onPressed: () {
+                  setState(() {
+                    _refreshUsuarios();
+                  });
+                },
+              )
+            ],
+          ),
+          body: Column(
+            children: [
+              // Campo de entrada para búsqueda
               Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 10.0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+                child: FormBuilder(
+                  child: FormBuilderTextField(
+                    name: 'search',
+                    controller: searchController,
+                    style: const TextStyle(fontSize: 20.0),
+                    decoration: InputDecoration(
+                      labelText: 'Buscar Usuario aqui',
+                        labelStyle: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold),
+                      hintStyle: const TextStyle(fontSize: 10),
+                      border: const OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: _limpiarBusqueda,
+                          )
+                        : null
+                    ),
+                    onChanged: (value) {
+                      if (value != null && value.isNotEmpty) {
+                        _filtrarUsuarioPorId(value);
+                      } else {
+                        setState(() {
+                          usuariosFiltrados = null;
+                        });
+                      }
+                    },
                   ),
-                  color: const Color.fromARGB(255, 2, 37, 4), // Color de fondo de la tarjeta
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 30.0,
-                              backgroundColor: Colors.blue,
-                              child: Text(
-                                usuariosFiltrados!.nombreApellido[0],
-                                style: const TextStyle(
-                                  fontSize: 30.0,
-                                  color: Colors.white
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16.0),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  usuariosFiltrados!.nombreApellido,
-                                  style: const TextStyle(
-                                    fontSize: 25.0,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color.fromARGB(255, 246, 244, 244)
-                                  )
-                                ),
-                                Text(
-                                  usuariosFiltrados!.email,
-                                  style: const TextStyle(
-                                    fontSize: 22.0,
-                                    color: Color.fromARGB(255, 58, 204, 240)
-                                  )
-                                )
-                              ],
+                ),
+              ),
+
+              // Mostrar detalles del usuario seleccionado
+              if (usuariosFiltrados != null) ...[
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Card(
+                    elevation: 10.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    color: const Color.fromARGB(255, 2, 37, 4), // Color de fondo de la tarjeta
+                    child: SizedBox(
+                      height: isTabletDevice ? null : 230.h,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: isTabletDevice
+                          ? _buildUserDetails(isTabletDevice)
+                          : SingleChildScrollView(
+                              child: _buildUserDetails(isTabletDevice),
                             )
-                          ],
-                        ),
-                        const SizedBox(height: 20.0),
-                        const Divider(),
-                        ListTile(
-                          leading: const Icon(Icons.perm_identity, size: 30.0, color: Colors.blue),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                    text: 'ID: ', 
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                                ),
-                                TextSpan( 
-                                  text: usuariosFiltrados!.idUsuarios, 
-                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                                ),
-                              ]
-                            )
-                          )
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.account_circle, size: 30.0, color: Colors.blue),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                    text: 'Usuario: ', 
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                                ),
-                                TextSpan( 
-                                  text: usuariosFiltrados!.usuario1, 
-                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                                ),
-                              ]
-                            )
-                          )
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.calendar_month_outlined, size: 30.0, color: Colors.blue),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                    text: 'Fecha de Creación: ', 
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                                ),
-                                TextSpan( 
-                                  text: usuariosFiltrados!.fechaCreacion, 
-                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                                ),
-                              ]
-                            )
-                          )
-                        ),
-                        ListTile(
-                          leading: const Icon(Icons.people_outline_rounded, size: 30.0, color: Colors.blue),
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                const TextSpan(
-                                    text: 'Rol: ', 
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28.0, color: Colors.white),
-                                ),
-                                TextSpan( 
-                                  text: usuariosFiltrados!.rol, 
-                                  style: const TextStyle(fontSize: 28.0, color: Colors.white), 
-                                ),
-                              ]
-                            )
-                          )
-                        ),
-                        const SizedBox(height: 20.0),
-                        TextButton(
-                          onPressed: () => _ubicarUsuarios(usuariosFiltrados?.idUsuarios, usuariosFiltrados?.nombreApellido, usuariosFiltrados?.usuario1),
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                          ),
-                          child: const Text(
-                            'Ubicar en tabla',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          )
-                        )
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20)
-            ],
-      
-            Expanded(
-              child: FutureBuilder<List<Usuarios>>(
-                future: _usuariosdata,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting){
-                    return Center(
-                      // child: CircularProgressIndicator()
-                      child: Dialog(
-                        backgroundColor: Colors.transparent,
-                        child: Container(
-                          width: 200,
-                          height: 220,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                                    ),
-                              SizedBox(height: 20),
-                              Text(
-                                /*hasError ? 'Error' : */'Cargando...',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    );
-                  }else if (snapshot.hasError){
-                    return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
-                  }else {
-                    final usuariostabla = snapshot.data ?? [];
-              
-                    return SingleChildScrollView(
-                      child: Container(
-                        margin: const EdgeInsets.all(16.0),
-                        padding: const EdgeInsets.all(2.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: Theme(
-                          data: Theme.of(context).copyWith(
-                            textTheme: Theme.of(context).textTheme.copyWith(
-                              bodySmall: const TextStyle(
-                                fontSize: 20,           // Ajusta el tamaño del número
-                                color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
-                                fontWeight: FontWeight.bold, // Hace el texto más visible
-                              ),
+                const SizedBox(height: 20)
+              ],
+
+              Expanded(
+                child: FutureBuilder<List<Usuarios>>(
+                  future: _usuariosdata,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting){
+                      return Center(
+                        // child: CircularProgressIndicator()
+                        child: Dialog(
+                          backgroundColor: Colors.transparent,
+                          child: Container(
+                            width: 200,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                      ),
+                                SizedBox(height: 20),
+                                Text(
+                                  /*hasError ? 'Error' : */'Cargando...',
+                                  style: TextStyle(color: Colors.white, fontSize: 20),
+                                ),
+                              ],
                             ),
                           ),
-                          child: PaginatedDataTable(
-                            columns: const [
-                              DataColumn(label: Text('ID', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Nombre Completo', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Usuario', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Correo Electronico', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Fecha de Creacion', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Rol', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold))),
-                              DataColumn(label: Text('Accion', style: TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold)))
-                            ],
-                            source: _UsuariosDataSource(usuariostabla, _showEditDialog, _showDeleteDialog, _selectedRowIndex),
-                            rowsPerPage: _filasPorPagina, //numeros de filas
-                            columnSpacing: 30, //espacios entre columnas
-                            horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
-                            showCheckboxColumn: false, //oculta la columna de checkboxes
-                            headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
-                            dataRowMinHeight: 60.0,  // Altura mínima de fila
-                            dataRowMaxHeight: 80.0,  // Altura máxima de fila
-                            showFirstLastButtons: true,
-                            onPageChanged: (index) {
-                              setState(() {
-                                _paginaActual = index ~/ _filasPorPagina;
-                              });
-                            },
-                            initialFirstRowIndex: _paginaActual * _filasPorPagina,
+                        )
+                      );
+                    }else if (snapshot.hasError){
+                      return Center(child: Text('Error al cargar los datos: ${snapshot.error}'));
+                    }else {
+                      final usuariostabla = snapshot.data ?? [];
+
+                      return SingleChildScrollView(
+                        child: Container(
+                          margin: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(2.0),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              textTheme: Theme.of(context).textTheme.copyWith(
+                                bodySmall: TextStyle(
+                                  fontSize: isTabletDevice ? 20 : 15,           // Ajusta el tamaño del número
+                                  color: Colors.black,    // Cambia el color del texto (ajústalo según tu preferencia)
+                                  fontWeight: FontWeight.bold, // Hace el texto más visible
+                                ),
+                              ),
+                            ),
+                            child: PaginatedDataTable(
+                              columns: [
+                                DataColumn(label: Text('ID', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Nombre Completo', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Usuario', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Correo Electronico', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Fecha de Creacion', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Rol', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Accion', style: TextStyle(fontSize: isTabletDevice ? 27 : 15.sp, color: Colors.white, fontWeight: FontWeight.bold)))
+                              ],
+                              source: _UsuariosDataSource(usuariostabla, _showEditDialog, _showDeleteDialog, _selectedRowIndex, isTabletDevice),
+                              rowsPerPage: isTabletDevice ? _filasPorPagina : 5, //numeros de filas
+                              columnSpacing: 30, //espacios entre columnas
+                              horizontalMargin: 50, //para aplicarle un margin horizontal a los campo de la tabla
+                              showCheckboxColumn: false, //oculta la columna de checkboxes
+                              headingRowColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 2, 37, 4)), // Fondo de encabezado
+                              dataRowMinHeight: 60.0,  // Altura mínima de fila
+                              dataRowMaxHeight: 80.0,  // Altura máxima de fila
+                              showFirstLastButtons: true,
+                              onPageChanged: (index) {
+                                setState(() {
+                                  _paginaActual = index ~/ _filasPorPagina;
+                                });
+                              },
+                              initialFirstRowIndex: _paginaActual * _filasPorPagina,
+                            ),
                           ),
                         ),
-                      ),
-                    );
+                      );
+                    }
                   }
-                }
-              ),
-            )
-          ]
-        ),
-        floatingActionButton: Stack(
-          children: [
-            Positioned(
-              left: position.dx,
-              top: position.dy,
-              child: Draggable(
-                feedback: FloatingActionButton(
-                  onPressed: () => _showCreateDialog(context),
-                  child: const Icon(Icons.add),
                 ),
-                // childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
-                onDragEnd: (details) {
-                  setState(() {
-                    // Limitar la posición del botón a los límites de la pantalla
-                    double dx = details.offset.dx;
-                    double dy = details.offset.dy;
-      
-                    if (dx < 0) dx = 0;
-                    if (dx > MediaQuery.of(context).size.width - 56) { // 56 es el tamaño del FAB
-                        dx = MediaQuery.of(context).size.width - 56;
-                    }
-      
-                    if (dy < 0) dy = 0;
-                    if (dy > MediaQuery.of(context).size.height - kToolbarHeight - 50) { // Ajusta para la altura del AppBar y del SpeedDial desplegado
-                        dy = MediaQuery.of(context).size.height - kToolbarHeight - 50;
-                    }
-      
-                    position = Offset(dx, dy);
-                  });
-                },
-                child: FloatingActionButton(
-                  onPressed: () => _showCreateDialog(context),
-                  child: const Icon(Icons.add),
-                ), 
               )
-            )
-          ]
-        )
+            ]
+          ),
+          floatingActionButton: Stack(
+            children: [
+              Positioned(
+                left: position.dx,
+                top: position.dy,
+                child: Draggable(
+                  feedback: FloatingActionButton(
+                    onPressed: () => _showCreateDialog(context),
+                    child: const Icon(Icons.add),
+                  ),
+                  // childWhenDragging: Container(), // Widget que aparece en la posición original mientras se arrastra
+                  onDragEnd: (details) {
+                    setState(() {
+                      // Limitar la posición del botón a los límites de la pantalla
+                      double maxWidth;
+                      double maxHeight;
+
+                      double dx;
+                      double dy;
+
+                      if (isTabletDevice) {
+                        maxWidth = MediaQuery.of(context).size.width - 30.w;
+                        maxHeight = MediaQuery.of(context).size.height - kToolbarHeight - 10.h;
+                        dx = details.offset.dx.clamp(50.0, maxWidth);
+                        dy = details.offset.dy.clamp(100.0, maxHeight);
+
+                        position = Offset(dx, dy);
+
+                      } else if (!(isTabletDevice)) {
+                        maxWidth = MediaQuery.of(context).size.width - 1.w;
+                        maxHeight = MediaQuery.of(context).size.height - kToolbarHeight - 1.h;
+                        dx = details.offset.dx.clamp(0.0, maxWidth);
+                        dy = details.offset.dy.clamp(0.0, maxHeight);
+
+                        position = Offset(dx, dy);
+                      }
+                    });
+                  },
+                  child: FloatingActionButton(
+                    onPressed: () => _showCreateDialog(context),
+                    child: const Icon(Icons.add),
+                  ),
+                )
+              )
+            ]
+          )
+        ),
       ),
+    );
+  }
+
+  Column _buildUserDetails(bool isTabletDevice) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 30.0,
+              backgroundColor: Colors.blue,
+              child: Text(
+                usuariosFiltrados!.nombreApellido[0],
+                style: const TextStyle(
+                  fontSize: 30.0,
+                  color: Colors.white
+                ),
+              ),
+            ),
+            const SizedBox(width: 16.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  usuariosFiltrados!.nombreApellido,
+                  style: TextStyle(
+                    fontSize: isTabletDevice ? 25.0 : 20,
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 246, 244, 244)
+                  )
+                ),
+                Text(
+                  usuariosFiltrados!.email,
+                  style: TextStyle(
+                    fontSize: isTabletDevice ? 22.0 : 18,
+                    color: const Color.fromARGB(255, 58, 204, 240)
+                  )
+                )
+              ],
+            )
+          ],
+        ),
+        const SizedBox(height: 20.0),
+        const Divider(),
+        ListTile(
+          leading: Icon(Icons.perm_identity, size: isTabletDevice ? 30.0 : 27, color: Colors.blue),
+          title: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                    text: 'ID: ',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+                TextSpan(
+                  text: usuariosFiltrados!.idUsuarios,
+                  style: TextStyle(fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+              ]
+            )
+          )
+        ),
+        ListTile(
+          leading: Icon(Icons.account_circle, size: isTabletDevice ? 30.0 : 27, color: Colors.blue),
+          title: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                    text: 'Usuario: ',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+                TextSpan(
+                  text: usuariosFiltrados!.usuario1,
+                  style: TextStyle(fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+              ]
+            )
+          )
+        ),
+        ListTile(
+          leading: Icon(Icons.calendar_month_outlined, size: isTabletDevice ? 30.0 : 27, color: Colors.blue),
+          title: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                    text: 'Fecha de Creación: ',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+                TextSpan(
+                  text: usuariosFiltrados!.fechaCreacion,
+                  style: TextStyle(fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+              ]
+            )
+          )
+        ),
+        ListTile(
+          leading: Icon(Icons.people_outline_rounded, size: isTabletDevice ? 30.0 : 27, color: Colors.blue),
+          title: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                    text: 'Rol: ',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+                TextSpan(
+                  text: usuariosFiltrados!.rol,
+                  style: TextStyle(fontSize: isTabletDevice ? 28.0 : 20, color: Colors.white),
+                ),
+              ]
+            )
+          )
+        ),
+        const SizedBox(height: 20.0),
+        TextButton(
+          onPressed: () => _ubicarUsuarios(usuariosFiltrados?.idUsuarios, usuariosFiltrados?.nombreApellido, usuariosFiltrados?.usuario1),
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.blue,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+          ),
+          child: Text(
+            'Ubicar en tabla',
+            style: TextStyle(color: Colors.white, fontSize: isTabletDevice ? 20 : 17),
+          )
+        )
+      ],
     );
   }
 
   // Mostrar diálogo para crear un nuevo usuario
   void _showCreateDialog(BuildContext parentContext) {
+    final isTabletDevice = isTablet(context);
+
     final formKey = GlobalKey<FormBuilderState>();
     bool _obscureText = true;
 
@@ -540,75 +580,55 @@ class _RegistroEmplState extends State<RegistroEmpl> {
             child: SingleChildScrollView(
               child: Container(
                 // margin: const EdgeInsets.all(70),  // Aplica margen
-                margin: const EdgeInsets.fromLTRB(100, 20, 90, 50),  // Aplica margen
+                margin: isTabletDevice ? const EdgeInsets.fromLTRB(50, 20, 50, 50) : const EdgeInsets.fromLTRB(20, 20, 20, 15),  // Aplica margen
                 // width: 600,
                 child: FormBuilder(
                   key: formKey,
                   autovalidateMode: AutovalidateMode.disabled,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [              
-                      // FormBuilderTextField(
-                      //   name: 'cedula',
-                      //   style: const TextStyle(fontSize: 30.0),
-                      //   decoration: InputDecorations.inputDecoration(
-                      //     labeltext: 'Cedula',
-                      //     labelFrontSize: 30.5,
-                      //     hintext: '000-0000000-0',
-                      //     hintFrontSize: 25.0,
-                      //     icono: const Icon(Icons.person_pin_circle_outlined, size: 30.0),
-                      //   ),
-                      //   // validator: FormBuilderValidators.required(),
-                      //   validator: FormBuilderValidators.compose([ //Combina varios validadores. En este caso, se utiliza el validador requerido y una función personalizada para la expresión regular.
-                      //     FormBuilderValidators.required(errorText: 'Debe de ingresar la cedula'), //Valida que el campo no esté vacío y muestra el mensaje 'El correo es obligatorio' si no se ingresa ningún valor.
-                      //     (value) {
-                      //       // Expresión regular para validar la cedula
-                      //       String pattern = r'^\d{3}-\d{7}-\d{1}$';
-                      //       RegExp regExp = RegExp(pattern);
-              
-                      //       if(!regExp.hasMatch(value ?? '')){
-                      //         return 'Formato de cédula incorrecto';
-                      //       }
-                      //       return null;
-                      //     },
-                      //   ]),                    
-                      // ),
-              
+                    children: [               
                       FormBuilderTextField(
                         name: 'nombre',
-                        style: const TextStyle(fontSize: 30.0),
+                        keyboardType: TextInputType.text,
+                        style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17),
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Nombre Completo',
-                          labelFrontSize: 30.5,
+                          labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                           hintext: 'Nombre y Apellido',
-                          hintFrontSize: 25.0,
-                          icono: const Icon(Icons.person, size: 30.0),
+                          hintFrontSize: isTabletDevice ? 25.0 : 15,
+                          icono: Icon(Icons.person, size: isTabletDevice ? 30.0 : 20),
+                          errorSize: isTabletDevice ? 10.sp : 10.sp,
                         ),
                         validator: FormBuilderValidators.required(),
                       ),
               
                       FormBuilderTextField(
                         name: 'usuario',
-                        style: const TextStyle(fontSize: 30.0),
+                        style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17),
+                        keyboardType: TextInputType.name,
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Usuario',
-                          labelFrontSize: 30.5,
+                          labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                           hintext: 'MetroSantDom123',
-                          hintFrontSize: 25.0,
-                          icono: const Icon(Icons.account_circle, size: 30.0),
+                          hintFrontSize: isTabletDevice ? 25.0 : 15,
+                          icono: Icon(Icons.account_circle, size: isTabletDevice ? 30.0 : 20),
+                          errorSize: isTabletDevice ? 10.sp : 10.sp,
                         ),
                         validator: FormBuilderValidators.required(),
                       ),
               
                       FormBuilderTextField(
                         name: 'email',
-                        style: const TextStyle(fontSize: 30.0),
+                        keyboardType: TextInputType.emailAddress,
+                        style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17),
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Email',
-                          labelFrontSize: 30.5,
+                          labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                           hintext: 'ejemplo-0##@gmail.com',
-                          hintFrontSize: 25.0,
-                          icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
+                          hintFrontSize: isTabletDevice ? 25.0 : 15,
+                          icono: Icon(Icons.alternate_email_rounded, size: isTabletDevice ? 30.0 : 20),
+                          errorSize: isTabletDevice ? 10.sp : 10
                         ),
                         // validator: FormBuilderValidators.required(),
                         validator: (value){
@@ -625,20 +645,22 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                         name: 'password',
                         autocorrect: false,
                         obscureText: _obscureText,
-                        style: const TextStyle(fontSize: 30.0),
+                        keyboardType: TextInputType.visiblePassword,
+                        style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17),
                         // controller: passwordController,
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Contraseña',
-                          labelFrontSize: 30.5,
+                          labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                           hintext: '******',
-                          hintFrontSize: 25.0,
+                          hintFrontSize: isTabletDevice ? 25.0 : 15,
                           icono: IconButton(
                             onPressed: _togglePasswordVisibility, 
                             icon: Icon(
                               _obscureText ? Icons.visibility_off : Icons.visibility,
-                              size: 30.0,
+                              size: isTabletDevice ? 30.0 : 20
                             )
-                          )
+                          ),
+                          errorSize: isTabletDevice ? 10.sp : 10
                         ),
                         // validator: FormBuilderValidators.required(),
                         validator: (value) {
@@ -657,11 +679,12 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                       FormBuilderTextField(
                         name: 'fechaCreacion',
                         controller: datePicker,
-                        style: const TextStyle(fontSize: 30.0),
+                        style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17),
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Fecha de Ingreso',
-                          labelFrontSize: 30.5,
-                          icono: const Icon(Icons.calendar_month_outlined, size: 30.0)
+                          labelFrontSize: isTabletDevice ? 30.5 : 18.5,
+                          icono: Icon(Icons.calendar_month_outlined, size: isTabletDevice ? 30.0 : 20),
+                          errorSize: isTabletDevice ? 10.sp : 10
                         ),
                         validator: FormBuilderValidators.required(),
                         onTap: () async {
@@ -674,13 +697,13 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                         name: 'rol',
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Tipo Usuario',
-                          labelFrontSize: 30.0,
+                          labelFrontSize: isTabletDevice ? 30 : 18.5,
                           hintext: 'Selecciona el tipo de usuario',
-                          hintFrontSize: 22.0,
+                          hintFrontSize: isTabletDevice ? 22.0 : 10,
                           icono: const Icon(Icons.people_outline_rounded, size: 30.0)
                         ),
                         initialValue: 'Empleado',
-                        style: const TextStyle(fontSize: 25.0, color: Color.fromARGB(255, 1, 1, 1)),
+                        style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17, color: const Color.fromARGB(255, 1, 1, 1)),
                         items: const [
                           DropdownMenuItem(
                               value: 'Empleado',
@@ -737,13 +760,13 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                                 }
                               }
                             }, 
-                            child: const Text('Guardar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)),
+                            child: Text('Guardar', style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold, color: Colors.blue)),
                           ),
                           TextButton( 
                             onPressed: () { 
                               Navigator.of(context).pop(); // Cerrar el cuadro de diálogo 
                             }, 
-                            child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red)), 
+                            child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold, color: Colors.red)), 
                           )
                         ]
                       )
@@ -761,6 +784,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
   // Mostrar diálogo para editar un usuario
   void _showEditDialog(Usuarios userUpload) {
     final formKey = GlobalKey<FormBuilderState>(); // Clave para manejar el estado del formulario
+    final isTabletDevice = isTablet(context);
     
     showDialog(
       context: context,
@@ -768,10 +792,11 @@ class _RegistroEmplState extends State<RegistroEmpl> {
         // Formulario para editar usuario
         return AlertDialog(
           title: const Text('Editar Usuario'),
-          contentPadding: const EdgeInsets.fromLTRB(60, 20, 60, 50),  // Adaptar el padding por defecto
+          // contentPadding: const EdgeInsets.fromLTRB(60, 20, 60, 50),  // Adaptar el padding por defecto
+          contentPadding: EdgeInsets.zero,
           content: SingleChildScrollView(
             child: Container(
-              margin: const EdgeInsets.fromLTRB(50, 20, 50, 10),  // Aplica margen
+              margin: isTabletDevice ? const EdgeInsets.fromLTRB(50, 20, 50, 10) : const EdgeInsets.fromLTRB(40, 20, 40, 10),  // Aplica margen
               width: 600,
               child: FormBuilder(
                 key: formKey,
@@ -789,15 +814,16 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     FormBuilderTextField(
                       name: 'nombreApellido',
                       enabled: userUpload.rol != "Administrador",
+                      keyboardType: TextInputType.name,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Nombre Completo',
-                        labelFrontSize: 30.5,
+                        labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                         hintext: 'Nombre y Apellido',
                         hintFrontSize: 15.0,
-                        icono: const Icon(Icons.person, size: 30.0),
-                        errorSize: 20
+                        icono: Icon(Icons.person, size: isTabletDevice ? 30.0 : 20),
+                        errorSize: isTabletDevice ? 10.sp : 10
                       ),
-                      style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                      style: TextStyle(fontSize: isTabletDevice ? 23.7 : 17), // Cambiar tamaño de letra del texto filtrado
                       // validator: FormBuilderValidators.required(),
                       validator: (value) {
                         if (userUpload.rol == "Administrador") {
@@ -815,15 +841,16 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     FormBuilderTextField(
                       name: 'usuario',
                       enabled: userUpload.rol != "Administrador",
+                      keyboardType: TextInputType.name,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Usuario',
-                        labelFrontSize: 30.5,
+                        labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                         hintext: 'MetroSantDom123',
-                        hintFrontSize: 20.0,
-                        icono: const Icon(Icons.account_circle, size: 30.0),
-                        errorSize: 20
+                        hintFrontSize: isTabletDevice ? 20 : 10,
+                        icono: Icon(Icons.account_circle, size: isTabletDevice ? 30.0 : 20),
+                        errorSize: isTabletDevice ? 10.sp : 10
                       ),
-                      style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                      style: TextStyle(fontSize: isTabletDevice ? 23.7 : 17), // Cambiar tamaño de letra del texto filtrado
                       // validator: FormBuilderValidators.required(),
                       validator: (value) {
                         if (userUpload.rol == "Administrador") {
@@ -841,16 +868,17 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                     FormBuilderTextField(
                       name: 'email',
                       enabled: userUpload.rol != "Administrador",
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Email',
-                        labelFrontSize: 30.5,
+                        labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                         hintext: 'ejemplo20##@gmail.com',
-                        hintFrontSize: 20.0,
-                        icono: const Icon(Icons.alternate_email_rounded, size: 30.0),
-                        errorSize: 20
+                        hintFrontSize: isTabletDevice ? 20 : 10,
+                        icono: Icon(Icons.alternate_email_rounded, size: isTabletDevice ? 30.0 : 20),
+                        errorSize: isTabletDevice ? 10.sp : 10
                       ),
                       // validator: FormBuilderValidators.required(),
-                      style: const TextStyle(fontSize: 23.5), // Cambiar tamaño de letra del texto filtrado
+                      style: TextStyle(fontSize: isTabletDevice ? 23.7 : 17), // Cambiar tamaño de letra del texto filtrado
                       validator: (value){
                         // expresion regular
                         if (userUpload.rol == "Administrador") {
@@ -878,15 +906,16 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                       autocorrect: false,
                       obscureText: false,
                       enabled: userUpload.rol != "Administrador",
-                      style: const TextStyle(fontSize: 30.0),
+                      keyboardType: TextInputType.visiblePassword,
+                      style: TextStyle(fontSize: isTabletDevice ? 23.7 : 17),
                       // controller: passwordController,
                       decoration: InputDecorations.inputDecoration(
                         labeltext: 'Contraseña',
-                        labelFrontSize: 30.5,
+                        labelFrontSize: isTabletDevice ? 30.5 : 18.5,
                         hintext: '******',
-                        hintFrontSize: 25.0,
-                        icono: const Icon(Icons.lock_clock_outlined, size: 30.0),
-                        errorSize: 20
+                        hintFrontSize: isTabletDevice ? 25.0 : 15,
+                        icono: Icon(Icons.lock_clock_outlined, size: isTabletDevice ? 30.0 : 20),
+                        errorSize: isTabletDevice ? 10.sp : 10
                       ),
                       // validator: FormBuilderValidators.required(),
                       validator: (value) {
@@ -910,7 +939,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
           ),
           actions: [
             TextButton(
-              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold)),
               onPressed: () {
                 Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
               },
@@ -954,7 +983,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                   }
                 }
               },
-              child: const Text('Actualizar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Actualizar', style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold)),
             ),
           ],
         );
@@ -964,22 +993,24 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
   // Mostrar diálogo para Eliminar un usuario
   void _showDeleteDialog(Usuarios userDelete) {
+    final isTabletDevice = isTablet(context);
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Eliminar Usuario', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-          contentPadding: const EdgeInsets.fromLTRB(80, 40, 60, 50),
-          content: Text('¿Estás seguro de que deseas eliminar al usuario ${userDelete.nombreApellido}?', style: const TextStyle(fontSize: 30)),
+          title: Text('Eliminar Usuario', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
+          contentPadding: isTabletDevice ? const EdgeInsets.fromLTRB(60, 40, 60, 50) : const EdgeInsets.fromLTRB(50, 40, 50, 50),
+          content: Text('¿Estás seguro de que deseas eliminar al usuario ${userDelete.nombreApellido}?', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp)),
           actions: [
             TextButton(
-              child: const Text('Cancelar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold)),
               onPressed: () {
                 Navigator.of(context).pop(); // Cerrar el diálogo si se cancela
               },
             ),
             TextButton(
-              child: const Text('Eliminar', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+              child: Text('Eliminar', style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 // Eliminar usuario
                 try {
@@ -1010,19 +1041,21 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
   // para mostrar los errores
   void _showErrorDialog(BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Error", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+          title: Text("Error", style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold)),
           contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
           content: Container(
             margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
-            child: Text(message, style: const TextStyle(fontSize: 28))
+            child: Text(message, style: TextStyle(fontSize: isTabletDevice ? 28 : 20))
           ),
           actions: [ 
             TextButton( 
-              child: const Text("OK", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)), 
+              child: Text("OK", style: TextStyle(fontSize: isTabletDevice ? 30 : 17, fontWeight: FontWeight.bold, color: Colors.blue)), 
               onPressed: () { 
                 Navigator.of(context).pop(); 
               }, 
@@ -1035,6 +1068,8 @@ class _RegistroEmplState extends State<RegistroEmpl> {
 
   // cuadro de acceso exito
   void _showSuccessDialog(BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1068,7 +1103,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                 const SizedBox(height: 8.0),
                 Text( 
                   message, 
-                  style: const TextStyle(fontSize: 25.0), 
+                  style: TextStyle(fontSize: isTabletDevice ? 25 : 20), 
                   textAlign: TextAlign.center, 
                 ), 
                 const SizedBox(height: 24.0),
@@ -1082,14 +1117,6 @@ class _RegistroEmplState extends State<RegistroEmpl> {
         );
       }
     );
-
-    // Hacer que el cuadro de éxito se cierre automáticamente después de 2 segundos
-    // Future.delayed(const Duration(seconds: 2), () {
-    //   // Comprobamos si el widget aún está montado antes de intentar realizar cualquier acción
-    //   if (mounted) {
-    //     Navigator.of(context).pop(); // Cierra el cuadro de éxito solo si el widget está montado
-    //   }
-    // });
   }
 }
 
@@ -1098,8 +1125,9 @@ class _UsuariosDataSource extends DataTableSource {
   final Function(Usuarios) onEdit;
   final Function(Usuarios) onDelete;
   final int? selectedRowIndex;
+  final bool isTabletDevice;
 
-  _UsuariosDataSource(this.usuarios, this.onEdit, this.onDelete, this.selectedRowIndex);
+  _UsuariosDataSource(this.usuarios, this.onEdit, this.onDelete, this.selectedRowIndex, this.isTabletDevice);
 
   @override
   DataRow getRow(int index) {
@@ -1118,12 +1146,12 @@ class _UsuariosDataSource extends DataTableSource {
         },
       ),
       cells: [
-        DataCell(usuario.idUsuarios != null ? Text(usuario.idUsuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(Text(usuario.nombreApellido, style: const TextStyle(fontSize: 20.0))),
-        DataCell(Text(usuario.usuario1, style: const TextStyle(fontSize: 20.0))),
-        DataCell(Text(usuario.email, style: const TextStyle(fontSize: 20.0))),
-        DataCell(Text(usuario.fechaCreacion, style: const TextStyle(fontSize: 20.0))),
-        DataCell(Text(usuario.rol, style: const TextStyle(fontSize: 20.0))),
+        DataCell(usuario.idUsuarios != null ? Text(usuario.idUsuarios!, style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 14.sp)) : const Text('')),
+        DataCell(Text(usuario.nombreApellido, style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 14.sp))),
+        DataCell(Text(usuario.usuario1, style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 14.sp))),
+        DataCell(Text(usuario.email, style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 14.sp))),
+        DataCell(Text(usuario.fechaCreacion, style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 14.sp))),
+        DataCell(Text(usuario.rol, style: TextStyle(fontSize: isTabletDevice ? 9.5.sp : 14.sp))),
         DataCell(
           Row(
             children: [
