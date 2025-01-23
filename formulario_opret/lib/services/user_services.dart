@@ -80,7 +80,6 @@ class ApiServiceUser {
 
   // Método para actualizar un usuario (PUT: api/Usuarios/{id})
   Future<http.Response> updateUsuario(String id, Usuarios user) async {
-    // var cache = await _usuariosCRUD.updateUserCrud(id, user).timeout(const Duration(seconds: 30));
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {

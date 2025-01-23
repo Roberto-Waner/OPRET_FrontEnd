@@ -10,7 +10,7 @@ class ApiServiceLineas {
 
   Future<List<Linea>> getLinea() async {
     try{
-      final response = await http.get(Uri.parse('$baseUrl/api/Lineas')).timeout(const Duration(seconds: 20));
+      final response = await http.get(Uri.parse('$baseUrl/api/Lineas')).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
@@ -33,7 +33,7 @@ class ApiServiceLineas {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(linea.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 201){
         print('Linea creada con éxito');
@@ -58,7 +58,7 @@ class ApiServiceLineas {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(linea.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Linea actualizada con éxito');
@@ -78,7 +78,7 @@ class ApiServiceLineas {
     try{
       final response = await http.delete(
         Uri.parse('$baseUrl/api/Lineas/$id'),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Linea eliminada con éxito');

@@ -12,7 +12,7 @@ class ApiServicePreguntas {
   // GET: api/SesionPreguntas
   Future<List<Preguntas>> getPreguntas() async {
     try{
-      final response = await http.get(Uri.parse('$baseUrl/api/Preguntas')).timeout(const Duration(seconds: 20));
+      final response = await http.get(Uri.parse('$baseUrl/api/Preguntas')).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
@@ -34,7 +34,7 @@ class ApiServicePreguntas {
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         var body = jsonDecode(response.body);
@@ -80,7 +80,7 @@ class ApiServicePreguntas {
     try {
       final response = await http
           .get(Uri.parse('$baseUrl/api/PreguntasCompletas/obtenerQuestion'))
-          .timeout(const Duration(seconds: 20));
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = jsonDecode(response.body);
@@ -108,7 +108,7 @@ class ApiServicePreguntas {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(pregunta.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 201){
         print('Pregunta creada con éxito');
@@ -134,7 +134,7 @@ class ApiServicePreguntas {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(pregunta.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Pregunta actualizada con éxito');
@@ -155,7 +155,7 @@ class ApiServicePreguntas {
     try{
       final response = await http.delete(
         Uri.parse('$baseUrl/api/Preguntas/$id'),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Pregunta eliminada con éxito');

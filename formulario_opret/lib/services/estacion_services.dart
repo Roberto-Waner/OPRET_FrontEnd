@@ -11,7 +11,7 @@ class ApiServiceEstacion {
 
   Future<List<Estacion>> getEstacion() async {
     try{
-      final response = await http.get(Uri.parse('$baseUrl/api/Estacions')).timeout(const Duration(seconds: 20));
+      final response = await http.get(Uri.parse('$baseUrl/api/Estacions')).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
@@ -33,7 +33,7 @@ class ApiServiceEstacion {
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
-      ).timeout(const Duration(seconds: 20)); // Limitar el tiempo de espera
+      ).timeout(const Duration(seconds: 30)); // Limitar el tiempo de espera
 
       if (response.statusCode == 200) {
         // Si la respuesta es correcta, decodificamos y devolvemos la estación
@@ -56,7 +56,7 @@ class ApiServiceEstacion {
   Future<List<EstacionPorLinea>> getEstacionesPorLinea(String idLinea) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/api/Estacions/linea/$idLinea'))
-        .timeout(const Duration(seconds: 20));
+        .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body)['result'];
@@ -79,7 +79,7 @@ class ApiServiceEstacion {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(station.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 201){
         print('Estacion creada con éxito');
@@ -104,7 +104,7 @@ class ApiServiceEstacion {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(station.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Estacion actualizada con éxito');
@@ -124,7 +124,7 @@ class ApiServiceEstacion {
     try{
       final response = await http.delete(
         Uri.parse('$baseUrl/api/Estacions/$id'),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Estacion eliminada con éxito');

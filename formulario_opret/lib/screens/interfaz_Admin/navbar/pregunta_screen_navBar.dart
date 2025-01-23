@@ -375,7 +375,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }else if(snapshot.hasError) {
-                            return const Center(child: Text('Error al cargar la Sesion de Preguntas.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                            return Center(child: Text('Error al cargar la Sesion de Preguntas: \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
                           }else {
                             final questionTable = _preguntaFiltrada.isNotEmpty
                                   ? _preguntaFiltrada
@@ -559,7 +559,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }else if (snapshot.hasError) {
-                            return const Center(child: Text('Error al cargar la Sub - Preguntas.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                            return Center(child: Text('Error al cargar la Sub - Preguntas. \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
                           } else {
                             final subPregTabla = _subPreguntaFiltrada.isNotEmpty
                                   ? _subPreguntaFiltrada
@@ -747,7 +747,7 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }else if (snapshot.hasError) {
-                            return const Center(child: Text('Error al cargar la Sección.', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)));
+                            return Center(child: Text('Error al cargar la Sección. \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
                           } else if (snapshot.hasData) {
                             final sesionTable = _sesionFiltrada.isNotEmpty
                                   ? _sesionFiltrada

@@ -41,7 +41,7 @@ class ApiServiceSesion {
 
   Future<List<Sesion>> getSesion() async {
     try{
-      final response = await http.get(Uri.parse('$baseUrl/api/Sesions')).timeout(const Duration(seconds: 20));
+      final response = await http.get(Uri.parse('$baseUrl/api/Sesions')).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
@@ -64,7 +64,7 @@ class ApiServiceSesion {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(sesion.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 201){
         print('Sesion creada con éxito');
@@ -89,7 +89,7 @@ class ApiServiceSesion {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(sesion.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Sesion actualizada con éxito');
@@ -109,7 +109,7 @@ class ApiServiceSesion {
     try{
       final response = await http.delete(
         Uri.parse('$baseUrl/api/Sesions/$id'),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Sesion eliminada con éxito');
@@ -125,108 +125,3 @@ class ApiServiceSesion {
     }
   }
 }
-
-  // Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
-  //   List<SpPreguntascompleta> dataQuestion = [];
-  //   var cache = await _sectionCrud.querySectionCrud();
-  //   final isCheckOk = await service.check();
-
-  //   if (isCheckOk) {
-  //     final response = await service.getAllData('PreguntasCompletas/obtenerQuestion');
-      
-  //     if(response.isNotEmpty) {
-  //       dataQuestion = response.map<SpPreguntascompleta>((json) => SpPreguntascompleta.fromJson(json)).toList();
-
-  //       // Guardar automáticamente los datos obtenidos en SQLite(base de datos Local)
-  //       for (var question in dataQuestion) {
-  //         await _sectionCrud.insertSectionCrud(question);
-  //       }
-  //     } else {
-  //       print('Error: No se recibieron datos de la API o la respuesta está vacía.');
-  //       return cache; 
-  //     }
-  //   } else {
-  //     print('La API no está disponible. Cargando datos desde SQLite.');
-  //     return cache; // Devolver los datos de la caché si la API no está disponible
-  //   }
-
-  //   print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
-  //   return dataQuestion;
-  // }
-
-  /*
-  class ApiServiceSesion2 {
-  final String baseUrl;
-  final ApiService service;
-  final SectionCrud _sectionCrud = SectionCrud();
-
-  ApiServiceSesion2(this.baseUrl) : service = ApiService(baseUrl);
-
-  Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
-    List<SpPreguntascompleta> dataQuestion = [];
-    var cache = await _sectionCrud.querySectionCrud();
-    final isCheckOk = await service.check();
-
-    if (isCheckOk) {
-      try {
-        final response = await service.getAllData('PreguntasCompletas/obtenerQuestion');
-        if (response.isNotEmpty) {
-          dataQuestion = response.map<SpPreguntascompleta>((json) => SpPreguntascompleta.fromJson(json)).toList();
-
-          // Guardar automáticamente los datos obtenidos en SQLite
-          if(!listEquals(dataQuestion, cache)) {
-            await _sectionCrud.truncateSectionCrud();
-
-            for(var question in dataQuestion) {
-              await _sectionCrud.insertSectionCrud(question);
-            }
-            print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
-          }
-
-          print('Datos sincronizados con éxito desde la API y guardados en SQLite.');
-          return dataQuestion;
-        } else {
-          print('Error: No se recibieron datos de la API o la respuesta está vacía.');
-          return cache; // Devolver los datos de la caché en caso de error
-        }
-      } catch (e) {
-        print('Excepción durante la solicitud a la API: $e');
-        return cache; // Devolver los datos de la caché en caso de excepción
-      }
-    } else {
-      print('La API no está disponible. Cargando datos desde SQLite.');
-      return cache; // Devolver los datos de la caché si la API no está disponible
-    }
-  }
-}*/
-
-/*
-class ApiServiceSesion2 {
-  final String baseUrl;
-  final ApiService service;
-
-  ApiServiceSesion2(this.baseUrl) : service = ApiService(baseUrl);
-
-  Future<List<SpPreguntascompleta>> getSpPreguntascompletaListada() async {
-    List<SpPreguntascompleta> dataQuestion = [];
-    final isCheckOk = await service.check();
-
-    if (isCheckOk) {
-      try {
-        final response = await service.getAllData('PreguntasCompletas/obtenerQuestion');
-        if (response.isNotEmpty) {
-          dataQuestion = response.map<SpPreguntascompleta>((json) => SpPreguntascompleta.fromJson(json)).toList();
-          return dataQuestion;
-        } else {
-          throw Exception('API response is empty.');
-        }
-      } catch (e) {
-        print('Excepción durante la solicitud a la API: $e'); 
-        rethrow;
-      }
-    } else {
-      throw Exception('La API no está disponible.');
-    }
-  }
-}
- */

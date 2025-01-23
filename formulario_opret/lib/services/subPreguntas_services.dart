@@ -10,7 +10,7 @@ class ApiServiceSubPreguntas {
 
   Future<List<SubPregunta>> getSubPreg() async {
     try{
-      final response = await http.get(Uri.parse('$baseUrl/api/SubPreguntas')).timeout(const Duration(seconds: 20));
+      final response = await http.get(Uri.parse('$baseUrl/api/SubPreguntas')).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 200) {
         List<dynamic> body = jsonDecode(response.body);
@@ -32,7 +32,7 @@ class ApiServiceSubPreguntas {
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         var body = jsonDecode(response.body);
@@ -57,7 +57,7 @@ class ApiServiceSubPreguntas {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(subPreg.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 201){
         print('Sub-pregunta creada con éxito');
@@ -82,7 +82,7 @@ class ApiServiceSubPreguntas {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(subPreg.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Sub-pregunta actualizada con éxito');
@@ -102,7 +102,7 @@ class ApiServiceSubPreguntas {
     try{
       final response = await http.delete(
         Uri.parse('$baseUrl/api/SubPreguntas/$cod'),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if(response.statusCode == 204) {
         print('Sub-pregunta eliminada con éxito');

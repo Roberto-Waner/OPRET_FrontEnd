@@ -19,7 +19,7 @@ class SectionController {
 
   Future<List<SpPreguntascompleta>> loadFromSQLite() async {
     try{
-      return await _sectionCrud.querySectionCrud().timeout(const Duration(seconds: 5));
+      return await _sectionCrud.querySectionCrud().timeout(const Duration(seconds: 30));
     } catch (e) { 
       print('Error loading from SQLite: $e'); 
       rethrow; 

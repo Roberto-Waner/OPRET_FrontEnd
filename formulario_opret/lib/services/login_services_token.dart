@@ -21,7 +21,7 @@ class ApiServiceToken {
           HttpHeaders.contentTypeHeader: 'application/json',
         },
         body: jsonEncode(login.toJson()),
-      ).timeout(const Duration(seconds: 20));
+      ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -64,7 +64,7 @@ class ApiServiceToken {
           headers: {
             HttpHeaders.authorizationHeader: 'Bearer $token',
           }
-        ).timeout(const Duration(seconds: 20));
+        ).timeout(const Duration(seconds: 30));
 
         if (response.statusCode == 200) {
           await prefs.remove('token');

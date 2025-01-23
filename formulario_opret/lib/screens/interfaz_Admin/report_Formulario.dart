@@ -188,9 +188,35 @@ class _ReportFormularioState extends State<ReportFormulario> {
                 future: _formRegistroData, 
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting){
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                        // child: CircularProgressIndicator()
+                        child: Dialog(
+                          backgroundColor: Colors.transparent,
+                          child: Container(
+                            width: 200,
+                            height: 220,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              borderRadius: BorderRadius.circular(100),
+                            ),
+                            child: const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                                      ),
+                                SizedBox(height: 20),
+                                Text(
+                                  /*hasError ? 'Error' : */'Cargando...',
+                                  style: TextStyle(color: Colors.white, fontSize: 20),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      );
                   }else if (snapshot.hasError){
-                    return Center(child: Text('Error al cargar los datos: ${snapshot.error}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)));
+                    return Center(child: Text('Error al cargar los datos: \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)));
                   } else {
                     final formularioData = formFiltrados.isNotEmpty
                           ? formFiltrados

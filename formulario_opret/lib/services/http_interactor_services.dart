@@ -9,7 +9,7 @@ class ApiService {
   // Método para consultar el endpoint 'check'
   Future<bool> check() async {
     final url = Uri.parse('$baseUrl/api/Check');
-    final response = await http.get(url).timeout(const Duration(seconds: 20));
+    final response = await http.get(url).timeout(const Duration(seconds: 30));
 
     // Suponiendo que el endpoint 'check' devuelve un 200 si está disponible
     if (response.statusCode == 200) {
@@ -24,7 +24,7 @@ class ApiService {
     final isCheckOk = await check();
     if (isCheckOk) {
       final url = Uri.parse('$baseUrl/api/$endpoint');
-      final response = await http.get(url).timeout(const Duration(seconds: 1));
+      final response = await http.get(url).timeout(const Duration(seconds: 30));
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
