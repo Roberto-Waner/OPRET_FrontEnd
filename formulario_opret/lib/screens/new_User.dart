@@ -488,7 +488,7 @@ class _NewUserState extends State<NewUser> {
                                       child: Text(
                                         'Registrar e ir al Login',
                                         style: TextStyle(
-                                            fontSize: isTabletWidth && isTabletHeight ? 20.sp : 15.sp,
+                                            fontSize: isTabletWidth && isTabletHeight ? 15.sp : 15.sp,
                                           fontWeight: FontWeight.bold
                                         )
                                       ),
@@ -511,7 +511,7 @@ class _NewUserState extends State<NewUser> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color.fromRGBO(1, 135, 76, 1), // Color de fondo del primer botón
                                         foregroundColor: const Color.fromARGB(255, 254, 255, 255), // Color del texto
-                                        padding: isTabletWidth && isTabletHeight ?  EdgeInsets.symmetric(horizontal: 90.h, vertical: 10.w) : EdgeInsets.symmetric(horizontal: 45.h, vertical: 15.w),
+                                        padding: isTabletWidth && isTabletHeight ?  EdgeInsets.symmetric(horizontal: 80.h, vertical: 10.w) : EdgeInsets.symmetric(horizontal: 45.h, vertical: 15.w),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(100)
                                         ),
@@ -521,13 +521,13 @@ class _NewUserState extends State<NewUser> {
                                         children: [
                                           Icon(
                                             Icons.arrow_back_ios_new_rounded,
-                                            size: isTabletWidth && isTabletHeight ? 20.sp : 20.sp,
+                                            size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
                                           ),
                                           const SizedBox(width: 5), // Espacio entre el ícono y el texto
                                           Text(
                                             'Volver a inicio',
                                             style: TextStyle(
-                                                fontSize: isTabletWidth && isTabletHeight ? 20.sp : 17.sp,
+                                                fontSize: isTabletWidth && isTabletHeight ? 15.sp : 17.sp,
                                               fontWeight: FontWeight.bold
                                             ),
                                           ),
