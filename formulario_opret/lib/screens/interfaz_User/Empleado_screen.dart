@@ -79,8 +79,8 @@ class _EmpleadoScreensState extends State<EmpleadoScreens> {
               ),
             ),
             appBar: AppBar(
-              title: const Text('Perfil'),
-              backgroundColor: const Color.fromRGBO(1, 135, 76, 1),
+              title: const Text('Perfil', style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),),
+              backgroundColor: const Color.fromARGB(255, 1, 135, 76),
             ),
                 
             body: FutureBuilder<Usuarios?>(

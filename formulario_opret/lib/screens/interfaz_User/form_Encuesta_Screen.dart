@@ -121,20 +121,20 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
         print('Response body: ${response.body}');
 
         if(response.statusCode == 201){
-          _showSuccessDialog(context);
 
-          Navigator.pushReplacement( //para evitar que regrese a la pantalla anterior
-            context,
+          Navigator.of(context).pushAndRemoveUntil( //elimina la pantalla anterior para que no retroceda
             MaterialPageRoute(
               builder: (context) => PreguntaEncuestaScreen(
                 noEncuestaFiltrar: noEncuestaFiltrar, //para filtrarlo a la pantalla de "PreguntaEncuestaScreen"
                 filtrarUsuarioController: widget.filtrarUsuarioController,  
                 filtrarEmailController: widget.filtrarEmailController,
                 filtrarId: widget.filtrarId,
-                // // filtrarCedula: widget.filtrarCedula,
+                // filtrarCedula: widget.filtrarCedula,
               )
             ),
+            (Route<dynamic> route) => false
           );
+          _showSuccessDialog(context);
 
         } else {
           setState(() {
@@ -366,8 +366,9 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                         const SizedBox(height: 42),
                     
                         ElevatedButton(
-                          onPressed: _registrarFormEncuesta, 
-                          
+                          onPressed: () {
+                            _registrarFormEncuesta();
+                          },                          
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color.fromRGBO(1, 135, 76, 1), //  se usa para definir el color de fondo del botón.
                             foregroundColor: const Color.fromARGB(255, 255, 255, 255), // se usa para definir el color del texto y los iconos dentro del botón.
@@ -433,7 +434,7 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
                 ),
                 const SizedBox(height: 8.0),
                 const Text( 
-                  'Formulario enviado con exito', 
+                  'Formulario enviado con exito, ya puedes comenzar hacer la encuesta.', 
                   style: TextStyle(fontSize: 18.0), 
                   textAlign: TextAlign.center, 
                 ), 

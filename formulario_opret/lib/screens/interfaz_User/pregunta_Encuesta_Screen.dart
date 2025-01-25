@@ -9,7 +9,6 @@ import 'package:formulario_opret/data/respuesta_crud.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_Insertar_Respuestas.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_preguntasCompleta.dart';
 import 'package:formulario_opret/screens/interfaz_User/form_Encuesta_Screen.dart';
-import 'package:formulario_opret/screens/interfaz_User/navbarUser/navbar_Empl.dart';
 import 'package:formulario_opret/services/sesion_services.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
 
@@ -83,12 +82,12 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
       child: ScreenUtilInit(
         designSize: const Size(360, 740),
         builder: (context, child) => Scaffold(
-          drawer: NavbarEmpl(
-            filtrarUsuarioController: widget.filtrarUsuarioController,
-            filtrarEmailController: widget.filtrarEmailController,
-            filtrarId: widget.filtrarId,
-            // // filtrarCedula: widget.filtrarCedula,
-          ),
+          // drawer: NavbarEmpl(
+          //   filtrarUsuarioController: widget.filtrarUsuarioController,
+          //   filtrarEmailController: widget.filtrarEmailController,
+          //   filtrarId: widget.filtrarId,
+          //   // // filtrarCedula: widget.filtrarCedula,
+          // ),
 
           appBar: AppBar(
             title: const Text('Preguntas de Encuesta'),
@@ -162,16 +161,17 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => FormEncuestaScreen(
-                          filtrarUsuarioController: widget.filtrarUsuarioController,
-                          filtrarEmailController: widget.filtrarEmailController,
-                          filtrarId: widget.filtrarId,
-                          // // filtrarCedula: widget.filtrarCedula,
-                        )),
-                      );
+                    onPressed: () { 
+                      _showWarning(context, 'Ten en cuenta que deberás llenar el formulario nuevamente para acceder a esta pantalla.');
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => FormEncuestaScreen(
+                      //     filtrarUsuarioController: widget.filtrarUsuarioController,
+                      //     filtrarEmailController: widget.filtrarEmailController,
+                      //     filtrarId: widget.filtrarId,
+                      //     // // filtrarCedula: widget.filtrarCedula,
+                      //   )),
+                      // );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromRGBO(1, 135, 76, 1),
@@ -882,6 +882,93 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
             ],
           );
         }
+    );
+  }
+
+  void _showWarning (BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.warning_rounded, color: Color.fromARGB(255, 255, 196, 1), size: 60.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Advertencia!',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    ),
+
+                    const SizedBox(height: 10.0, width: 10.0),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => FormEncuestaScreen(
+                            filtrarUsuarioController: widget.filtrarUsuarioController,
+                            filtrarEmailController: widget.filtrarEmailController,
+                            filtrarId: widget.filtrarId,
+                            // // filtrarCedula: widget.filtrarCedula,
+                          )),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Continuar', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 184, 135, 0)))
+                    ),
+                  ],
+                )
+              ]
+            )
+          )
+        );
+      }
     );
   }
 

@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:formulario_opret/models/login.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 // import 'package:formulario_opret/models/login_Admin.dart';
-import 'package:formulario_opret/screens/interfaz_User/Empleado_screen.dart';
+import 'package:formulario_opret/screens/interfaz_User/welcome_screen.dart';
 import 'package:formulario_opret/screens/presentation_screen.dart';
 import 'package:formulario_opret/services/login_services_token.dart';
 import 'package:formulario_opret/widgets/input_decoration.dart';
@@ -99,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _showSuccessDialog(context);
 
         // Si el rol es Administrador, redirige a la pantalla de administrador
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 1), () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => PreguntaScreenNavbar(
@@ -114,16 +114,21 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
         _showSuccessDialog(context);
         // Si el rol es falso, redirige a la pantalla de empleado
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 1), () {
            Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EmpleadoScreens(
+              builder: (context) => WelcomeScreen(
                 filtrarUsuarioController: _filtrarUsuarioController,
                 filtrarEmailController: _filtrarEmailController,
                 filtrarId: _filtrarId,
-                // filtrarCedula: _filtrarCedula
               )
+              // EmpleadoScreens(
+              //   filtrarUsuarioController: _filtrarUsuarioController,
+              //   filtrarEmailController: _filtrarEmailController,
+              //   filtrarId: _filtrarId,
+              //   // filtrarCedula: _filtrarCedula
+              // )
             )
           );
         });
