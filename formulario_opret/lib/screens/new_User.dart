@@ -428,11 +428,12 @@ class _NewUserState extends State<NewUser> {
                                 name: 'fechaCreacion',
                                 controller: datePicker,
                                 // enabled: false,
+                                readOnly: true, // Evita que el usuario escriba en el cuadro de texto
                                 decoration: InputDecorations.inputDecoration(
                                   hintext: 'Puedes presionar aqui para elegir la fecha',
-                                    hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                  hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
                                   labeltext: 'Fecha',
-                                    labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                  labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
                                   icono: Icon(Icons.calendar_month_outlined, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
                                   errorSize: 20
                                 ),
@@ -662,7 +663,8 @@ class _NewUserState extends State<NewUser> {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(), 
-      firstDate: DateTime(2024, 9, 1), 
+      // firstDate: DateTime(2024, 9, 1),
+      firstDate: DateTime.now(),
       lastDate: DateTime.now(),
       builder: (BuildContext content, Widget? child) {
         return Theme(

@@ -96,7 +96,8 @@ class _RegistroEmplState extends State<RegistroEmpl> {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(), 
-      firstDate: DateTime(2024, 9, 1), 
+      // firstDate: DateTime(2024, 9, 1),
+      firstDate: DateTime.now(),
       lastDate: DateTime.now(),
       builder: (BuildContext content, Widget? child) {
         return Theme(
@@ -546,7 +547,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
     final isTabletDevice = isTablet(context);
 
     final formKey = GlobalKey<FormBuilderState>();
-    bool _obscureText = true;
+    bool _obscureText = false;
 
     void _togglePasswordVisibility() {
       setState(() {
@@ -681,6 +682,7 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                         name: 'fechaCreacion',
                         controller: datePicker,
                         style: TextStyle(fontSize: isTabletDevice ? 25.0 : 17),
+                        readOnly: true, // Evita que el usuario escriba en el cuadro de texto
                         decoration: InputDecorations.inputDecoration(
                           labeltext: 'Fecha de Ingreso',
                           labelFrontSize: isTabletDevice ? 30.5 : 18.5,
