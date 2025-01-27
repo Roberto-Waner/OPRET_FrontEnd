@@ -271,7 +271,8 @@ class _ModifyTableState extends State<ModifyTable> {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return const Center(child: CircularProgressIndicator());
                             }else if(snapshot.hasError) {
-                              return Center(child: Text('Error al cargar la Línea de metro. \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
+                              print('Error al cargar la Línea de metro: ${snapshot.error}');
+                              return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                             } else {
                               final lineTable = _lineaFiltrada.isNotEmpty 
                                   ? _lineaFiltrada
@@ -403,7 +404,8 @@ class _ModifyTableState extends State<ModifyTable> {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return const Center(child: CircularProgressIndicator());
                             }else if (snapshot.hasError) {
-                              return Center(child: Text('Error al cargar la tabla de Estaciones del metro. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
+                              print('Error al cargar la tabla de Estaciones del metro.: ${snapshot.error}');
+                              return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                             } else {
                               final station = _estacionFiltrada.isNotEmpty 
                                     ? _estacionFiltrada

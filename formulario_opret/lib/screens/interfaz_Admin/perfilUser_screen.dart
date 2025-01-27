@@ -106,6 +106,7 @@ class _PerfiluserScreenState extends State<PerfiluserScreen> {
                 )
               );
             } else if (snapshot.hasError) {
+              print('Error al cargar los datos: ${snapshot.error}');
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData) {
               return const Center(child: Text('Usuario no encontrado'));

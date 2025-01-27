@@ -216,7 +216,8 @@ class _ReportFormularioState extends State<ReportFormulario> {
                         )
                       );
                   }else if (snapshot.hasError){
-                    return Center(child: Text('Error al cargar los datos: \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)));
+                    print('Error al cargar los datos del formularios: ${snapshot.error}');
+                    return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                   } else {
                     final formularioData = formFiltrados.isNotEmpty
                           ? formFiltrados

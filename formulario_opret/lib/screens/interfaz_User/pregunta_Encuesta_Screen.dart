@@ -143,6 +143,7 @@ class _PreguntaEncuestaScreenState extends State<PreguntaEncuestaScreen> {
                         )
                       );
                     } else if (snapshot.hasError) {
+                      print('Error al cargar los datos: ${snapshot.error}');
                       return const Center(child: Text("Error al cargar las preguntas", style: TextStyle(fontSize: 30.0)));
                     } else if (dataQuestion.isEmpty) {
                       // WidgetsBinding.instance.addPostFrameCallback((_) {

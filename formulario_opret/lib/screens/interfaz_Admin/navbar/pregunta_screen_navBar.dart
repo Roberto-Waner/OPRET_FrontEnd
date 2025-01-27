@@ -375,7 +375,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }else if(snapshot.hasError) {
-                            return Center(child: Text('Error al cargar la Sesion de Preguntas: \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
+                            print('Error al cargar la Preguntas: ${snapshot.error}');
+                            return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                           }else {
                             final questionTable = _preguntaFiltrada.isNotEmpty
                                   ? _preguntaFiltrada
@@ -559,7 +560,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }else if (snapshot.hasError) {
-                            return Center(child: Text('Error al cargar la Sub - Preguntas. \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
+                            print('Error al cargar la Sub - Preguntas: ${snapshot.error}');
+                            return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                           } else {
                             final subPregTabla = _subPreguntaFiltrada.isNotEmpty
                                   ? _subPreguntaFiltrada
@@ -747,7 +749,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(child: CircularProgressIndicator());
                           }else if (snapshot.hasError) {
-                            return Center(child: Text('Error al cargar la Sección. \n${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 9.sp : 9.sp, fontWeight: FontWeight.bold)));
+                            print('Error al cargar la Sección: ${snapshot.error}');
+                            return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                           } else if (snapshot.hasData) {
                             final sesionTable = _sesionFiltrada.isNotEmpty
                                   ? _sesionFiltrada
@@ -756,8 +759,8 @@ class _PreguntaScreenNavbarState extends State<PreguntaScreenNavbar> {
                             bool estadoActivo = sesionTable.every((sesion) => sesion.estado);
 
                             return Container(
-                              margin: const EdgeInsets.all(10.0),
-                              padding: const EdgeInsets.all(7.0),
+                              margin: const EdgeInsets.all(2.0),
+                              padding: const EdgeInsets.all(2.0),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 border: Border.all(color: const Color.fromARGB(255, 74, 71, 71)),

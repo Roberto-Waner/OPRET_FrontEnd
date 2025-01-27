@@ -303,7 +303,8 @@ class _RegistroEmplState extends State<RegistroEmpl> {
                         )
                       );
                     }else if (snapshot.hasError){
-                      return Center(child: Text('Error al cargar los datos: ${snapshot.error}. \n"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"'));
+                      print('Error al cargar los datos: ${snapshot.error}');
+                      return Center(child: Text('"Lo sentimos, no pudimos cargar la información en este momento. \nPor favo, inténtalo nuevamente presionando el (botón Refrescar)"', style: TextStyle(fontSize: isTabletDevice ? 11.sp : 9.sp, fontWeight: FontWeight.bold)));
                     }else {
                       final usuariostabla = snapshot.data ?? [];
 
