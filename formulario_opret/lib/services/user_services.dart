@@ -14,7 +14,7 @@ class ApiServiceUser {
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.postData('RegistroUsuarios', user.toJson()).timeout(const Duration(seconds: 30));
+        final response = await service.postData('RegistroUsuarios', user.toJson());
         if (response.statusCode == 201) {
           print('Usuario creado con éxito');
           return response;
@@ -43,7 +43,7 @@ class ApiServiceUser {
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.getAllData('RegistroUsuarios').timeout(const Duration(seconds: 30));
+        final response = await service.getAllData('RegistroUsuarios');
         return response.map((json) => Usuarios.fromJson(json)).toList();
       } catch (e) {
         print('Error al cargar usuarios: $e');
@@ -60,7 +60,7 @@ class ApiServiceUser {
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.getOneData('RegistroUsuarios', id).timeout(const Duration(seconds: 30));
+        final response = await service.getOneData('RegistroUsuarios', id);
 
         if (response.isNotEmpty) { // Verificar que response no está vacío 
           return Usuarios.fromJson(response); 
@@ -83,7 +83,7 @@ class ApiServiceUser {
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.putData('RegistroUsuarios', user.toJson(), id).timeout(const Duration(seconds: 30));
+        final response = await service.putData('RegistroUsuarios', user.toJson(), id);
         if (response.statusCode == 204) {
           print('Usuario actualizado con éxito');
         } else {
@@ -106,7 +106,7 @@ class ApiServiceUser {
     final isCheckOk = await service.check();
     if (isCheckOk) {
       try {
-        final response = await service.deleteData('RegistroUsuarios', id).timeout(const Duration(seconds: 30));
+        final response = await service.deleteData('RegistroUsuarios', id);
         if (response.statusCode == 204) {
           print('Usuario eliminado con éxito');
           return response;

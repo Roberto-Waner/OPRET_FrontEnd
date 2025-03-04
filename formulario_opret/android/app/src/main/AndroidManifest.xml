@@ -1,11 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 <!--    para habilitar los permiso del uso de internet en los dipositivos moviles-->
+    <!-- Permiso para acceso a Internet -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Permiso para acceder al estado de la red -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Permisos para lectura y escritura en el almacenamiento externo -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Permiso para gestionar todos los archivos en el almacenamiento externo (Android 11 y posteriores) -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+
+    <!-- Otras declaraciones -->
     <application
         android:label="Encuesta (OPRET)"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
         <!-- ENCUESTA PERCEPCION DEL SERVICIO -->
         <activity
             android:name=".MainActivity"
@@ -41,9 +51,25 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <!-- Si tu aplicación verifica soporte para SMS -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="sms" />
+        </intent>
+        <!-- Si tu aplicación verifica soporte para llamadas -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="tel" />
+        </intent>
+        <!-- Si tu aplicación verifica soporte para navegadores -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="http" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <package android:name="com.android.documentsui" />
     </queries>
 </manifest>

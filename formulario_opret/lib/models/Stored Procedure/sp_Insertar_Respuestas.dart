@@ -4,6 +4,8 @@ class SpInsertarRespuestas {
   String respuesta;
   String? comentarios;
   String? justificacion;
+  String? horaResp;
+  String? fechaResp;
   int finalizarSesion;
 
   SpInsertarRespuestas({
@@ -12,6 +14,8 @@ class SpInsertarRespuestas {
     required this.respuesta,
     this.comentarios,
     this.justificacion,
+    this.horaResp,
+    this.fechaResp,
     required this.finalizarSesion
   });
 
@@ -23,6 +27,8 @@ class SpInsertarRespuestas {
       respuesta: json['respuesta'],
       comentarios: json['comentarios'],
       justificacion: json['justificacion'],
+      horaResp: json['horaResp'],
+        fechaResp: json['fechaResp'],
       finalizarSesion: json['finalizarSesion'] // El backend ya devuelve bool
     );
   }
@@ -35,7 +41,9 @@ class SpInsertarRespuestas {
     data['respuesta'] = respuesta;
     data['comentarios'] = comentarios;
     data['justificacion'] = justificacion;
-    data['finalizarSesion'] = finalizarSesion /*? true : false*/; // Convierte true a 1 y false a 0
+    data['horaResp'] = horaResp;
+    data['fechaResp'] = fechaResp;
+    data['finalizarSesion'] = finalizarSesion;
     return data;
   }
 }

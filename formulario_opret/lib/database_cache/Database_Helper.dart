@@ -48,31 +48,49 @@ class DatabaseHelper {
 
   // creacion de las tabla para la cache
   Future _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE localRespuestas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        idUsuarios TEXT NULL,
-        idSesion INTEGER NULL,
-        respuesta TEXT NULL,
-        comentarios TEXT NULL,
-        justificacion TEXT NULL,
-        finalizarSesion INTEGER DEFAULT 0,
-        isUpdated INTEGER DEFAULT 0,
-        isDeleted INTEGER DEFAULT 0
-      )
-    ''');
-    await db.execute('''
-      CREATE TABLE SeccionPreguntas (
-        codPregunta integer null,
-        tipoRespuesta text null,
-        noIdentifEncuesta text null,
-        pregunta text null,
-        subPregunta text null,
-        estado INTEGER NULL,
-        rango text null,
-        isUpdated INTEGER DEFAULT 0,
-        isDeleted INTEGER DEFAULT 0
-      )
-    ''');
+    await db.execute(
+      '''
+        CREATE TABLE localRespuestas (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          idUsuarios TEXT NULL,
+          idSesion INTEGER NULL,
+          respuesta TEXT NULL,
+          comentarios TEXT NULL,
+          justificacion TEXT NULL,
+          horaResp TEXT NULL,
+          fechaResp TEXT NULL,
+          finalizarSesion INTEGER DEFAULT 0,
+          isUpdated INTEGER DEFAULT 0
+        )
+      '''
+    );
+    await db.execute(
+      '''
+        CREATE TABLE storedResponses (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          idUsuarios TEXT NULL,
+          idSesion INTEGER NULL,
+          respuesta TEXT NULL,
+          comentarios TEXT NULL,
+          justificacion TEXT NULL,
+          horaResp TEXT NULL,
+          fechaResp TEXT NULL,
+          finalizarSesion INTEGER DEFAULT 0
+        )
+      '''
+    );
+    await db.execute(
+      '''
+        CREATE TABLE SeccionPreguntas (
+          codPregunta integer null,
+          tipoRespuesta text null,
+          noIdentifEncuesta text null,
+          pregunta text null,
+          subPregunta text null,
+          estado INTEGER NULL,
+          rango text null
+        )
+      '''
+    );
   }
 }

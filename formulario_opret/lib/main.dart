@@ -1,6 +1,7 @@
 // "mateapp" utilizado para importar de manera automatica el main()
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:formulario_opret/screens/forgotPassword_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/modifyTable_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/pregunta_screen_navBar.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/report_Formulario.dart';
@@ -12,6 +13,7 @@ import 'package:formulario_opret/screens/login_screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/registro_Empldo.dart';
 import 'package:formulario_opret/screens/new_User.dart';
 import 'package:formulario_opret/screens/presentation_screen.dart';
+import 'package:formulario_opret/screens/resertPassword_screen.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 
@@ -78,7 +80,6 @@ class MyApp extends StatelessWidget {
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // filtrarCedula: filtrarCedula,
         ),
 
         'login': (_) => const LoginScreen(),
@@ -87,35 +88,30 @@ class MyApp extends StatelessWidget {
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // filtrarCedula: filtrarCedula, 
         ),
 
         'newuser': (_) => NewUser(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // filtrarCedula: filtrarCedula,
         ),
 
         'registroEmpleados': (_) => RegistroEmpl(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
         ),
 
         'FormularioEncuesta': (_) => FormEncuestaScreen(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
         ),
         
         'pregunta': (_) => PreguntaEncuestaScreen(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
           noEncuestaFiltrar: noEncuestaFiltrar,
         ),
 
@@ -123,29 +119,37 @@ class MyApp extends StatelessWidget {
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
         ),
 
         'ModifyTable': (_) => ModifyTable(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
         ),
 
         'respuestaScreen': (_) => RepuestaResultadosScreen(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
         ),
 
         'reportForm': (_) => ReportFormulario(
           filtrarUsuarioController: filtrarUsuarioController,
           filtrarEmailController: filtrarEmailController,
           filtrarId: filtrarId,
-          // // filtrarCedula: filtrarCedula,
-        )
+        ),
+
+        'recuperacion': (_) => ForgotpasswordScreen(
+          filtrarUsuarioController: filtrarUsuarioController,
+          filtrarEmailController: filtrarEmailController,
+          filtrarId: filtrarId,
+        ),
+
+        'resetPassword': (_) => ResertpasswordScreen(
+          filtrarUsuarioController: filtrarUsuarioController,
+          filtrarEmailController: filtrarEmailController,
+          filtrarId: filtrarId,
+        ),
       },
 
       initialRoute: 'presentation',

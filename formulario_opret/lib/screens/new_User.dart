@@ -36,7 +36,7 @@ class _NewUserState extends State<NewUser> {
   // final UpperCaseTextEditingController _controller = UpperCaseTextEditingController();
   final TextEditingController datePicker = TextEditingController();
   DateTime? _selectedDate;
-  final ApiServiceUser _apiServiceUser = ApiServiceUser('http://wepapi.somee.com');
+  final ApiServiceUser _apiServiceUser = ApiServiceUser('https://10.0.2.2:7190');
   bool _obscureText = true;
   bool isLoading = false; // Variable de control para el cuadro de carga
   // bool hasError = true; // Variable de control para el cuadro de Error de carga
@@ -156,11 +156,17 @@ class _NewUserState extends State<NewUser> {
     });
   }
 
+  bool isTablet(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isTabletWidth = size.width > 600;
+    final isTabletHeight = size.height > 800;
+    return isTabletWidth && isTabletHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final isTabletWidth = size.width > 600; //En caso de ser una table
-    final isTabletHeight = size.height > 920;
+    final isTabletDevice = isTablet(context);
 
     return ScreenUtilInit(
       designSize: const Size(360, 740),
@@ -242,7 +248,7 @@ class _NewUserState extends State<NewUser> {
 
                         child: Padding(
                           // padding: const EdgeInsets.fromLTRB(80, 80, 80, 80),
-                          padding: isTabletWidth && isTabletHeight ? const EdgeInsets.symmetric(vertical:  80, horizontal: 45) : const EdgeInsets.symmetric(vertical: 40, horizontal: 35),
+                          padding: isTabletDevice ? const EdgeInsets.symmetric(vertical:  80, horizontal: 45) : const EdgeInsets.symmetric(vertical: 40, horizontal: 35),
 
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,7 +262,7 @@ class _NewUserState extends State<NewUser> {
                                     Text(
                                       'Ingrese sus Datos',
                                       style: TextStyle(
-                                        fontSize: isTabletWidth && isTabletHeight ? 20.sp : 17.sp,
+                                        fontSize: isTabletDevice ? 20.sp : 17.sp,
                                         fontWeight: FontWeight.bold,
                                         color: const Color.fromARGB(255, 0, 0, 0),
                                       ),
@@ -266,7 +272,7 @@ class _NewUserState extends State<NewUser> {
                               ),
                               const SizedBox(height: 50),
 
-                              (isTabletWidth && isTabletHeight)
+                              (isTabletDevice)
                                 ? Row( //para hacer que los TextFormField se olganicen en filas
                                     children: [
                                       Expanded( //Nombre
@@ -275,16 +281,16 @@ class _NewUserState extends State<NewUser> {
                                           keyboardType: TextInputType.name,
                                           decoration: InputDecorations.inputDecoration(
                                               hintext: 'Primer y Segundo Nom.',
-                                              hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                              hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
                                               labeltext: 'Nombre',
-                                              labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                              labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
                                               icono: Icon(
                                                 Icons.person_2_outlined,
-                                                size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                                size: isTabletDevice ? 15.sp : 20.sp,
                                               ),
                                               errorSize: 20
                                           ),
-                                          style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                          style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                                           validator: FormBuilderValidators.required(),
                                         ),
                                       ),
@@ -297,13 +303,13 @@ class _NewUserState extends State<NewUser> {
                                           keyboardType: TextInputType.name,
                                           decoration: InputDecorations.inputDecoration(
                                               hintext: 'Primer y Segundo Apell.',
-                                              hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                              hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
                                               labeltext: 'Apellido',
-                                              labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
-                                              icono: Icon(Icons.person_2_outlined, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
+                                              labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
+                                              icono: Icon(Icons.person_2_outlined, size: isTabletDevice ? 15.sp : 20.sp,),
                                               errorSize: 20
                                           ),
-                                          style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                          style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                                           validator: FormBuilderValidators.required(),
                                         ),
                                       )
@@ -316,16 +322,16 @@ class _NewUserState extends State<NewUser> {
                                           keyboardType: TextInputType.name,
                                           decoration: InputDecorations.inputDecoration(
                                             hintext: 'Primer y Segundo Nom.',
-                                            hintFrontSize: isTabletWidth && isTabletHeight ? 22.sp : 14.sp,
+                                            hintFrontSize: isTabletDevice ? 22.sp : 14.sp,
                                             labeltext: 'Nombre',
-                                            labelFrontSize: isTabletWidth && isTabletHeight ? 35.sp : 20.sp,
+                                            labelFrontSize: isTabletDevice ? 35.sp : 20.sp,
                                             icono: Icon(
                                               Icons.person_2_outlined,
-                                              size: isTabletWidth && isTabletHeight ? 30.sp : 20.sp,
+                                              size: isTabletDevice ? 30.sp : 20.sp,
                                             ),
                                             errorSize: 20
                                           ),
-                                          style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 30.sp : 20.sp),
+                                          style: TextStyle(fontSize: isTabletDevice ? 30.sp : 20.sp),
                                           validator: FormBuilderValidators.required(),
                                         ),
 
@@ -336,13 +342,13 @@ class _NewUserState extends State<NewUser> {
                                         keyboardType: TextInputType.name,
                                         decoration: InputDecorations.inputDecoration(
                                             hintext: 'Primer y Segundo Apell.',
-                                            hintFrontSize: isTabletWidth && isTabletHeight ? 22.sp : 14.sp,
+                                            hintFrontSize: isTabletDevice ? 22.sp : 14.sp,
                                             labeltext: 'Apellido',
-                                            labelFrontSize: isTabletWidth && isTabletHeight ? 35.sp : 20.sp,
-                                            icono: Icon(Icons.person_2_outlined, size: isTabletWidth && isTabletHeight ? 30.sp : 20.sp),
+                                            labelFrontSize: isTabletDevice ? 35.sp : 20.sp,
+                                            icono: Icon(Icons.person_2_outlined, size: isTabletDevice ? 30.sp : 20.sp),
                                             errorSize: 20
                                         ),
-                                        style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 30.sp : 20.sp),
+                                        style: TextStyle(fontSize: isTabletDevice ? 30.sp : 20.sp),
                                         validator: FormBuilderValidators.required(),
                                       )
                                     ],
@@ -355,13 +361,13 @@ class _NewUserState extends State<NewUser> {
                                 autocorrect: false,
                                 decoration: InputDecorations.inputDecoration(
                                   hintext: 'ejemplo20##@gmail.com',
-                                    hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                  hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
                                   labeltext: 'Correo Electronico',
-                                    labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
-                                  icono: Icon(Icons.alternate_email_rounded, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
+                                  labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
+                                  icono: Icon(Icons.alternate_email_rounded, size: isTabletDevice ? 15.sp : 20.sp,),
                                   errorSize: 20
                                 ),
-                                style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                                 validator: (value){
                                   // expresion regular
                                   String pattern = r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$';
@@ -378,13 +384,13 @@ class _NewUserState extends State<NewUser> {
                                 keyboardType: TextInputType.name,
                                 decoration: InputDecorations.inputDecoration(
                                   hintext: 'MetroSantDom123',
-                                    hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                    hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
                                   labeltext: 'Usuario',
-                                    labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
-                                  icono: Icon(Icons.person_pin_circle, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
+                                    labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
+                                  icono: Icon(Icons.person_pin_circle, size: isTabletDevice ? 15.sp : 20.sp,),
                                   errorSize: 20
                                 ),
-                                style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                                 validator: FormBuilderValidators.required(),
                               ),
 
@@ -395,21 +401,21 @@ class _NewUserState extends State<NewUser> {
                                 obscureText: _obscureText,
                                 decoration: InputDecorations.inputDecoration(
                                   hintext: '******',
-                                    hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                  hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
                                   labeltext: 'Contraseña',
-                                    labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                  labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
                                   // icono: const Icon(Icons.lock_person_rounded, size: 30.0),
-                                  icono: Icon(Icons.lock_person_outlined, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
+                                  icono: Icon(Icons.lock_person_outlined, size: isTabletDevice ? 15.sp : 20.sp,),
                                   suffIcon: IconButton(
                                     onPressed: _togglePasswordVisibility,
                                     icon: Icon(
                                       _obscureText ? Icons.visibility_off : Icons.visibility,
-                                      size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                      size: isTabletDevice ? 15.sp : 20.sp,
                                     )
                                   ),
                                   errorSize: 20
                                 ),
-                                style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                                 validator: (value) {
                                   if(value == null || value.isEmpty){
                                     return 'Por favor ingrese la nueva contraseña';
@@ -431,13 +437,13 @@ class _NewUserState extends State<NewUser> {
                                 readOnly: true, // Evita que el usuario escriba en el cuadro de texto
                                 decoration: InputDecorations.inputDecoration(
                                   hintext: 'Puedes presionar aqui para elegir la fecha',
-                                  hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
+                                  hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
                                   labeltext: 'Fecha',
-                                  labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
-                                  icono: Icon(Icons.calendar_month_outlined, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
+                                  labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
+                                  icono: Icon(Icons.calendar_month_outlined, size: isTabletDevice ? 15.sp : 20.sp,),
                                   errorSize: 20
                                 ),
-                                style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                                 validator: FormBuilderValidators.required(),
                                 onTap: () async {
                                   FocusScope.of(context).requestFocus(FocusNode()); // Cierra el teclado al hacer clic
@@ -450,10 +456,10 @@ class _NewUserState extends State<NewUser> {
                                 name: 'rol',
                                 decoration: InputDecorations.inputDecoration(
                                   labeltext: 'Tipo Usuario',
-                                    labelFrontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                    labelFrontSize: isTabletDevice ? 15.sp : 20.sp,
                                   hintext: 'Selecciona el tipo de usuario',
-                                    hintFrontSize: isTabletWidth && isTabletHeight ? 10.sp : 20.sp,
-                                  icono: Icon(Icons.people_outline_rounded, size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,),
+                                    hintFrontSize: isTabletDevice ? 10.sp : 20.sp,
+                                  icono: Icon(Icons.people_outline_rounded, size: isTabletDevice ? 15.sp : 20.sp,),
                                   errorSize: 20
                                 ),
                                 initialValue: 'Empleado',
@@ -465,7 +471,7 @@ class _NewUserState extends State<NewUser> {
                                       value: 'Administrador',
                                       child: Text('Administrador', style: TextStyle(color: Color.fromARGB(255, 1, 1, 1)))),
                                 ],
-                                style: TextStyle(fontSize: isTabletWidth && isTabletHeight ? 15.sp : 20.sp),
+                                style: TextStyle(fontSize: isTabletDevice ? 15.sp : 20.sp),
                               ),
 
                               const SizedBox(height: 50),
@@ -480,7 +486,7 @@ class _NewUserState extends State<NewUser> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color.fromRGBO(1, 135, 76, 1), //  se usa para definir el color de fondo del botón.
                                         foregroundColor: const Color.fromARGB(255, 255, 255, 255), // se usa para definir el color del texto y los iconos dentro del botón.
-                                        padding: isTabletWidth && isTabletHeight ?  EdgeInsets.symmetric(horizontal: 60.h, vertical: 10.w) : EdgeInsets.symmetric(horizontal: 37.h, vertical: 15.w),
+                                        padding: isTabletDevice ?  EdgeInsets.symmetric(horizontal: 60.h, vertical: 10.w) : EdgeInsets.symmetric(horizontal: 37.h, vertical: 15.w),
                                         shape: const RoundedRectangleBorder(
                                           borderRadius: BorderRadius.all(Radius.circular(100)),
                                         ),
@@ -489,7 +495,7 @@ class _NewUserState extends State<NewUser> {
                                       child: Text(
                                         'Registrar e ir al Login',
                                         style: TextStyle(
-                                            fontSize: isTabletWidth && isTabletHeight ? 15.sp : 15.sp,
+                                            fontSize: isTabletDevice ? 15.sp : 15.sp,
                                           fontWeight: FontWeight.bold
                                         )
                                       ),
@@ -512,7 +518,7 @@ class _NewUserState extends State<NewUser> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color.fromRGBO(1, 135, 76, 1), // Color de fondo del primer botón
                                         foregroundColor: const Color.fromARGB(255, 254, 255, 255), // Color del texto
-                                        padding: isTabletWidth && isTabletHeight ?  EdgeInsets.symmetric(horizontal: 80.h, vertical: 10.w) : EdgeInsets.symmetric(horizontal: 45.h, vertical: 15.w),
+                                        padding: isTabletDevice ?  EdgeInsets.symmetric(horizontal: 80.h, vertical: 10.w) : EdgeInsets.symmetric(horizontal: 45.h, vertical: 15.w),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(100)
                                         ),
@@ -522,13 +528,13 @@ class _NewUserState extends State<NewUser> {
                                         children: [
                                           Icon(
                                             Icons.arrow_back_ios_new_rounded,
-                                            size: isTabletWidth && isTabletHeight ? 15.sp : 20.sp,
+                                            size: isTabletDevice ? 15.sp : 20.sp,
                                           ),
                                           const SizedBox(width: 5), // Espacio entre el ícono y el texto
                                           Text(
                                             'Volver a inicio',
                                             style: TextStyle(
-                                                fontSize: isTabletWidth && isTabletHeight ? 15.sp : 17.sp,
+                                                fontSize: isTabletDevice ? 15.sp : 17.sp,
                                               fontWeight: FontWeight.bold
                                             ),
                                           ),
@@ -610,25 +616,88 @@ class _NewUserState extends State<NewUser> {
     // });
   }
 
-  void _showErrorDialog(BuildContext context, String message) {
+  // void _showErrorDialog(BuildContext context, String message) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text("Error", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
+  //         contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
+  //         content: Container(
+  //           margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
+  //           child: Text(message, style: const TextStyle(fontSize: 28))
+  //         ),
+  //         actions: [ 
+  //           TextButton( 
+  //             child: const Text("OK", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)), 
+  //             onPressed: () { 
+  //               Navigator.of(context).pop(); 
+  //             }, 
+  //           ), 
+  //         ],
+  //       );
+  //     }
+  //   );
+  // }
+
+  void _showErrorDialog (BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Error", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-          contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
-          content: Container(
-            margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
-            child: Text(message, style: const TextStyle(fontSize: 28))
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
           ),
-          actions: [ 
-            TextButton( 
-              child: const Text("OK", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)), 
-              onPressed: () { 
-                Navigator.of(context).pop(); 
-              }, 
-            ), 
-          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_sharp, color: Color.fromARGB(255, 181, 3, 3), size: 80.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Error!',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Ok', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    )
+                  ],
+                )
+              ]
+            )
+          )
         );
       }
     );

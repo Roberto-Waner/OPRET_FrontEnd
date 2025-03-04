@@ -1,10 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:formulario_opret/models/Stored%20Procedure/Exportados/sp_Respuestas_Export.dart';
 import 'package:formulario_opret/models/Stored%20Procedure/sp_Filtrar_Respuestas.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/graphic/graphic_Respuestas_Screen.dart';
 import 'package:formulario_opret/screens/interfaz_Admin/navbar/navbar.dart';
 import 'package:formulario_opret/services/respuestas_services.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 class RepuestaResultadosScreen extends StatefulWidget {
   final TextEditingController filtrarUsuarioController;
@@ -25,8 +29,9 @@ class RepuestaResultadosScreen extends StatefulWidget {
 }
 
 class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
-  final ApiServiceRespuesta _apiServiceRespuesta =  ApiServiceRespuesta('http://wepapi.somee.com');
+  final ApiServiceRespuesta _apiServiceRespuesta =  ApiServiceRespuesta('https://10.0.2.2:7190');
   late Future<List<SpFiltrarRespuestas>> _respuestaData;
+  List<SpRespuestasExport> report = [];
   final TextEditingController searchController = TextEditingController();
   List<SpFiltrarRespuestas> respuestasFiltrados = [];
   List<SpFiltrarRespuestas> todasLasRespuestas = [];
@@ -42,6 +47,7 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
 
   Future<void> _loadRespuestas() async {
     final respuestas = await _apiServiceRespuesta.getRespuestas();
+    // _exportReporte = _apiServiceRespuesta.getExportReporte();
     setState(() {
       _respuestaData = Future.value(respuestas); // Actualiza el Future con los datos cargados
       todasLasRespuestas = respuestas; 
@@ -62,14 +68,18 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
           return answer.sp_Usuarios?.toLowerCase().contains(queryLower) ?? false;
         case 'Nombre y Apellido':
           return answer.sp_NombreApellido?.toLowerCase().contains(queryLower) ?? false;
-        case 'Numero de Encuesta':
+        case 'Número de Encuesta':
           return answer.sp_NoEncuesta?.toLowerCase().contains(queryLower) ?? false;
-        case 'Numero de Seccion':
+        case 'Número de Seccion':
           return answer.sp_IdSesion?.toString().toLowerCase().contains(queryLower) ?? false;
-        case 'Numero de Pregunta':
+        case 'Número de Pregunta':
           return answer.sp_CodPreguntas?.toString().toLowerCase().contains(queryLower) ?? false;
-        case 'Numero de Sub-Pregunta':
+        case 'Número de Sub-Pregunta':
           return answer.sp_CodSupPreguntas?.toLowerCase().contains(queryLower) ?? false;
+        case 'Por Linea':
+          return answer.sp_NombreLinea?.toLowerCase().contains(queryLower) ?? false;
+        case 'Por Estación':
+          return answer.sp_NombrEstacion?.toLowerCase().contains(queryLower) ?? false;
         default:
           return false;
       }
@@ -93,6 +103,79 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
     final isTabletWidth = size.width > 600;
     final isTabletHeight = size.height > 800;
     return isTabletWidth && isTabletHeight;
+  }
+
+  /*
+  Future<void> openExcelReport() async {
+    String endpoint = 'api/Report/ExportReporte';
+    final Uri url = Uri.parse('https://10.0.2.2:7190/$endpoint');
+
+    if(!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )){
+      throw 'No se pudo abrir el archivo Excel $url';
+    }
+  }*/
+
+  Future<void> exportToCsv(BuildContext context) async {
+    try {
+      // Obtener los datos desde el backend
+      List<SpRespuestasExport> data = await _apiServiceRespuesta.getExportReporte();
+
+      // Verificar si hay datos
+      if (data.isEmpty) {
+        _showErrorDialog(context, 'No hay datos disponibles para exportar.');
+        return;
+      }
+
+      // Crear el contenido del archivo CSV
+      final StringBuffer csvContent = StringBuffer();
+
+      // Agregar encabezados
+      csvContent.writeln(
+        'ID Usuarios,Nombre y Apellido,Usuarios,Email,ID Formulario,Fecha Inicio Encuesta,Hora Inicio Encuesta,Nombre Línea,Nombre Estación,ID Sesión,Código Pregunta,Pregunta,Código Subpregunta,Subpregunta,No. Encuestas,Tipo Respuesta,Hora Respondida,Respuestas,Comentarios,Justificación'
+      );
+
+      // Agregar datos al CSV
+      for (var item in data) {
+        csvContent.writeln(
+          '${item.rp_IdUsuarios ?? ""},'
+          '${item.rp_NombreApellido ?? ""},'
+          '${item.rp_Usuarios ?? ""},'
+          '${item.rp_Email ?? ""},'
+          '${item.rp_IdFormulario ?? 0},'
+          '${item.rp_FechaInicioEncuesta ?? ""},'
+          '${item.rp_HoraInicioEncuesta ?? ""},'
+          '${item.rp_NombreLinea ?? ""},'
+          '${item.rp_NombreEstacion ?? ""},'
+          '${item.rp_IdSesion ?? 0},'
+          '${item.rp_CodPreg ?? 0},'
+          '${item.rp_Pregunta ?? ""},'
+          '${item.rp_CodSubPreg ?? ""},'
+          '${item.rp_SubPregunta ?? ""},'
+          '${item.rp_NoEncuestas ?? ""},'
+          '${item.rp_TipoResp ?? ""},'
+          '${item.rp_HoraRespondida ?? ""},'
+          '${item.rp_Respuestas ?? ""},'
+          '${item.rp_Comentarios ?? ""},'
+          '${item.rp_Justificacion ?? ""}'
+        );
+      }
+
+      // Guardar el archivo CSV
+      final directory = await getApplicationDocumentsDirectory();
+      final path = '${directory.path}/Reporte.csv';
+      File(path).writeAsStringSync(csvContent.toString());
+      // _showSuccessDialog(context, 'Archivo descargado correctamente.');
+
+      // Abrir el archivo
+      OpenFile.open(path);
+
+    } catch (e) {
+      print('Error al exportar CSV: $e');
+      _showErrorDialog(context, 'Error al exportar CSV.');
+    }
   }
 
   @override
@@ -145,10 +228,12 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
                         // 'Cedula de Identidad',
                         'Usuarios', 
                         'Nombre y Apellido', 
-                        'Numero de Encuesta',
-                        'Numero de Seccion',
-                        'Numero de Pregunta',
-                        'Numero de Sub-Pregunta'
+                        'Número de Encuesta',
+                        'Número de Seccion',
+                        'Número de Pregunta',
+                        'Número de Sub-Pregunta',
+                        'Por Linea',
+                        'Por Estación'
                       ].map((filter) => DropdownMenuItem(
                           value: filter,
                           child: Text(filter)
@@ -249,14 +334,17 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
                             DataColumn(label: Text('Nombre y Apellido', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('Usuarios', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('No. Encuesta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
-                            DataColumn(label: Text('Número de Sección', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
-                            DataColumn(label: Text('Número de Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('No. Sección', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('No. Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
-                            DataColumn(label: Text('Número de Sub-Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('No. Sub-Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('Sub-Pregunta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Hora Respondida', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('Respuesta', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('Comentarios', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                             DataColumn(label: Text('Justificacion', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Linea del Metro', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
+                            DataColumn(label: Text('Estación del Metro', style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))),
                           ], 
                           source: RespuestasDataSource(answerData, isTabletDevice),
                           rowsPerPage: isTabletDevice ? 7 : 5, //numeros de filas
@@ -282,12 +370,7 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GraphicRespScreen(data: respuestasFiltrados.isNotEmpty ? respuestasFiltrados : todasLasRespuestas),
-                            )
-                        );
+                        _showView(context, 'Ver los resultado de las respuesta en Gráficas');
                       },
                       style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white,
@@ -300,6 +383,25 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
                       ),
                       child: const Text('Ver gráfica')
                     )
+                  ),
+                  const SizedBox(width: 20),
+
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showDownload(context, "¿Deseas descargar los reportes de Respustas y Formularios en formato .csv?", report);
+                      },
+                      style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: const Color.fromARGB(255, 11, 209, 7),
+                        textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        )
+                      ),
+                      child: const Text('Exportar')
+                    )
                   )
                 ],
               ),
@@ -307,6 +409,297 @@ class _RepuestaResultadosScreenState extends State<RepuestaResultadosScreen> {
           ]
         )
       ),
+    );
+  }
+
+  void _showErrorDialog (BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_sharp, color: Color.fromARGB(255, 181, 3, 3), size: 80.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Error!',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Ok', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    )
+                  ],
+                )
+              ]
+            )
+          )
+        );
+      }
+    );
+  }
+
+  void _showDownload (BuildContext context, String message, List<SpRespuestasExport> data) {
+    final isTabletDevice = isTablet(context);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.downloading_sharp, color: Color.fromARGB(255, 3, 18, 190), size: 80.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Descargar Archivo',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    ),
+
+                    const SizedBox(height: 10.0, width: 10.0),
+
+                    ElevatedButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop();
+                        await exportToCsv(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Continuar', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 184, 135, 0)))
+                    ),
+                  ],
+                )
+              ]
+            )
+          )
+        );
+      }
+    );
+  }
+
+  void _showView (BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.pie_chart_sharp, color: Color.fromARGB(255, 190, 3, 137), size: 80.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Vista Gráfica',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Cancelar', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    ),
+
+                    const SizedBox(height: 10.0, width: 10.0),
+
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => GraphicRespScreen(data: respuestasFiltrados.isNotEmpty ? respuestasFiltrados : todasLasRespuestas),
+                          )
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Continuar', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 184, 135, 0)))
+                    ),
+                  ],
+                )
+              ]
+            )
+          )
+        );
+      }
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 60.0),
+                const SizedBox(height: 20),
+                const Text(
+                  '¡Éxito!',
+                  style: TextStyle(fontSize: 34.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        // exportToExcel(exportReporte);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Continuar', style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp, color: Colors.blue)),
+                    ),
+
+                  ],
+                )
+              ]
+            )
+          )
+        );
+      }
     );
   }
 }
@@ -323,20 +716,6 @@ class RespuestasDataSource extends DataTableSource {
     return DataRow.byIndex(
       index: index,
       cells: [
-        /*
-        DataCell(answer.sp_IdUsuarios != null ? Text(answer.sp_IdUsuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_NombreApellido != null ? Text(answer.sp_NombreApellido!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_Usuarios != null ? Text(answer.sp_Usuarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_NoEncuesta != null ? Text(answer.sp_NoEncuesta!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(Text(answer.sp_IdSesion.toString(), style: const TextStyle(fontSize: 20.0))),
-        DataCell(Text(answer.sp_CodPreguntas.toString(), style: const TextStyle(fontSize: 20.0))),
-        DataCell(answer.sp_Preguntas != null ? Text(answer.sp_Preguntas!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_CodSupPreguntas != null ? Text(answer.sp_CodSupPreguntas!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_SupPreguntas != null ? Text(answer.sp_SupPreguntas!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_Respuestas != null ? Text(answer.sp_Respuestas!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_Comentarios != null ? Text(answer.sp_Comentarios!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        DataCell(answer.sp_Justificacion != null ? Text(answer.sp_Justificacion!, style: const TextStyle(fontSize: 20.0)) : const Text('')),
-        */
         buildCell(answer.sp_IdUsuarios),
         buildCell(answer.sp_NombreApellido),
         buildCell(answer.sp_Usuarios),
@@ -346,9 +725,12 @@ class RespuestasDataSource extends DataTableSource {
         buildCell(answer.sp_Preguntas),
         buildCell(answer.sp_CodSupPreguntas),
         buildCell(answer.sp_SupPreguntas),
+        buildCell(answer.sp_HoraResp),
         buildCell(answer.sp_Respuestas),
         buildCell(answer.sp_Comentarios),
         buildCell(answer.sp_Justificacion),
+        buildCell(answer.sp_NombreLinea),
+        buildCell(answer.sp_NombrEstacion),
       ]
     );
   }

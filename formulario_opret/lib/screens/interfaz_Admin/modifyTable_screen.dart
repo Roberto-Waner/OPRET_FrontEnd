@@ -30,9 +30,9 @@ class ModifyTable extends StatefulWidget {
 
 class _ModifyTableState extends State<ModifyTable> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('http://wepapi.somee.com');
+  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('https://10.0.2.2:7190');
   late Future<List<Linea>> _lineaData;
-  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('http://wepapi.somee.com');
+  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('https://10.0.2.2:7190');
   late Future<List<Estacion>> _estacionData;
   String _selectedLinea = 'Linea Metro';
   String? _savedLinea;
@@ -666,7 +666,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   );
 
                   try{
-                    final response = await ApiServiceLineas('http://wepapi.somee.com').postLinea(newLinea);
+                    final response = await ApiServiceLineas('https://10.0.2.2:7190').postLinea(newLinea);
 
                     if(response.statusCode == 201) {
                       print('La linea fue creado con éxito');
@@ -761,7 +761,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   );
 
                   try{
-                    final response = await ApiServiceLineas('http://wepapi.somee.com').putLinea(lineaUpload.idLinea, upLoadLinea);
+                    final response = await ApiServiceLineas('https://10.0.2.2:7190').putLinea(lineaUpload.idLinea, upLoadLinea);
 
                     if(response.statusCode == 204) {
                       print('La linea fue modificada con éxito');
@@ -800,7 +800,7 @@ class _ModifyTableState extends State<ModifyTable> {
               child: Text('Eliminar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
-                  final response = await ApiServiceLineas('http://wepapi.somee.com').deleteLineas(lineaDelete.idLinea);
+                  final response = await ApiServiceLineas('https://10.0.2.2:7190').deleteLineas(lineaDelete.idLinea);
 
                   if (response.statusCode == 204) {
                     print('Linea eliminado con éxito');
@@ -811,7 +811,8 @@ class _ModifyTableState extends State<ModifyTable> {
                     _fetchData();
                   } else if (response.statusCode == 400) {
                     final responseBody = jsonDecode(response.body);
-                    _showErrorDialog(context, responseBody['message']);
+                    print(responseBody['message']);
+                    _showErrorDialog(context, 'Error al eliminar la Línea. Los datos de esta Línea son utilizados por lo cual no pueden ser eliminados.');
                   } else {
                     print('Error al eliminar la Linea: ${response.body}');
                     _showErrorDialog(context, 'Error al eliminar la Línea: ${response.body}');
@@ -894,7 +895,7 @@ class _ModifyTableState extends State<ModifyTable> {
                     final newIdEstacion = int.parse(dataStation['No']);
 
                     // Verificamos si la estación ya existe
-                    Estacion? existingStation = await ApiServiceEstacion('http://wepapi.somee.com').getOneEstacion(newIdEstacion);
+                    Estacion? existingStation = await ApiServiceEstacion('https://10.0.2.2:7190').getOneEstacion(newIdEstacion);
 
                     if (existingStation != null) {
 
@@ -934,7 +935,7 @@ class _ModifyTableState extends State<ModifyTable> {
                     print('Resultados de newStation: $newStation');
 
                     try{
-                      final response = await ApiServiceEstacion('http://wepapi.somee.com').postEstacion(newStation);
+                      final response = await ApiServiceEstacion('https://10.0.2.2:7190').postEstacion(newStation);
 
                       if(response.statusCode == 201) {
                         print('La estacion fue creado con éxito');
@@ -1050,7 +1051,7 @@ class _ModifyTableState extends State<ModifyTable> {
                   );
 
                   try{
-                    final response = await ApiServiceEstacion('http://wepapi.somee.com').putEstacion(estacionUpload.idEstacion, stationUpload);
+                    final response = await ApiServiceEstacion('https://10.0.2.2:7190').putEstacion(estacionUpload.idEstacion, stationUpload);
 
                     if(response.statusCode == 204) {
                       print('La Estación fue modificada con éxito');
@@ -1089,7 +1090,7 @@ class _ModifyTableState extends State<ModifyTable> {
               child: Text('Eliminar', style: TextStyle(fontSize: isTabletDevice ? 15.sp : 15.sp, fontWeight: FontWeight.bold)),
               onPressed: () async {
                 try{
-                  final response = await ApiServiceEstacion('http://wepapi.somee.com').deleteEstacion(estacionDelete.idEstacion);
+                  final response = await ApiServiceEstacion('https://10.0.2.2:7190').deleteEstacion(estacionDelete.idEstacion);
 
                   if (response.statusCode == 204) {
                     print('Estación eliminado con éxito');
@@ -1100,7 +1101,7 @@ class _ModifyTableState extends State<ModifyTable> {
                     _fetchData();
                   } else {
                     print('Error al eliminar la Estacion: ${response.body}');
-                    _showErrorDialog(context, 'Error al eliminar la Estación');
+                    _showErrorDialog(context, 'Error al eliminar la Estación. Los datos de esta estación son utilizados por lo cual no pueden ser eliminados.');
                   }
                 } catch (e) {
                   print('Excepción al eliminar la Estacion: $e');
@@ -1123,30 +1124,93 @@ class _ModifyTableState extends State<ModifyTable> {
           );
   }
 
-  void _showErrorDialog(BuildContext context, String message) {
+  void _showErrorDialog (BuildContext context, String message) {
     final isTabletDevice = isTablet(context);
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Error", style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold)),
-          contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
-          content: Container(
-            margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
-            child: Text(message, style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
           ),
-          actions: [ 
-            TextButton( 
-              child: Text("OK", style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold, color: Colors.blue)), 
-              onPressed: () { 
-                Navigator.of(context).pop(); 
-              }, 
-            ), 
-          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_sharp, color: Color.fromARGB(255, 181, 3, 3), size: 80.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Error!',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Ok', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    )
+                  ],
+                )
+              ]
+            )
+          )
         );
       }
     );
   }
+
+  // void _showErrorDialog(BuildContext context, String message) {
+  //   final isTabletDevice = isTablet(context);
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text("Error", style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold)),
+  //         contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
+  //         content: Container(
+  //           margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
+  //           child: Text(message, style: TextStyle(fontSize: isTabletDevice ? 12.sp : 12.sp))
+  //         ),
+  //         actions: [ 
+  //           TextButton( 
+  //             child: Text("OK", style: TextStyle(fontSize: isTabletDevice ? 15.sp : 18.2.sp, fontWeight: FontWeight.bold, color: Colors.blue)), 
+  //             onPressed: () { 
+  //               Navigator.of(context).pop(); 
+  //             }, 
+  //           ), 
+  //         ],
+  //       );
+  //     }
+  //   );
+  // }
 
   // cuadro de acceso exito
   void _showSuccessDialog(BuildContext context, String message) {

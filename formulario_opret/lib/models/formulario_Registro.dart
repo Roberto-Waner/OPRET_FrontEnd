@@ -1,18 +1,14 @@
-// import 'package:flutter/material.dart';
-
 class FormularioRegistro {
-  // String noEncuesta;
+  // int? idForm;
   String? idUsuarios;
-  // String cedula;
   String? fecha;
   String? hora;
   int? idEstacion;
   String? idLinea;
 
   FormularioRegistro({
-    // required this.noEncuesta,
+    // this.idForm,
     this.idUsuarios,
-    // required this.cedula,
     this.fecha,
     this.hora,
     this.idEstacion,
@@ -21,9 +17,8 @@ class FormularioRegistro {
 
   factory FormularioRegistro.fromJson(Map<String, dynamic> json) {
     return FormularioRegistro(
-      // noEncuesta: json['noEncuesta'],
+      // idForm: json['identifacadorForm'],
       idUsuarios: json['idUsuarios'],
-      // cedula: json['cedula'],
       fecha: json['fecha'],
       hora: json['hora'],
       idEstacion: json['idEstacion'],
@@ -33,10 +28,7 @@ class FormularioRegistro {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    // data['noEncuesta'] = noEncuesta;
-    // data['idUsuarios'] = idUsuarios;
     if (idUsuarios != null) {data['idUsuarios'] = idUsuarios;}
-    // data['cedula'] = cedula;
     data['fecha'] = fecha;
     data['hora'] = hora;
     data['idEstacion'] = idEstacion;

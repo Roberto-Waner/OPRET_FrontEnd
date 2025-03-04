@@ -13,33 +13,20 @@ class RespuestaCrud {
     Batch batch = db.batch();
     for (var respuesta in respuestas) {
       batch.insert(
-        'localRespuestas', 
+        'localRespuestas',
         respuesta.toJson(),
-        conflictAlgorithm: ConflictAlgorithm.replace,
+        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     }
 
-    await batch.commit(noResult: true); 
+    await batch.commit(noResult: true);
     print('Respuestas guardadas en la base de datos local SQLite con éxito');
-  }
-
-  Future<void> actualizarCrud(int id, SpInsertarRespuestas answer) async {
-    final db = await _databaseHelper.database;
-
-    await db.update(
-      'localRespuestas',
-      answer.toJson(),
-      where: 'idSesion = ?',
-      whereArgs: [id],
-    );
-    print('Campo finalizarSesion actualizado a 1 para idUsuarios: $id');
   }
 
   Future<List<SpInsertarRespuestas>> getAnswerCrud() async {
     final db = await _databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
+    final maps = await db.query(
       'localRespuestas',
-      // where: 'isUpdated = 0'
     );
     return List.generate(maps.length, (i) {
       return SpInsertarRespuestas.fromJson(maps[i]);
@@ -53,187 +40,70 @@ class RespuestaCrud {
     print('Todos los registros eliminados de la tabla localRespuestas');
   }
 
-  Future<void> deleteAnswerCrud(int id) async {
-    final db = await _databaseHelper.database;
-    await db.delete(
-        'RespuestasLocal',
+  // Cargar una respuesta específica desde la caché local
+  Future<SpInsertarRespuestas?> getRespuestaById(int id) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      final List<Map<String, dynamic>> result = await db.query(
+        'localRespuestas',
         where: 'idSesion = ?',
-        whereArgs: [id]
+        whereArgs: [id],
+      );
+
+      print('🔍 Resultado de la consulta getRespuestaById para id=$id: $result');
+
+      if (result.isNotEmpty) {
+        return SpInsertarRespuestas.fromJson(result.first);
+      }
+      return null;
+    } catch (e) {
+      print('Error al cargar la respuesta: $e');
+      return null;
+    }
+  }
+
+  // Actualizar una respuesta específica en la caché local
+  Future<int> updateRespuesta(SpInsertarRespuestas respuesta) async {
+    try {
+      final db = await DatabaseHelper.instance.database;
+      int count = await db.update(
+        'localRespuestas',
+        respuesta.toJson(),
+        where: 'idSesion = ?',
+        whereArgs: [respuesta.idSesion],
+      );
+      print('Respuesta actualizada en la caché local para id: ${respuesta.idSesion}');
+      print('dato actualizado: $db');
+
+      return count;
+    } catch (e) {
+      print('Error al actualizar la respuesta: $e');
+      return 0;
+    }
+  }
+
+  Future<int> permissionToEdict() async {
+    final db = await _databaseHelper.database;
+
+    // Actualizar todos los registros de la tabla localRespuestas a isUpdated = 1 haste que 'finalizarSesion = 1'
+    int updateRows = await db.update(
+        'localRespuestas',
+        {'isUpdated': 1},
+        // where: 'finalizarSesion = 1'
     );
-    print("Respuesta borrada y agregada nuevamente por parte del usuario con ID: $id");
+
+    return updateRows;
+  }
+
+  Future<int> resetPermissionToEdict() async {
+    final db = await _databaseHelper.database;
+
+    int resetRows = await db.update(
+        'localRespuestas',
+        {'isUpdated': 0},
+        where: 'finalizarSesion = 0'
+    );
+
+    return resetRows;
   }
 }
-
-  /*
-  Future<int> insertAnswersCrud(Respuesta answer) async {
-    final db = await _databaseHelper.database;
-    return await db.insert(
-      'RespuestasLocal', 
-      answer.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-  }
-
-  Future<List<Respuesta>> queryAnswersCrud() async {
-    final db = await _databaseHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'RespuestasLocal'
-    ).timeout(const Duration(seconds: 5));
-    return List.generate(maps.length, (i) {
-      return Respuesta.fromJson(maps[i]);
-    });
-  }
-
-  Future<int> deleteAnswersCrud(String id) async {
-    final db = await _databaseHelper.database;
-    return await db.delete(
-      'RespuestasLocal',
-      where: 'noEncuesta = ?',
-      whereArgs: [id]
-    );
-  }
-
-  Future<void> clearSyncFlags(String id) async {
-    final db = await _databaseHelper.database;
-    await db.update(
-      'RespuestasLocal', 
-      {'isUpdated': 0, 'isDeleted': 0},
-      where: 'noEncuesta = ?',
-      whereArgs: [id]
-    );
-    print("Marcas de sincronización limpiadas para el usuario con ID: $id");
-  }
-  */
-
-  // Marcar respuesta como sincronizada
-  /*
-  Future<int> marcarRespuestaSincronizada(String noEncuesta) async {
-    final db = await _databaseHelper.database;
-    return await db.update(
-      'RespuestasLocal',
-      {'isUpdated': 1},
-      where: 'noEncuesta = ?',
-      whereArgs: [noEncuesta],
-    );
-  }
-  */
-
-  // Future<void> insertarRespuesta(SpInsertarRespuestas respuesta) async {
-  //   final db = await DatabaseHelper.instance.database;
-
-  //   // Verificar si finalizarSesion es true para incrementar el id
-  //   if(respuesta.finalizarSesion!) {
-  //     // Obtener el último ID utilizado y sumarle 1
-  //     List<Map<String, dynamic>> result = await db.rawQuery('SELECT IFNULL(MAX(id), 0) + 1 AS id FROM localRespuestas');
-  //     int id = result.first['id'];
-
-  //     // Insertar la nueva respuesta con el nuevo ID
-  //     await db.insert(
-  //       'localRespuestas',
-  //       respuesta.toJson()..['id'] = id,
-  //       conflictAlgorithm: ConflictAlgorithm.replace,
-  //     );
-
-  //     print('Sesión finalizada. Respuesta con ID $id insertada.');
-  //   } else {
-  //     // Mantener el mismo id para respuestas de la misma sesión
-  //     List<Map<String, dynamic>> result = await db.rawQuery('SELECT IFNULL(MAX(id), 1) AS id FROM localRespuestas');
-  //     int id = result.first['id'];
-
-  //     // Insertar la nueva respuesta con el nuevo ID
-  //     await db.insert(
-  //       'localRespuestas',
-  //       respuesta.toJson()..['id'] = id,
-  //       conflictAlgorithm: ConflictAlgorithm.replace,
-  //     );
-
-  //     print('Respuesta añadida a la sesión con ID $id.');
-  //   }
-  // }
-
-  // Obtener respuestas pendientes de sincronización
-  // Future<List<SpInsertarRespuestas>> obtenerRespuestasPendientes() async {
-  //   final db = await _databaseHelper.database;
-  //   final List<Map<String, dynamic>> maps = await db.query(
-  //     'RespuestasLocal',
-  //     where: 'isUpdated = 0',
-  //   );
-  //   return maps.map((map) => SpInsertarRespuestas.fromJson(map)).toList();
-  // }
-
-  // Eliminar respuestas que ya fueron sincronizadas
-  // Future<int> eliminarRespuesta(String noEncuesta) async {
-  //   final db = await _databaseHelper.database;
-  //   return await db.delete(
-  //     'RespuestasLocal',
-  //     where: 'noEncuesta = ?',
-  //     whereArgs: [noEncuesta],
-  //   );
-  // }
-
-// Future<int> marcarRespuestaSincronizada(String noEncuesta) async {
-//   final db = await _databaseHelper.database;
-//   return await db.update(
-//     'RespuestasLocal',
-//     {'isUpdated': 1, 'isDeleted': 0},
-//     where: 'noEncuesta = ?',
-//     whereArgs: [noEncuesta],
-//   );
-// }// Insertar respuesta localmente
-//   /*
-//   Future<int> insertRespuesta(SpInsertarRespuestas respuesta) async {
-//     final db = await _databaseHelper.database;
-//     return await db.insert(
-//       'localRespuestas',
-//       respuesta.toJson(),
-//       conflictAlgorithm: ConflictAlgorithm.replace,
-//     );
-//   }*/
-
-// Marcar respuesta como sincronizada
-/*
-  Future<void> marcarRespuestaSincronizada(int id) async {
-    final db = await _databaseHelper.database;
-    await db.update(
-      'localRespuestas',
-      {'isUpdated': 0},
-      where: 'idSesion = ?',
-      whereArgs: [id]
-    );
-  }*/
-
-// Método para actualizar el campo finalizarSesion de múltiples respuestas usando el modelo
-/*
-  Future<void> actualizarCrud(List<SpInsertarRespuestas> respuetas, String id) async {
-    final db = await _databaseHelper.database;
-
-    // Usamos un batch para realizar múltiples actualizaciones en una sola transacción
-    Batch batch = db.batch();
-    for (var answer in respuetas) {
-      batch.update(
-        'localRespuestas',
-        answer.toJson(),
-        where: 'idUsuarios = ?',
-        whereArgs: [id]
-      );
-    }
-
-    await batch.commit(noResult: true);
-    print('Campo finalizarSesion actualizado en la base de datos local SQLite con éxito');
-  }*/
-
-/*
-  Future<void> actualizarCrud(List<SpInsertarRespuestas> respuestas, String id) async {
-    final db = await _databaseHelper.database;
-
-    // Usamos un batch para realizar múltiples actualizaciones en una sola transacción
-    Batch batch = db.batch();
-    for (var respuesta in respuestas) {
-      batch.update(
-          'localRespuestas',
-          {'finalizarSesion': respuesta.finalizarSesion}, // Solo actualizamos el campo finalizarSesion
-          where: 'idUsuarios = ?',
-          whereArgs: [id], // Usamos idUsuarios e idSesion para identificar la fila a actualizar
-      );
-    }
-  }*/

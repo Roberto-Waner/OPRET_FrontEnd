@@ -44,7 +44,7 @@ dependencies:
   font_awesome_flutter: ^10.7.0
   flutter_speed_dial: ^7.0.0
   sqflite: ^2.4.0
-  path_provider: ^2.1.4
+  path_provider: ^2.1.5
   path: ^1.9.0
   connectivity_plus: ^6.1.0
   expandable: ^5.0.1
@@ -53,6 +53,8 @@ dependencies:
   flutter_switch: ^0.3.2
   flutter_screenutil: ^5.9.3
   table_calendar: ^3.1.3
+  open_file: ^3.5.10
+  # flutter_keyboard_visibility: ^6.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

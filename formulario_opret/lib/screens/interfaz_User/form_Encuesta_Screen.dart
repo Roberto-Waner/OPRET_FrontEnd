@@ -31,13 +31,13 @@ class FormEncuestaScreen extends StatefulWidget {
 
 class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
-  final ApiServiceFormRegistro _apiServiceFormRegistro = ApiServiceFormRegistro('http://wepapi.somee.com');
-  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('http://wepapi.somee.com');
-  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('http://wepapi.somee.com');
+  final ApiServiceFormRegistro _apiServiceFormRegistro = ApiServiceFormRegistro('https://10.0.2.2:7190');
+  final ApiServiceLineas _apiServiceLineas = ApiServiceLineas('https://10.0.2.2:7190');
+  final ApiServiceEstacion _apiServiceEstacion = ApiServiceEstacion('https://10.0.2.2:7190');
   final TextEditingController noEncuestaFiltrar = TextEditingController();
   String? _selectLineMetro; // Línea seleccionada
   int? _selectedStation; // Estación seleccionada
-  String year = DateFormat('yyyy').format(DateTime.now()); // Obtener el año actual en el momento del registro
+  // String year = DateFormat('yyyy').format(DateTime.now()); // Obtener el año actual en el momento del registro
 
   List<Linea> _lineas = [];
   List<EstacionPorLinea> _estaciones = [];
@@ -98,7 +98,6 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
 
       FormularioRegistro formEncuesta = FormularioRegistro(
         idUsuarios: data['idUsuarios'],
-        // cedula: data['cedula'],
         fecha: currentDate,
         hora: currentTime,
         idEstacion: _selectedStation,
@@ -459,25 +458,64 @@ class _FormEncuestaScreenState extends State<FormEncuestaScreen> {
     });
   }
 
-  void _showErrorDialog(BuildContext context, String message) {
+  void _showErrorDialog (BuildContext context, String message) {
+    final isTabletDevice = isTablet(context);
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Error", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-          contentPadding: EdgeInsets.zero,  // Elimina el padding por defecto
-          content: Container(
-            margin: const EdgeInsets.fromLTRB(70, 20, 70, 50),  // Aplica margen
-            child: Text(message, style: const TextStyle(fontSize: 28))
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)
           ),
-          actions: [ 
-            TextButton( 
-              child: const Text("OK", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.blue)), 
-              onPressed: () { 
-                Navigator.of(context).pop(); 
-              }, 
-            ), 
-          ],
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 3)
+                )
+              ]
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline_sharp, color: Color.fromARGB(255, 181, 3, 3), size: 80.0),
+                const SizedBox(height: 20),
+                const Text(
+                  'Error!',
+                  style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8.0),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: isTabletDevice ? 13.sp : 13.sp),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24.0),
+                Flex(
+                  direction: isTabletDevice ? Axis.horizontal : Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {Navigator.of(context).pop();},
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 45, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                      ),
+                      child: Text('Ok', style: TextStyle(fontSize: isTabletDevice ? 10.sp : 10.sp, color: const Color.fromARGB(255, 243, 33, 33))),
+                    )
+                  ],
+                )
+              ]
+            )
+          )
         );
       }
     );
